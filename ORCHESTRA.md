@@ -161,7 +161,29 @@ Operator opens `Vessel Schedule` → sees fleet voyages on a Gantt → clicks a 
 
 ---
 
-## 10. Open Items / Pending Locks
+## 10. Product Roadmap
+
+### V1 — MLP (locked, see Section 9)
+`Vessel · Port · Counterparty · CharterParty · Voyage · Port Call · Forms · Tasks · Alerts · Vessel Schedule`. Thin everywhere. Shore-side only.
+
+### V2 — Operator depth (unlock DEFERs)
+`Onboard` (lightweight vessel submission) · `Fleet Map` · `Port Schedule` · `Berth Schedule` · `Cargo Handling` (thin: BL refs, loaded/discharged qty) · `Tank Conditions` (tanker fleets) · `Voyage Bunkers` planning · `Port DA` full lifecycle · `Pre-arr/Pre-dep checklists` enriched.
+
+### V3 — Adjacent operator concerns
+`HSEQ events register` (near-miss, incident, NCR) · `Crew change coordination` (port-level handoff with crewing dept) · `Drydock / off-hire planning` · `Charterer/Owner auto-reporting distribution` · `CP warranty monitoring` (speed + consumption vs CP) · `Statement of Facts` auto-generation from Port Activities.
+
+### V4 — Commercial bridge (shipmanagement-side prep only, not a chartering desk)
+`Off-hire calculation + reporting` · `Laytime statement support` · `Port Expense rebill prep` (export to commercial/accounting) · `Demurrage time-bar tracker`.
+
+### V5 — Platform / integrations
+`AIS feed` (auto-position) · `Weather routing API` · `Email/agent-report parser` · Inbound bridges to `Veson IMOS / DanaOS / ShipNet` · Open API for owner portals.
+
+### Never (out-of-roadmap)
+Full chartering desk (TCE, Deviation, fixture mgmt) · `Claims` (separate dept) · Accounting GL · Procurement / PMS (separate products).
+
+---
+
+## 11. Open Items / Pending Locks
 
 - [ ] Stack (Prompt B lock)
 - [ ] Auth model (single-tenant vs multi-vessel-pool tenancy)
@@ -174,3 +196,4 @@ Operator opens `Vessel Schedule` → sees fleet voyages on a Gantt → clicks a 
 
 - 2026-05-26 — Orchestra created. Locked: three hats, modular monolith, OSS-as-inventory, dependency-first with thin-foundations refinement, push-per-gate to psychic-fortnight.
 - 2026-05-26 — Scope locked for Release 1 MLP. Product named *Vessel & Voyage Operations Control System*. IMOS adopted as reference inventory with shipmanagement-Ops cuts and gap-adds. Four Release-1 surfaces + entity build order + thin-foundation field sets + IN/DEFER/OUT tables recorded.
+- 2026-05-26 — Product roadmap V1–V5 + never-list locked.
