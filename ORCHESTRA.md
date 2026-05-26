@@ -125,13 +125,27 @@ Vessel · Port · Counterparty      (L0 master data)
 
 Each level built only thick enough to feed the level above. No depth without a higher-level demand.
 
+### Voyage creation
+
+V1: **manual entry only.** No import, no chartering module, no external feed. Operator owns the data from day one.
+
 ### Thin-foundation field sets (the only fields in the first cut)
 
 - **Vessel**: name, IMO, type, owner ref, technical manager ref, ops manager (user).
 - **Port**: name, UNLOCODE, country, timezone.
 - **Counterparty**: name, role (Owner / Charterer / Agent / Supplier), primary contact.
-- **CharterParty**: CP date, charterer ref, type (CVC/TC/VC), basic terms.
-- **Voyage**: voyage no., vessel ref, charterer ref, CP ref, status (Planned/Active/Closed), itinerary (ordered Port refs + ETAs), start date, expected end date, voyage instructions (text or file ref).
+- **VoyageOperatingTerms** *(reference field on Voyage, not a separate entity)*: charterer name, CP type (CVC/TC/VC), CP date. No CP logic owned.
+- **Voyage**: voyage no., vessel ref, charterer ref, VoyageOperatingTerms, status (Planned/Active/Closed), itinerary (ordered Port refs + ETAs), start date, expected end date, voyage instructions (text or file ref).
+- **PortCall**: voyage ref, port ref, ETA, ETD, status, agent appointment ref.
+- **AgentAppointment**: port call ref, agent (Counterparty ref), appointed date, confirmation status.
+- **PortActivity / OperationalEvent**: port call ref, event type, timestamp, recorded by (User ref).
+- **OperationalReport**: voyage ref or port call ref, report type, submitted by, submitted at, status (Pending/Accepted/Rejected), raw content ref.
+- **BunkerRequest**: voyage ref, fuel type, quantity required, status (Raised/In Progress/Supplied/Blocked), raised by (User ref).
+- **Delay**: voyage ref, leg ref, delay type, start, end, description.
+- **Task**: linked entity (Voyage/PortCall/Vessel), assigned to (User ref), due date, status (Open/Done).
+- **Alert**: linked entity, type, triggered at, resolved at, resolved by (User ref).
+- **AuditEvent**: entity type, entity id, action, actor (User ref), timestamp, diff snapshot.
+- **User**: name, email, role, assigned vessels.
 
 ### IN-MLP (Release 1)
 
@@ -197,3 +211,4 @@ Full chartering desk (TCE, Deviation, fixture mgmt) · `Claims` (separate dept) 
 - 2026-05-26 — Orchestra created. Locked: three hats, modular monolith, OSS-as-inventory, dependency-first with thin-foundations refinement, push-per-gate to psychic-fortnight.
 - 2026-05-26 — Scope locked for Release 1 MLP. Product named *Vessel & Voyage Operations Control System*. IMOS adopted as reference inventory with shipmanagement-Ops cuts and gap-adds. Four Release-1 surfaces + entity build order + thin-foundation field sets + IN/DEFER/OUT tables recorded.
 - 2026-05-26 — Product roadmap V1–V5 + never-list locked.
+- 2026-05-26 — V1 data model completed: full entity list named, CharterParty demoted to VoyageOperatingTerms reference field, voyage creation locked as manual.
