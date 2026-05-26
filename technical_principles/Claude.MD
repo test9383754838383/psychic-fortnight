@@ -1,6 +1,6 @@
 # CLAUDE.md
 
-This file defines non-negotiable build rules for the Professional Brain on Cognita. It is the primary behavioral contract for any AI assistant working on this repo.
+This file defines non-negotiable build rules for the **Vessel & Voyage Operations Control System** — a production-grade, enterprise-ready MLP for the Operations Department of a ship management company. It is the primary behavioral contract for any AI assistant working on this repo.
 
 ---
 
@@ -232,21 +232,7 @@ If a requirement is not stated in these files, it is not a requirement.
 
 ---
 
-# 9. Professional Domains (Flexibility)
-
-This system must make it easy to add a new profession by following the same pattern. When adding a domain, follow the canonical path:
-
-1. Prompts: `prompts/<profession>/base.yaml` (and templates as needed).
-2. Query controller: `backend/modules/query_controllers/<profession>_controller.py`.
-3. Tests: `backend/tests/golden/<profession>.yaml` plus controller tests.
-4. Routing: register any new endpoints in the FastAPI app.
-5. Documentation: update `README.md` to list the new profession.
-
-Keep domain logic isolated. Do not add cross-domain coupling unless explicitly required.
-
----
-
-# 10. Global Stopping Conditions
+# 9. Global Stopping Conditions
 
 Before any coding proceeds, the coder must have and follow these files:
 
