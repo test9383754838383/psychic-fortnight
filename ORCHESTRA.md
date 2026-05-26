@@ -131,9 +131,9 @@ V1: **manual entry only.** No import, no chartering module, no external feed. Op
 
 ### Thin-foundation field sets (the only fields in the first cut)
 
-- **Vessel**: name, IMO, type, owner ref, technical manager ref, ops manager (user).
-- **Port**: name, UNLOCODE, country, timezone.
-- **Counterparty**: name, role (Owner / Charterer / Agent / Supplier), primary contact.
+- **Vessel**: code, name, IMO, type, owner ref, technical manager ref *(optional — only if used by alerts/contacts)*, ops manager (user ref), status (Active/Inactive), active-for-reporting flag *(can merge with status)*.
+- **Port**: name, UNLOCODE, country *(derived/validated from UNLOCODE — not free text)*, timezone, latitude, longitude, distance-table reference, status (Active/Inactive).
+- **Counterparty**: code/short name, name, status (Active/Inactive), contacts[]. Roles via **CounterpartyRole** join (multi-role, not single field): Owner / Charterer / Agent / Supplier / TechnicalManager. Agent role adds: ports-serviced[], nomination contact email. Do NOT split into separate entities.
 - **VoyageOperatingTerms** *(reference field on Voyage, not a separate entity)*: charterer name, CP type (CVC/TC/VC), CP date. No CP logic owned.
 - **Voyage**: voyage no., vessel ref, charterer ref, VoyageOperatingTerms, status (Planned/Active/Closed), itinerary (ordered Port refs + ETAs), start date, expected end date, voyage instructions (text or file ref).
 - **PortCall**: voyage ref, port ref, ETA, ETD, status, agent appointment ref.
@@ -212,3 +212,4 @@ Full chartering desk (TCE, Deviation, fixture mgmt) · `Claims` (separate dept) 
 - 2026-05-26 — Scope locked for Release 1 MLP. Product named *Vessel & Voyage Operations Control System*. IMOS adopted as reference inventory with shipmanagement-Ops cuts and gap-adds. Four Release-1 surfaces + entity build order + thin-foundation field sets + IN/DEFER/OUT tables recorded.
 - 2026-05-26 — Product roadmap V1–V5 + never-list locked.
 - 2026-05-26 — V1 data model completed: full entity list named, CharterParty demoted to VoyageOperatingTerms reference field, voyage creation locked as manual.
+- 2026-05-26 — Block 2 (Master Data) verified against Veson IMOS docs, BIMCO/FONASBA, IMO, UN/LOCODE. APPROVED WITH CHANGES: Vessel adds code/status/active-for-reporting; Port adds lat/lon/distance-ref/status, country derived from UNLOCODE; Counterparty restructured to multi-role via CounterpartyRole join table.
