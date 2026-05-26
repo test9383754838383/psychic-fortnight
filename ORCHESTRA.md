@@ -107,7 +107,7 @@ After build + green tests, produce `post_release_compliance_report.md` covering 
 
 ### Release 1 surfaces (product framing)
 
-1. **`Vessel Schedule`** — home screen. Fleet Gantt of active/upcoming voyages and what needs operator attention.
+1. **`Vessel Schedule`** — home screen. Fleet Gantt of active/upcoming voyages. **Verified scope:** rows = active managed vessels; bars = voyages placed by commencing → expected_completing datetimes; bar text = voyage no./ref, status colour, current/next port code, ETA/ETD if commenced; tooltip = charterer, full port sequence, vessel, voyage status, last position; filters = date range, vessel(s), voyage status, voyage/reference search; click bar → Voyage Workspace; one tiny exception dot (open alert or overdue task — dormant until Block 10). Read-only Gantt (no drag-to-reschedule); timing edits in Voyage Workspace.
 2. **`Voyage Workspace`** — operational control room for a single voyage: itinerary, instructions, contacts, notes, operational events, delays. Commercial/financial sections stripped.
 3. **`Forms + Tasks + Alerts` cluster** — trusted-reporting & action loop: vessel/agent reports received → checked → accepted; operator action queue; exceptions surface.
 4. **`Port Call Detail`** — arrival/departure execution, agent status, readiness, port events.
@@ -216,3 +216,4 @@ Full chartering desk (TCE, Deviation, fixture mgmt) · `Claims` (separate dept) 
 - 2026-05-26 — Block 2 (Master Data) verified against Veson IMOS docs, BIMCO/FONASBA, IMO, UN/LOCODE. APPROVED WITH CHANGES: Vessel adds code/status/active-for-reporting; Port adds lat/lon/distance-ref/status, country derived from UNLOCODE; Counterparty restructured to multi-role via CounterpartyRole join table.
 - 2026-05-26 — Block 3 (Voyage) verified against Veson IMOS, SMDG, Dataloy, DNV OVD. APPROVED WITH CHANGES: status enum expanded to Scheduled/Commenced/Completed/Closed/Cancelled; itinerary modeled as ordered ItineraryLine with port_function + planned ETA/ETD; commencing/completing datetime; cp_document_ref + previous_voyage_ref added; rejected scope-creep items (operational_terms_summary, opening_bunker_snapshot, voyage_template).
 - 2026-05-26 — Block 2 tweak: `flag` added to Vessel field set (per supplementary Veson IMOS verification pass).
+- 2026-05-26 — Block 4 (Vessel Schedule) verified against Dataloy Fleet Allocation & Scheduling / Scheduler Board docs. APPROVED WITH CHANGES: charterer moved from bar text to tooltip; ops-manager filter dropped; voyage/reference search added; exception cue reduced to single dot (dormant until Block 10 lands); read-only Gantt confirmed.
