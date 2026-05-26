@@ -7,7 +7,7 @@ Authoritative for *how we work*. For *what we build* see `outputs/` and `technic
 
 ## 0. Identity & Mission
 
-Building from scratch a **production-grade, enterprise-ready ERP for the Operations department of a ship management company.**
+Product name: **Vessel & Voyage Operations Control System** — a production-grade, enterprise-ready ERP for the Operations department of a ship management company.
 
 Bar: **MLP (Minimum Lovable Product)** — not MVP, not full product. All *important* features in. No *possible-but-not-important* features.
 
@@ -101,18 +101,76 @@ After build + green tests, produce `post_release_compliance_report.md` covering 
 
 ---
 
-## 9. Open Items / Pending Locks
+## 9. Scope Lock — Release 1 (MLP)
 
-_Tracked here until each is decided. Move to its own section when locked._
+**Reference inventory:** IMOS (Veson) Operations module set at `Product/Project_creator_agent/Operations/`. Treated as scope-width reference only. IMOS is commercial-operator–biased; shipmanagement-Ops cuts and gaps applied below.
 
-- [ ] Which OSS ERP is the scope-inventory reference (Odoo / ERPNext / Dolibarr / other)
-- [ ] Module list scoped into the MLP
-- [ ] Highest-dependency module identified (likely master data: vessel / party / port / charter party — to confirm)
-- [ ] Operator anchor workflow chosen for first lovable demo
+### Release 1 surfaces (product framing)
+
+1. **`Vessel Schedule`** — home screen. Fleet Gantt of active/upcoming voyages and what needs operator attention.
+2. **`Voyage Workspace`** — operational control room for a single voyage: itinerary, instructions, contacts, notes, operational events, delays. Commercial/financial sections stripped.
+3. **`Forms + Tasks + Alerts` cluster** — trusted-reporting & action loop: vessel/agent reports received → checked → accepted; operator action queue; exceptions surface.
+4. **`Port Call Detail`** — arrival/departure execution, agent status, readiness, port events.
+
+### Build order (data-first, views last)
+
+```
+Vessel · Port · Counterparty      (L0 master data)
+  → CharterParty (thin header)    (L1 contractual anchor)
+    → Voyage                      (L2 spine)
+      → Port Call                 (L3 execution)
+        → Forms · Tasks · Alerts  (L3 trust+action loop)
+          → Vessel Schedule       (L4 projection — empty shell scaffolded early)
+```
+
+Each level built only thick enough to feed the level above. No depth without a higher-level demand.
+
+### Thin-foundation field sets (the only fields in the first cut)
+
+- **Vessel**: name, IMO, type, owner ref, technical manager ref, ops manager (user).
+- **Port**: name, UNLOCODE, country, timezone.
+- **Counterparty**: name, role (Owner / Charterer / Agent / Supplier), primary contact.
+- **CharterParty**: CP date, charterer ref, type (CVC/TC/VC), basic terms.
+- **Voyage**: voyage no., vessel ref, charterer ref, CP ref, status (Planned/Active/Closed), itinerary (ordered Port refs + ETAs), start date, expected end date, voyage instructions (text or file ref).
+
+### IN-MLP (Release 1)
+
+`Vessel` · `Port` · `Counterparty` · `CharterParty (thin)` · `Voyage` (Summary, Properties, Contacts, Notes, Instructions) · `Port Call` · `Port Activities` · `Activity Log` · `Activity Reports` (+ Extra Info) · `Forms` (Forms list + Details-Forms) · `Vessel Schedule` (home) · `Bunker Requirement` (trimmed: request + status + blocker only — **not** full bunker mgmt) · `Delay` · `Leg Delays/Events` · `Alert List` · `Task List`.
+
+### DEFER (post-MLP)
+
+`Onboard` (entire vessel-side app) · `Berth Schedule` · `Port Schedule` · `Fleet Map` (secondary view) · `Voyage P&L` + snapshots + calc options · `Port Expense` (full DA lifecycle) · `Rebill Management` · `Berth Management` · `Cargo Handling` deep panels · `Tank Conditions` · `Reverting Port Activities` · `Voyage Bunkers` planning · `Map-Forms`.
+
+### OUT (not for this product)
+
+`Claims` (entire module — Claim, Claim Invoice, Commissions, Types, Subtypes, Laytime Claim Types) · `Deviation Estimate / Analysis / TCE` · `CP Quantity Details` · `Bunker Price` workarounds · full **Bunker management / procurement** · IMOS troubleshooting notes · Onboard installation / training docs.
+
+### Shipmanagement-Ops gaps to add (not in IMOS)
+
+- Vessel registry with owner/technical-manager relationship + HSEQ class.
+- CharterParty header (already added above).
+- Voyage instructions **issuing** workflow (shipmanagement issues, not only receives).
+- Owner/Charterer communication log (daily report distribution).
+- Noon report / daily report ingestion (folded into Forms cluster).
+- Port DA stub record (logged only; full lifecycle deferred).
+- Pre-arrival / Pre-departure checklists (HSEQ-adjacent).
+
+### Anchor workflow (first lovable artifact)
+
+Operator opens `Vessel Schedule` → sees fleet voyages on a Gantt → clicks a voyage → enters `Voyage Workspace` → reads/edits voyage instructions → drills into a `Port Call`.
+
+---
+
+## 10. Open Items / Pending Locks
+
 - [ ] Stack (Prompt B lock)
+- [ ] Auth model (single-tenant vs multi-vessel-pool tenancy)
+- [ ] Forms ingest channel (email / API / file drop)
+- [ ] Persistence engine (decided in Prompt B)
 
 ---
 
 ## Changelog
 
 - 2026-05-26 — Orchestra created. Locked: three hats, modular monolith, OSS-as-inventory, dependency-first with thin-foundations refinement, push-per-gate to psychic-fortnight.
+- 2026-05-26 — Scope locked for Release 1 MLP. Product named *Vessel & Voyage Operations Control System*. IMOS adopted as reference inventory with shipmanagement-Ops cuts and gap-adds. Four Release-1 surfaces + entity build order + thin-foundation field sets + IN/DEFER/OUT tables recorded.
