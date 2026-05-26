@@ -131,12 +131,13 @@ V1: **manual entry only.** No import, no chartering module, no external feed. Op
 
 ### Thin-foundation field sets (the only fields in the first cut)
 
-- **Vessel**: code, name, IMO, type, owner ref, technical manager ref *(optional — only if used by alerts/contacts)*, ops manager (user ref), status (Active/Inactive), active-for-reporting flag *(can merge with status)*.
+- **Vessel**: code, name, IMO, type, flag, owner ref, technical manager ref *(optional — only if used by alerts/contacts)*, ops manager (user ref), status (Active/Inactive), active-for-reporting flag *(can merge with status)*.
 - **Port**: name, UNLOCODE, country *(derived/validated from UNLOCODE — not free text)*, timezone, latitude, longitude, distance-table reference, status (Active/Inactive).
 - **Counterparty**: code/short name, name, status (Active/Inactive), contacts[]. Roles via **CounterpartyRole** join (multi-role, not single field): Owner / Charterer / Agent / Supplier / TechnicalManager. Agent role adds: ports-serviced[], nomination contact email. Do NOT split into separate entities.
-- **VoyageOperatingTerms** *(reference field on Voyage, not a separate entity)*: charterer name, CP type (CVC/TC/VC), CP date. No CP logic owned.
-- **Voyage**: voyage no., vessel ref, charterer ref, VoyageOperatingTerms, status (Planned/Active/Closed), itinerary (ordered Port refs + ETAs), start date, expected end date, voyage instructions (text or file ref).
-- **PortCall**: voyage ref, port ref, ETA, ETD, status, agent appointment ref.
+- **VoyageOperatingTerms** *(reference field on Voyage, not a separate entity)*: charterer name, CP type (CVC/TC/VC), CP date, cp_document_ref (file attachment). No CP logic owned.
+- **Voyage**: voyage no., vessel ref, charterer ref (optional), VoyageOperatingTerms, status (`Scheduled / Commenced / Completed / Closed / Cancelled`), commencing_datetime, expected_completing_datetime *(calculated from final itinerary ETD, manual override allowed)*, previous_voyage_ref (optional, for consecutive voyages), voyage_instructions (text or file ref), ops_notes.
+- **ItineraryLine** *(ordered, lives under Voyage; planning fields only — execution fields belong to PortCall in Block 5)*: sequence_no, port_ref, port_function (Load/Discharge/Bunker/Canal/Transit/Repairs/Other), planned_eta, planned_etd.
+- **PortCall** *(extends ItineraryLine with execution fields — defined in Block 5)*: voyage ref, port ref, ETA, ETD, status, agent appointment ref.
 - **AgentAppointment**: port call ref, agent (Counterparty ref), appointed date, confirmation status.
 - **PortActivity / OperationalEvent**: port call ref, event type, timestamp, recorded by (User ref).
 - **OperationalReport**: voyage ref or port call ref, report type, submitted by, submitted at, status (Pending/Accepted/Rejected), raw content ref.
@@ -213,3 +214,5 @@ Full chartering desk (TCE, Deviation, fixture mgmt) · `Claims` (separate dept) 
 - 2026-05-26 — Product roadmap V1–V5 + never-list locked.
 - 2026-05-26 — V1 data model completed: full entity list named, CharterParty demoted to VoyageOperatingTerms reference field, voyage creation locked as manual.
 - 2026-05-26 — Block 2 (Master Data) verified against Veson IMOS docs, BIMCO/FONASBA, IMO, UN/LOCODE. APPROVED WITH CHANGES: Vessel adds code/status/active-for-reporting; Port adds lat/lon/distance-ref/status, country derived from UNLOCODE; Counterparty restructured to multi-role via CounterpartyRole join table.
+- 2026-05-26 — Block 3 (Voyage) verified against Veson IMOS, SMDG, Dataloy, DNV OVD. APPROVED WITH CHANGES: status enum expanded to Scheduled/Commenced/Completed/Closed/Cancelled; itinerary modeled as ordered ItineraryLine with port_function + planned ETA/ETD; commencing/completing datetime; cp_document_ref + previous_voyage_ref added; rejected scope-creep items (operational_terms_summary, opening_bunker_snapshot, voyage_template).
+- 2026-05-26 — Block 2 tweak: `flag` added to Vessel field set (per supplementary Veson IMOS verification pass).
