@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Local Focus Board</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main class="app">
+    <section class="hero" aria-label="Focus overview">
+      <div class="hero__image" role="img" aria-label="Desk with laptop and notebook"></div>
+      <div class="hero__content">
+        <p class="eyebrow">localhost workspace</p>
+        <h1>Focus Board</h1>
+        <p class="subtitle">A clean page for today’s priorities, quick notes, and a lightweight timer.</p>
+      </div>
+    </section>
+
+    <section class="grid" aria-label="Dashboard panels">
+      <article class="panel">
+        <div class="panel__header">
+          <h2>Today</h2>
+          <span id="dateLabel"></span>
+        </div>
+        <form id="taskForm" class="task-form">
+          <input id="taskInput" type="text" placeholder="Add a task" autocomplete="off" aria-label="Add a task">
+          <button type="submit">Add</button>
+        </form>
+        <ul id="taskList" class="task-list" aria-label="Tasks"></ul>
+      </article>
+
+      <article class="panel timer-panel">
+        <div class="panel__header">
+          <h2>Timer</h2>
+          <span>25 min</span>
+        </div>
+        <div id="timer" class="timer">25:00</div>
+        <div class="actions">
+          <button id="startTimer" type="button">Start</button>
+          <button id="resetTimer" type="button" class="secondary">Reset</button>
+        </div>
+      </article>
+
+      <article class="panel notes-panel">
+        <div class="panel__header">
+          <h2>Quick Note</h2>
+          <span>saved locally</span>
+        </div>
+        <textarea id="note" placeholder="Write something useful here." aria-label="Quick note"></textarea>
+      </article>
+    </section>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
