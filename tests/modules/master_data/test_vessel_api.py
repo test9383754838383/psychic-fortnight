@@ -53,6 +53,19 @@ async def test_api_get_vessel(client: AsyncClient, session):
     assert response.json()["code"] == "GET-API"
 
 @pytest.mark.asyncio
+async def test_api_list_vessels_filtered(client: AsyncClient, session):
+    v1 = VesselFactory.build(code="API-FILTER-1", vessel_type="Tanker")
+    v2 = VesselFactory.build(code="API-FILTER-2", vessel_type="Bulker")
+    session.add_all([v1, v2])
+    await session.commit()
+    
+    response = await client.get("/api/v1/vessels?vessel_type=Tanker")
+    assert response.status_code == 200
+    data = response.json()
+    assert len(data) == 1
+    assert data[0]["code"] == "API-FILTER-1"
+
+@pytest.mark.asyncio
 async def test_api_list_vessels(client: AsyncClient, session):
     vessel = VesselFactory.build(code="LIST-API")
     session.add(vessel)
@@ -81,3 +94,21 @@ async def test_api_deactivate_vessel(client: AsyncClient, session):
     response = await client.post(f"/api/v1/vessels/{vessel.id}/deactivate")
     assert response.status_code == 200
     assert response.json()["status"] == "Inactive"
+
+@pytest.mark.asyncio
+async def test_api_create_vessel_invalid_imo(client: AsyncClient):
+    payload = {
+        "code": "API-IMO",
+        "name": "Bad IMO",
+        "imo": "123",
+        "vessel_type": "Tanker",
+        "flag": "LR"
+    }
+    response = await client.post("/api/v1/vessels", json=payload)
+    assert response.status_code == 400
+    assert response.json()["code"] == "INVALID_IMO"
+
+@pytest.mark.asyncio
+async def test_api_update_vessel_not_found(client: AsyncClient):
+    response = await client.patch(f"/api/v1/vessels/{uuid.uuid4()}", json={"name": "New"})
+    assert response.status_code == 404

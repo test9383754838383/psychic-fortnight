@@ -1,16 +1,7 @@
-exclude = [
-    "tests/*",
-]
-source_roots = [
-    "src",
-]
-modules = [
-    { path = "leak_test", depends_on = [] },
-    { path = "modules.master_data", depends_on = [] },
-]
+source_roots = ["src"]
+exclude = ["tests/*"]
 
-[[interfaces]]
-expose = []
-from = [
-    "modules.master_data",
-]
+[[modules]]
+path = "modules.master_data"
+depends_on = []
+strict = true

@@ -20,10 +20,14 @@ def event_loop() -> Generator[asyncio.AbstractEventLoop, None, None]:
 
 @pytest_asyncio.fixture(scope="session")
 async def engine():
-    # Use a file-based SQLite for migrations to avoid some in-memory complexities with Alembic
-    # although in-memory should work if managed carefully.
-    # The spec says "real SQLite test database fixture must apply Alembic migrations".
-    database_url = "sqlite+aiosqlite:///tests/test.db"
+    import os
+    import tempfile
+    
+    # Create a temporary file for the SQLite database
+    fd, db_path = tempfile.mkstemp(suffix=".db", prefix="test_")
+    os.close(fd)
+    
+    database_url = f"sqlite+aiosqlite:///{db_path}"
     engine = create_async_engine(database_url, echo=False)
     
     # Run migrations using Alembic
@@ -39,9 +43,8 @@ async def engine():
     yield engine
     await engine.dispose()
     
-    import os
-    if os.path.exists("tests/test.db"):
-        os.remove("tests/test.db")
+    if os.path.exists(db_path):
+        os.remove(db_path)
 
 @pytest_asyncio.fixture
 async def session(engine) -> AsyncGenerator[AsyncSession, None]:

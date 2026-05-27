@@ -19,6 +19,14 @@ class InvalidIMOError(VesselError):
     def __init__(self, imo: str):
         super().__init__(f"Invalid IMO number: '{imo}'. Must be 7 digits.", code="INVALID_IMO")
 
+class InvalidVesselTypeError(VesselError):
+    def __init__(self, vessel_type: str):
+        super().__init__(f"Invalid vessel type: '{vessel_type}'.", code="INVALID_VESSEL_TYPE")
+
+class InvalidVesselStatusError(VesselError):
+    def __init__(self, status: str):
+        super().__init__(f"Invalid vessel status: '{status}'.", code="INVALID_VESSEL_STATUS")
+
 class VesselNotFoundError(VesselError):
     def __init__(self, vessel_id: str):
         super().__init__(
