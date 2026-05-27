@@ -1,0 +1,50 @@
+[project]
+name = "erp-operations"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = "==3.12.*"
+dependencies = [
+    "advanced-alchemy[fastapi]>=1.10.0",
+    "aiosqlite>=0.22.1",
+    "alembic>=1.18.4",
+    "asyncpg>=0.31.0",
+    "fastapi>=0.136.3",
+    "nest-asyncio>=1.6.0",
+    "pydantic>=2",
+    "pydantic-settings>=2.14.1",
+    "sqlalchemy>=2.0",
+    "sqlalchemy-utils>=0.42.1",
+    "uvicorn[standard]>=0.48.0",
+]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "session"
+
+[dependency-groups]
+dev = [
+    "factory-boy>=3.3.3",
+    "httpx>=0.28.1",
+    "mypy>=2.1.0",
+    "pytest>=9.0.3",
+    "pytest-asyncio>=1.4.0",
+    "pytest-cov>=7.1.0",
+    "pytest-xdist>=3.8.0",
+    "ruff>=0.15.14",
+    "tach>=0.35.0",
+]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+explicit_package_bases = true
+mypy_path = "."
+
+[[tool.mypy.overrides]]
+module = [
+    "factory.*",
+    "factory.alchemy.*",
+]
+ignore_missing_imports = true
