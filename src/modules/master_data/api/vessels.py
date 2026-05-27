@@ -1,5 +1,5 @@
 import uuid
-from typing import List, Optional, cast
+from typing import List, Optional
 
 from fastapi import APIRouter, Depends, status
 from pydantic import BaseModel, ConfigDict
@@ -51,8 +51,15 @@ async def create_vessel(
     current_user: str = Depends(get_current_user),
 ) -> VesselResponseDTO:
     service = VesselService(session)
-    # Cast to TypedDict to satisfy mypy
-    create_data = cast(VesselCreateData, data.model_dump())
+    # Explicit mapping to avoid cast
+    create_data: VesselCreateData = {
+        "code": data.code,
+        "name": data.name,
+        "imo": data.imo,
+        "vessel_type": data.vessel_type,
+        "flag": data.flag,
+        "active_for_reporting": data.active_for_reporting,
+    }
     vessel = await service.create(create_data)
     return VesselResponseDTO.model_validate(vessel)
 
@@ -89,8 +96,22 @@ async def update_vessel(
     current_user: str = Depends(get_current_user),
 ) -> VesselResponseDTO:
     service = VesselService(session)
-    # Cast to TypedDict to satisfy mypy
-    update_data = cast(VesselUpdateData, data.model_dump(exclude_unset=True))
+
+    # Explicit mapping to avoid cast while maintaining strict typing
+    update_data: VesselUpdateData = {}
+    if data.code is not None:
+        update_data["code"] = data.code
+    if data.name is not None:
+        update_data["name"] = data.name
+    if data.imo is not None:
+        update_data["imo"] = data.imo
+    if data.vessel_type is not None:
+        update_data["vessel_type"] = data.vessel_type
+    if data.flag is not None:
+        update_data["flag"] = data.flag
+    if data.active_for_reporting is not None:
+        update_data["active_for_reporting"] = data.active_for_reporting
+
     vessel = await service.update(vessel_id, update_data)
     return VesselResponseDTO.model_validate(vessel)
 

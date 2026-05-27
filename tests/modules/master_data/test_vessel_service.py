@@ -116,15 +116,21 @@ async def test_get_vessel_not_found(session: AsyncSession):
 
 @pytest.mark.asyncio
 async def test_list_vessels_filtering_exhaustive(session: AsyncSession):
-    v1 = VesselFactory.build(code="V-1", vessel_type="Tanker", flag="LR", status="Active")
-    v2 = VesselFactory.build(code="V-2", vessel_type="Bulker", flag="PA", status="Inactive")
+    v1 = VesselFactory.build(
+        code="V-1", vessel_type="Tanker", flag="LR", status="Active"
+    )
+    v2 = VesselFactory.build(
+        code="V-2", vessel_type="Bulker", flag="PA", status="Inactive"
+    )
     session.add_all([v1, v2])
     await session.commit()
-    
+
     service = VesselService(session)
-    
+
     # All three
-    assert len(await service.list(status="Active", vessel_type="Tanker", flag="LR")) == 1
+    assert (
+        len(await service.list(status="Active", vessel_type="Tanker", flag="LR")) == 1
+    )
     # Pairs
     assert len(await service.list(status="Active", vessel_type="Tanker")) == 1
     assert len(await service.list(status="Active", flag="LR")) == 1
@@ -134,23 +140,29 @@ async def test_list_vessels_filtering_exhaustive(session: AsyncSession):
     assert len(await service.list(vessel_type="Tanker")) == 1
     assert len(await service.list(flag="LR")) == 1
 
+
 @pytest.mark.asyncio
 async def test_update_vessel_comprehensive(session: AsyncSession):
-    vessel = VesselFactory.build(code="UPD-FULL", status="Active", vessel_type="Tanker", imo="1234567")
+    vessel = VesselFactory.build(
+        code="UPD-FULL", status="Active", vessel_type="Tanker", imo="1234567"
+    )
     session.add(vessel)
     await session.commit()
-    
+
     service = VesselService(session)
-    
+
     # Update type and status
-    updated = await service.update(vessel.id, {"vessel_type": "Bulker", "status": "Inactive"})
+    updated = await service.update(
+        vessel.id, {"vessel_type": "Bulker", "status": "Inactive"}
+    )
     assert updated.vessel_type == "Bulker"
     assert updated.status == "Inactive"
-    
+
     # Update IMO and code
     updated = await service.update(vessel.id, {"imo": "7654321", "code": "NEW-CODE"})
     assert updated.imo == "7654321"
     assert updated.code == "NEW-CODE"
+
 
 @pytest.mark.asyncio
 async def test_list_vessels_filtering(session: AsyncSession):
