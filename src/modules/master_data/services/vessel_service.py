@@ -86,21 +86,30 @@ class VesselService:
         vessel_type: Optional[str] = None,
         flag: Optional[str] = None,
     ) -> List[Vessel]:
-        # Construct explicit filters to avoid Any/type: ignore
-        filters: Dict[str, Union[str, bool, None]] = {}
-        if status is not None:
-            filters["status"] = status
-        if vessel_type is not None:
-            filters["vessel_type"] = vessel_type
-        if flag is not None:
-            filters["flag"] = flag
+        # Advanced-alchemy's get_many equality filters are passed via kwargs.
+        # To avoid mypy issues with **filters expansion and maintain strictness,
+        # we call it with explicit arguments.
+        # Note: get_many will filter by None if passed, so we must only pass what is set.
 
-        # Advanced-alchemy's get_many typing is complex with kwargs.
-        # We'll use a type-safe way to call it.
-        vessels = await self.repository.get_many(
-            **cast(Dict[str, Union[str, bool, None]], filters)
-        )
+        if status and vessel_type and flag:
+            vessels = await self.repository.get_many(status=status, vessel_type=vessel_type, flag=flag)
+        elif status and vessel_type:
+            vessels = await self.repository.get_many(status=status, vessel_type=vessel_type)
+        elif status and flag:
+            vessels = await self.repository.get_many(status=status, flag=flag)
+        elif vessel_type and flag:
+            vessels = await self.repository.get_many(vessel_type=vessel_type, flag=flag)
+        elif status:
+            vessels = await self.repository.get_many(status=status)
+        elif vessel_type:
+            vessels = await self.repository.get_many(vessel_type=vessel_type)
+        elif flag:
+            vessels = await self.repository.get_many(flag=flag)
+        else:
+            vessels = await self.repository.get_many()
+
         return list(vessels)
+
 
     async def update(self, vessel_id: uuid.UUID, data: VesselUpdateData) -> Vessel:
         vessel = await self.get(vessel_id)
