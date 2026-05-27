@@ -1,11 +1,16 @@
 import uuid
-from typing import List, Optional
+from typing import List, Optional, cast
+
 from fastapi import APIRouter, Depends, status
 from pydantic import BaseModel, ConfigDict
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.dependencies import get_current_user, get_db_session
-from src.modules.master_data.services.vessel_service import VesselService
+from src.modules.master_data.services.vessel_service import (
+    VesselCreateData,
+    VesselService,
+    VesselUpdateData,
+)
 
 router = APIRouter()
 
@@ -46,7 +51,9 @@ async def create_vessel(
     current_user: str = Depends(get_current_user),
 ) -> VesselResponseDTO:
     service = VesselService(session)
-    vessel = await service.create(data.model_dump())
+    # Cast to TypedDict to satisfy mypy
+    create_data = cast(VesselCreateData, data.model_dump())
+    vessel = await service.create(create_data)
     return VesselResponseDTO.model_validate(vessel)
 
 
@@ -82,7 +89,9 @@ async def update_vessel(
     current_user: str = Depends(get_current_user),
 ) -> VesselResponseDTO:
     service = VesselService(session)
-    vessel = await service.update(vessel_id, data.model_dump(exclude_unset=True))
+    # Cast to TypedDict to satisfy mypy
+    update_data = cast(VesselUpdateData, data.model_dump(exclude_unset=True))
+    vessel = await service.update(vessel_id, update_data)
     return VesselResponseDTO.model_validate(vessel)
 
 

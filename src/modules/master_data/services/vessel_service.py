@@ -1,15 +1,43 @@
 import uuid
-from typing import Any, Dict, List
+from typing import Dict, List, Optional, TypedDict, Union, cast
+
 from sqlalchemy.ext.asyncio import AsyncSession
-from src.modules.master_data.models.vessel import Vessel, VesselStatus, VesselType
-from src.modules.master_data.repositories.vessel_repository import VesselRepository
+
 from src.modules.master_data.exceptions import (
     DuplicateVesselCodeError,
     InvalidIMOError,
-    VesselNotFoundError,
-    InvalidVesselTypeError,
     InvalidVesselStatusError,
+    InvalidVesselTypeError,
+    VesselNotFoundError,
 )
+from src.modules.master_data.models.vessel import Vessel, VesselStatus, VesselType
+from src.modules.master_data.repositories.vessel_repository import VesselRepository
+
+
+class VesselCreateData(TypedDict, total=False):
+    code: str
+    name: str
+    imo: str
+    vessel_type: str
+    flag: str
+    active_for_reporting: bool
+    status: str
+    owner_ref: Optional[str]
+    technical_manager_ref: Optional[str]
+    ops_manager_user_id: Optional[str]
+
+
+class VesselUpdateData(TypedDict, total=False):
+    code: str
+    name: str
+    imo: str
+    vessel_type: str
+    flag: str
+    active_for_reporting: bool
+    status: str
+    owner_ref: Optional[str]
+    technical_manager_ref: Optional[str]
+    ops_manager_user_id: Optional[str]
 
 
 class VesselService:
@@ -17,7 +45,7 @@ class VesselService:
         self.repository = VesselRepository(session=session)
         self.session = session
 
-    async def create(self, data: Dict[str, Any]) -> Vessel:
+    async def create(self, data: VesselCreateData) -> Vessel:
         # Validate IMO
         imo = data.get("imo")
         if imo and (not imo.isdigit() or len(imo) != 7):
@@ -54,22 +82,27 @@ class VesselService:
 
     async def list(
         self,
-        status: str | None = None,
-        vessel_type: str | None = None,
-        flag: str | None = None,
+        status: Optional[str] = None,
+        vessel_type: Optional[str] = None,
+        flag: Optional[str] = None,
     ) -> List[Vessel]:
-        filters: Dict[str, str] = {}
-        if status:
+        # Construct explicit filters to avoid Any/type: ignore
+        filters: Dict[str, Union[str, bool, None]] = {}
+        if status is not None:
             filters["status"] = status
-        if vessel_type:
+        if vessel_type is not None:
             filters["vessel_type"] = vessel_type
-        if flag:
+        if flag is not None:
             filters["flag"] = flag
 
-        # We use get_many with keyword arguments for filtering
-        return await self.repository.get_many(**filters)  # type: ignore[arg-type]
+        # Advanced-alchemy's get_many typing is complex with kwargs.
+        # We'll use a type-safe way to call it.
+        vessels = await self.repository.get_many(
+            **cast(Dict[str, Union[str, bool, None]], filters)
+        )
+        return list(vessels)
 
-    async def update(self, vessel_id: uuid.UUID, data: Dict[str, Any]) -> Vessel:
+    async def update(self, vessel_id: uuid.UUID, data: VesselUpdateData) -> Vessel:
         vessel = await self.get(vessel_id)
 
         # If code is being updated, check for duplicates
@@ -103,4 +136,4 @@ class VesselService:
         return vessel
 
     async def deactivate(self, vessel_id: uuid.UUID) -> Vessel:
-        return await self.update(vessel_id, {"status": "Inactive"})
+        return await self.update(vessel_id, VesselUpdateData(status="Inactive"))
