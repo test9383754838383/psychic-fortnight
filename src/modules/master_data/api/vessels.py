@@ -1,5 +1,5 @@
 import uuid
-from typing import Any, List, Optional
+from typing import List, Optional
 from fastapi import APIRouter, Depends, status
 from pydantic import BaseModel, ConfigDict
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -49,6 +49,7 @@ async def create_vessel(
     vessel = await service.create(data.model_dump())
     return VesselResponseDTO.model_validate(vessel)
 
+
 @router.get("", response_model=List[VesselResponseDTO])
 async def list_vessels(
     status: Optional[str] = None,
@@ -61,6 +62,7 @@ async def list_vessels(
     vessels = await service.list(status=status, vessel_type=vessel_type, flag=flag)
     return [VesselResponseDTO.model_validate(v) for v in vessels]
 
+
 @router.get("/{vessel_id}", response_model=VesselResponseDTO)
 async def get_vessel(
     vessel_id: uuid.UUID,
@@ -70,6 +72,7 @@ async def get_vessel(
     service = VesselService(session)
     vessel = await service.get(vessel_id)
     return VesselResponseDTO.model_validate(vessel)
+
 
 @router.patch("/{vessel_id}", response_model=VesselResponseDTO)
 async def update_vessel(
@@ -82,6 +85,7 @@ async def update_vessel(
     vessel = await service.update(vessel_id, data.model_dump(exclude_unset=True))
     return VesselResponseDTO.model_validate(vessel)
 
+
 @router.post("/{vessel_id}/deactivate", response_model=VesselResponseDTO)
 async def deactivate_vessel(
     vessel_id: uuid.UUID,
@@ -91,4 +95,3 @@ async def deactivate_vessel(
     service = VesselService(session)
     vessel = await service.deactivate(vessel_id)
     return VesselResponseDTO.model_validate(vessel)
-

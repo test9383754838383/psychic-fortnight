@@ -11,6 +11,7 @@ from src.modules.master_data.exceptions import (
     InvalidVesselStatusError,
 )
 
+
 class VesselService:
     def __init__(self, session: AsyncSession):
         self.repository = VesselRepository(session=session)
@@ -64,7 +65,7 @@ class VesselService:
             filters["vessel_type"] = vessel_type
         if flag:
             filters["flag"] = flag
-        
+
         # We use get_many with keyword arguments for filtering
         return await self.repository.get_many(**filters)  # type: ignore[arg-type]
 

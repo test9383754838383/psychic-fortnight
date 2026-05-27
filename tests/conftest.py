@@ -12,24 +12,26 @@ from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_asyn
 from src.app import create_app
 from src.dependencies import get_db_session
 
+
 @pytest.fixture(scope="session")
 def event_loop() -> Generator[asyncio.AbstractEventLoop, None, None]:
     loop = asyncio.get_event_loop_policy().new_event_loop()
     yield loop
     loop.close()
 
+
 @pytest_asyncio.fixture(scope="session")
 async def engine():
     import os
     import tempfile
-    
+
     # Create a temporary file for the SQLite database
     fd, db_path = tempfile.mkstemp(suffix=".db", prefix="test_")
     os.close(fd)
-    
+
     database_url = f"sqlite+aiosqlite:///{db_path}"
     engine = create_async_engine(database_url, echo=False)
-    
+
     # Run migrations using Alembic
     def run_alembic_upgrade(connection):
         alembic_cfg = Config("alembic.ini")
@@ -39,12 +41,13 @@ async def engine():
 
     async with engine.begin() as conn:
         await conn.run_sync(run_alembic_upgrade)
-    
+
     yield engine
     await engine.dispose()
-    
+
     if os.path.exists(db_path):
         os.remove(db_path)
+
 
 @pytest_asyncio.fixture
 async def session(engine) -> AsyncGenerator[AsyncSession, None]:
@@ -59,15 +62,17 @@ async def session(engine) -> AsyncGenerator[AsyncSession, None]:
     await transaction.rollback()
     await connection.close()
 
+
 @pytest_asyncio.fixture
 async def app(session: AsyncSession) -> FastAPI:
     application = create_app()
-    
+
     async def override_get_db_session():
         yield session
-    
+
     application.dependency_overrides[get_db_session] = override_get_db_session
     return application
+
 
 @pytest_asyncio.fixture
 async def client(app: FastAPI) -> AsyncGenerator[AsyncClient, None]:
