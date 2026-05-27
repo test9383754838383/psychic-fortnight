@@ -21,7 +21,7 @@ if config.config_file_name is not None:
 # from myapp import mybase
 # target_metadata = mybase.metadata
 from src.config import settings
-from src.modules.master_data.models.vessel import Base
+from src.modules.master_data.models import Base
 target_metadata = Base.metadata
 
 # other values from the config, defined by the needs of env.py,
