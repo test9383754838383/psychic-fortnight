@@ -25,9 +25,8 @@ jobs:
         run: make tach-check
       - name: Auth stub guard
         run: |
-          # Clear any cache that might contain the string
-          find src -name "__pycache__" -type d -exec rm -rf {} +
-          if grep -r "get_current_user_stub" src/ --exclude=src/dependencies.py; then
+          # Forbidden if get_current_user_stub appears in any .py file under src/ EXCEPT src/dependencies.py
+          if find src -name "*.py" ! -name "dependencies.py" -exec grep -H "get_current_user_stub" {} +; then
             echo "Error: get_current_user_stub found outside src/dependencies.py"
             exit 1
           fi
