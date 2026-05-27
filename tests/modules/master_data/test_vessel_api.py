@@ -83,6 +83,38 @@ async def test_api_list_vessels(client: AsyncClient, session):
 
 
 @pytest.mark.asyncio
+async def test_api_update_vessel_comprehensive(client: AsyncClient, session):
+    vessel = VesselFactory.build(
+        code="UPD-API-COMP",
+        name="Old",
+        imo="1111111",
+        vessel_type="Tanker",
+        flag="LR",
+        active_for_reporting=True,
+    )
+    session.add(vessel)
+    await session.commit()
+
+    payload = {
+        "code": "NEW-API-CODE",
+        "name": "New Name",
+        "imo": "2222222",
+        "vessel_type": "Bulker",
+        "flag": "PA",
+        "active_for_reporting": False,
+    }
+    response = await client.patch(f"/api/v1/vessels/{vessel.id}", json=payload)
+    assert response.status_code == 200
+    data = response.json()
+    assert data["code"] == "NEW-API-CODE"
+    assert data["name"] == "New Name"
+    assert data["imo"] == "2222222"
+    assert data["vessel_type"] == "Bulker"
+    assert data["flag"] == "PA"
+    assert data["active_for_reporting"] is False
+
+
+@pytest.mark.asyncio
 async def test_api_update_vessel(client: AsyncClient, session):
     vessel = VesselFactory.build(code="UPD-API", name="Old")
     session.add(vessel)
