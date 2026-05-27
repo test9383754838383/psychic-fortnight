@@ -1,0 +1,88 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  lint-and-typecheck:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install uv
+        run: curl -LsSf https://astral.sh/uv/install.sh | sh
+      - name: Set up Python
+        run: uv python install 3.12
+      - name: Install dependencies
+        run: uv sync --all-extras --dev
+      - name: Lint
+        run: make lint
+      - name: Typecheck
+        run: make typecheck
+      - name: Tach Check
+        run: make tach-check
+      - name: Auth stub guard
+        run: |
+          # Clear any cache that might contain the string
+          find src -name "__pycache__" -type d -exec rm -rf {} +
+          if grep -r "get_current_user_stub" src/ --exclude=src/dependencies.py; then
+            echo "Error: get_current_user_stub found outside src/dependencies.py"
+            exit 1
+          fi
+          echo "Auth stub guard passed."
+
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install uv
+        run: curl -LsSf https://astral.sh/uv/install.sh | sh
+      - name: Set up Python
+        run: uv python install 3.12
+      - name: Install dependencies
+        run: uv sync --all-extras --dev
+      - name: Run tests with coverage and runtime check
+        run: |
+          START_TIME=$(date +%s)
+          uv run pytest --cov=src/modules/master_data --cov-fail-under=95 tests/modules/master_data
+          END_TIME=$(date +%s)
+          RUNTIME=$((END_TIME - START_TIME))
+          echo "Runtime: ${RUNTIME}s"
+          if [ $RUNTIME -gt 30 ]; then
+            echo "Error: Test suite took too long ($RUNTIME s)"
+            exit 1
+          fi
+
+  migration-smoke-test:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: user
+          POSTGRES_PASSWORD: password
+          POSTGRES_DB: erp_ops
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install uv
+        run: curl -LsSf https://astral.sh/uv/install.sh | sh
+      - name: Set up Python
+        run: uv python install 3.12
+      - name: Install dependencies
+        run: uv sync --all-extras --dev
+      - name: Migration smoke test (Postgres)
+        env:
+          DATABASE_URL: postgresql+asyncpg://user:password@localhost:5432/erp_ops
+        run: |
+          uv run alembic upgrade head
+          uv run alembic downgrade base
+          uv run alembic upgrade head

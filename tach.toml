@@ -1,0 +1,16 @@
+exclude = [
+    "tests/*",
+]
+source_roots = [
+    "src",
+]
+modules = [
+    { path = "leak_test", depends_on = [] },
+    { path = "modules.master_data", depends_on = [] },
+]
+
+[[interfaces]]
+expose = []
+from = [
+    "modules.master_data",
+]
