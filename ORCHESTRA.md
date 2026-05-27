@@ -101,90 +101,18 @@ After build + green tests, produce `post_release_compliance_report.md` covering 
 
 ---
 
-## 9. Scope Lock — Release 1 (MLP)
+## 9. V1 Reference
 
-**Reference inventory:** IMOS (Veson) Operations module set at `Product/Project_creator_agent/Operations/`. Treated as scope-width reference only. IMOS is commercial-operator–biased; shipmanagement-Ops cuts and gaps applied below.
+Detailed V1 scope, build blocks, accepted field sets, and scope boundaries now live in [`V1_ROADMAP.md`](V1_ROADMAP.md).
 
-### Release 1 surfaces (product framing)
-
-1. **`Vessel Schedule`** — home screen. Fleet Gantt of active/upcoming voyages. **Verified scope:** rows = active managed vessels; bars = voyages placed by commencing → expected_completing datetimes; bar text = voyage no./ref, status colour, current/next port code, ETA/ETD if commenced; tooltip = charterer, full port sequence, vessel, voyage status, last position; filters = date range, vessel(s), voyage status, voyage/reference search; click bar → Voyage Workspace; one tiny exception dot (open alert or overdue task — dormant until Block 10). Read-only Gantt (no drag-to-reschedule); timing edits in Voyage Workspace.
-2. **`Voyage Workspace`** — operational control room for a single voyage: itinerary, instructions, contacts, notes, operational events, delays. Commercial/financial sections stripped.
-3. **`Forms + Tasks + Alerts` cluster** — trusted-reporting & action loop: vessel/agent reports received → checked → accepted; operator action queue; exceptions surface.
-4. **`Port Call Detail`** — arrival/departure execution, agent status, readiness, port events.
-
-### Build order (data-first, views last)
-
-```
-Vessel · Port · Counterparty      (L0 master data)
-  → CharterParty (thin header)    (L1 contractual anchor)
-    → Voyage                      (L2 spine)
-      → Port Call                 (L3 execution)
-        → Forms · Tasks · Alerts  (L3 trust+action loop)
-          → Vessel Schedule       (L4 projection — empty shell scaffolded early)
-```
-
-Each level built only thick enough to feed the level above. No depth without a higher-level demand.
-
-### Voyage creation
-
-V1: **manual entry only.** No import, no chartering module, no external feed. Operator owns the data from day one.
-
-### Thin-foundation field sets (the only fields in the first cut)
-
-- **Vessel**: code, name, IMO, type, flag, owner ref, technical manager ref *(optional — only if used by alerts/contacts)*, ops manager (user ref), status (Active/Inactive), active-for-reporting flag *(can merge with status)*.
-- **Port**: name, UNLOCODE, country *(derived/validated from UNLOCODE — not free text)*, timezone, latitude, longitude, distance-table reference, status (Active/Inactive).
-- **Counterparty**: code/short name, name, status (Active/Inactive), contacts[]. Roles via **CounterpartyRole** join (multi-role, not single field): Owner / Charterer / Agent / Supplier / TechnicalManager. Agent role adds: ports-serviced[], nomination contact email. Do NOT split into separate entities.
-- **VoyageOperatingTerms** *(reference field on Voyage, not a separate entity)*: charterer name, CP type (CVC/TC/VC), CP date, cp_document_ref (file attachment). No CP logic owned.
-- **Voyage**: voyage no., vessel ref, charterer ref (optional), VoyageOperatingTerms, status (`Scheduled / Commenced / Completed / Closed / Cancelled`), commencing_datetime, expected_completing_datetime *(calculated from final itinerary ETD, manual override allowed)*, previous_voyage_ref (optional, for consecutive voyages), voyage_instructions (text or file ref), ops_notes.
-- **ItineraryLine** *(ordered, lives under Voyage; planning fields only — execution fields belong to PortCall in Block 5)*: sequence_no, port_ref, port_function (Load/Discharge/Bunker/Canal/Transit/Repairs/Other), planned_eta, planned_etd.
-- **PortCall** *(Block 5 verified)*: voyage_ref, port_ref, itinerary_line_ref; status (`Planned / Arrived at Pilot Station / At Anchor / Berthed / Cargo Ops Completed / Departed`); eta (actual/revised), etd (actual/revised), ata, atb, atd; timezone_offset; nor_tendered_datetime, nor_accepted_datetime; free_pratique_granted (bool + datetime), customs_cleared (bool + datetime); agent_appointment_ref; ops_notes.
-- **AgentAppointment** *(Block 5 verified)*: port_call_ref, agent (Counterparty ref), appointed_date; status (`Nominated / Appointed / Cancelled`). "Replaced" is an event not a status — triggers a new record.
-- **PortActivity / OperationalEvent** *(Block 6 verified)*: port_call_ref, event_type (controlled enum), timestamp, recorded_by (User ref), notes (optional). Event type enum: `Arrived / Anchored / Berthed / All Fast / Commenced Loading / Completed Loading / Commenced Discharging / Completed Discharging / Hoses Connected / Hoses Disconnected / Departed / NOR Tendered / NOR Re-tendered / NOR Accepted / Free Pratique Granted / Tugs Engaged / Tugs Released / Bunkering Commenced / Bunkering Completed / Delay Commenced / Delay Ended`. *(Pilot On Board / Pilot Away removed — disbursement scope.)*
-- **ActivityLog** *(NEW — Block 6 verified)*: port_call_ref, logged_at, logged_by (User ref), narrative (free text). Separate from structured PortActivity; carries Master/agent contextual remarks for dispute defence.
-- **OperationalReport** *(Block 6 verified)*: voyage_ref or port_call_ref; report_type (`Noon / Arrival / Departure / Bunkering / Statement of Facts`); submitted_by, submitted_at, received_at; status (`Pending / Queried / Accepted / Rejected`); structured fields: position_lat, position_lon, speed_24h, distance_to_go, eta_next_port, bunker_rob; raw_content_ref (retained for audit).
-- **Form** *(Block 7 verified)*: form_id, form_type, linked_entity (Voyage or PortCall ref), submitted_by, submitted_at, received_at; status (`Received / Under Review / Queried / Accepted / Rejected`); assigned_to (User ref), reviewed_by, reviewed_at, notes. Primary ingest channel: **email-to-form parsing**; UI manual entry as fallback.
-- **FormDetail** *(Block 7 verified)*: form_ref; raw_fields (JSON blob — secondary/compliance data); raw_source_ref (original file). Structured typed fields live on OperationalReport only — not duplicated here.
-- **Checklist** *(NEW — Block 7 verified)*: port_call_ref, checklist_type (`Pre-Arrival / Pre-Departure`), created_at, status (`Open / Completed`). Separate from Form — requires ordered per-item sign-off.
-- **ChecklistItem** *(NEW — Block 7 verified)*: checklist_ref, sequence_no, item_name, status (`Pending / Signed Off`), signed_off_at, signed_off_by (User ref).
-- **BunkerRequest** *(Block 8 verified)*: voyage_ref, port_call_ref (optional); fuel_type (`HFO / VLSFO / MGO / LSMGO / HSFO / ULSD / LNG / Biofuel`); quantity_required_mt, specification_grade (ISO 8217), max_sulphur_content; status (`Raised / In Progress / Stemmed / Supplied / Blocked`); blocker_note, raised_by (User ref), raised_at; supplier_ref (Counterparty ref, optional), eta_supply. *(delivered_volume_cbm / delivered_temperature deferred to V2 — supply validation is post-MLP.)*
-- **Delay** *(Block 9 verified)*: voyage_ref; port_call_ref (optional — port delays) or leg_ref (optional — sea-passage delays; mutually exclusive); delay_type (`Weather / Mechanical / Port Congestion / Awaiting Berth / Awaiting Orders / Cargo Operations / Bunkering Delay / Strike / Deviation / Piracy/Security / Quarantine/Disease / Other`); fault_attribution (`Vessel / Charterer / Port / Weather / Force Majeure`); start_datetime, end_datetime; actual_duration (derived); claimed_duration (manual — commercial dispute); description; recorded_by (User ref); approved_by (User ref — locks record on set).
-- **Task** *(Block 10 verified)*: task_id, linked_entity_type (Voyage/PortCall/Vessel), linked_entity_id; title, description (optional); assigned_to (User ref), due_datetime; status (`Open / In Progress / Blocked / Done`); originating_alert_ref (optional — manual escalation only, never auto-generated); created_by, created_at, completed_at.
-- **Alert** *(Block 10 verified)*: alert_id, linked_entity_type, linked_entity_id; alert_type (`ETA Overdue / Departure Overdue / NOR Not Tendered / Agent Not Confirmed / Form Not Received / Bunker Request Blocked / Voyage Not Commenced / Performance Deviation / Consumption Deviation / Noon Report Missing`); triggered_at, message; severity (`Info / Warning / Critical`); resolved_at, resolved_by (User ref); resolution_note *(mandatory for Warning/Critical)*.
-- **AuditEvent**: entity type, entity id, action, actor (User ref), timestamp, diff snapshot.
-- **User**: name, email, role, assigned vessels.
-
-### IN-MLP (Release 1)
-
-`Vessel` · `Port` · `Counterparty` · `CharterParty (thin)` · `Voyage` (Summary, Properties, Contacts, Notes, Instructions) · `Port Call` · `Port Activities` · `Activity Log` · `Activity Reports` (+ Extra Info) · `Forms` (Forms list + Details-Forms) · `Checklist + ChecklistItem` (Pre-Arrival/Pre-Departure) · `Vessel Schedule` (home) · `Bunker Requirement` (trimmed: request + status + blocker only — **not** full bunker mgmt) · `Delay` · `Leg Delays/Events` · `Alert List` · `Task List`.
-
-### DEFER (post-MLP)
-
-`Onboard` (entire vessel-side app) · `Berth Schedule` · `Port Schedule` · `Fleet Map` (secondary view) · `Voyage P&L` + snapshots + calc options · `Port Expense` (full DA lifecycle) · `Rebill Management` · `Berth Management` · `Cargo Handling` deep panels · `Tank Conditions` · `Reverting Port Activities` · `Voyage Bunkers` planning · `Map-Forms`.
-
-### OUT (not for this product)
-
-`Claims` (entire module — Claim, Claim Invoice, Commissions, Types, Subtypes, Laytime Claim Types) · `Deviation Estimate / Analysis / TCE` · `CP Quantity Details` · `Bunker Price` workarounds · full **Bunker management / procurement** · IMOS troubleshooting notes · Onboard installation / training docs.
-
-### Shipmanagement-Ops gaps to add (not in IMOS)
-
-- Vessel registry with owner/technical-manager relationship + HSEQ class.
-- CharterParty header (already added above).
-- Voyage instructions **issuing** workflow (shipmanagement issues, not only receives).
-- Owner/Charterer communication log (daily report distribution).
-- Noon report / daily report ingestion (folded into Forms cluster).
-- Port DA stub record (logged only; full lifecycle deferred).
-- Pre-arrival / Pre-departure checklists (HSEQ-adjacent).
-
-### Anchor workflow (first lovable artifact)
-
-Operator opens `Vessel Schedule` → sees fleet voyages on a Gantt → clicks a voyage → enters `Voyage Workspace` → reads/edits voyage instructions → drills into a `Port Call`.
+`ORCHESTRA.md` keeps the durable working rules and the high-level roadmap. `V1_ROADMAP.md` carries the clean sequential V1 build memory.
 
 ---
 
 ## 10. Product Roadmap
 
-### V1 — MLP (locked, see Section 9)
-`Vessel · Port · Counterparty · CharterParty · Voyage · Port Call · Forms · Tasks · Alerts · Vessel Schedule`. Thin everywhere. Shore-side only.
+### V1 — MLP
+See [`V1_ROADMAP.md`](V1_ROADMAP.md) for the locked V1 scope and the 11 build blocks. Thin everywhere. Shore-side only.
 
 ### V2 — Operator depth (unlock DEFERs)
 `Onboard` (lightweight vessel submission) · `Fleet Map` · `Port Schedule` · `Berth Schedule` · `Cargo Handling` (thin: BL refs, loaded/discharged qty) · `Tank Conditions` (tanker fleets) · `Voyage Bunkers` planning · `Port DA` full lifecycle · `Pre-arr/Pre-dep checklists` enriched.
@@ -215,11 +143,6 @@ Full chartering desk (TCE, Deviation, fixture mgmt) · `Claims` (separate dept) 
 ## Changelog
 
 - 2026-05-26 — Orchestra created. Locked: three hats, modular monolith, OSS-as-inventory, dependency-first with thin-foundations refinement, push-per-gate to psychic-fortnight.
-- 2026-05-26 — Scope locked for Release 1 MLP. Product named *Vessel & Voyage Operations Control System*. IMOS adopted as reference inventory with shipmanagement-Ops cuts and gap-adds. Four Release-1 surfaces + entity build order + thin-foundation field sets + IN/DEFER/OUT tables recorded.
+- 2026-05-26 — Scope locked for Release 1 MLP. Product named *Vessel & Voyage Operations Control System*. IMOS adopted as reference inventory with shipmanagement-Ops cuts and gap-adds.
 - 2026-05-26 — Product roadmap V1–V5 + never-list locked.
-- 2026-05-26 — V1 data model completed: full entity list named, CharterParty demoted to VoyageOperatingTerms reference field, voyage creation locked as manual.
-- 2026-05-26 — Block 2 (Master Data) verified against Veson IMOS docs, BIMCO/FONASBA, IMO, UN/LOCODE. APPROVED WITH CHANGES: Vessel adds code/status/active-for-reporting; Port adds lat/lon/distance-ref/status, country derived from UNLOCODE; Counterparty restructured to multi-role via CounterpartyRole join table.
-- 2026-05-26 — Block 3 (Voyage) verified against Veson IMOS, SMDG, Dataloy, DNV OVD. APPROVED WITH CHANGES: status enum expanded to Scheduled/Commenced/Completed/Closed/Cancelled; itinerary modeled as ordered ItineraryLine with port_function + planned ETA/ETD; commencing/completing datetime; cp_document_ref + previous_voyage_ref added; rejected scope-creep items (operational_terms_summary, opening_bunker_snapshot, voyage_template).
-- 2026-05-26 — Block 2 tweak: `flag` added to Vessel field set (per supplementary Veson IMOS verification pass).
-- 2026-05-26 — Block 4 (Vessel Schedule) verified against Dataloy Fleet Allocation & Scheduling / Scheduler Board docs. APPROVED WITH CHANGES: charterer moved from bar text to tooltip; ops-manager filter dropped; voyage/reference search added; exception cue reduced to single dot (dormant until Block 10 lands); read-only Gantt confirmed.
-- 2026-05-26 — Blocks 5–10 verified (combined deep-research pass, sources: BIMCO, FONASBA, ICS, Danaos, Wärtsilä, Voyager Portal, ShipNet, VPS Veritas, Smart Maritime Council). All APPROVED WITH CHANGES. Key deltas: PortCall status enum restructured (Arrived at Pilot Station / At Anchor / Cargo Ops Completed added); NOR/free pratique/customs fields added; AgentAppointment lifecycle corrected (Nominated/Appointed/Cancelled); ActivityLog entity added; OperationalReport gets structured typed fields + Queried status; FormDetail simplified (no duplication of structured fields); Checklist/ChecklistItem entities added; BunkerRequest adds HSFO/ULSD/LNG/Biofuel + Stemmed status + spec_grade/max_sulphur (delivery fields deferred V2); Delay adds fault_attribution + claimed_duration + port_call_ref + Deviation/Piracy/Quarantine types; Task status expanded (In Progress/Blocked); Alert adds Performance Deviation/Consumption Deviation/Noon Report Missing, removes Task Overdue; resolution_note mandatory on Warning/Critical alerts; originating_alert_ref on Task (manual only, no auto-generation). Forms ingest channel locked: email-to-form parsing primary.
+- 2026-05-26 — V1 build memory separated out of `ORCHESTRA.md` into `V1_ROADMAP.md` so the orchestra file stays focused on durable project rules and roadmap.
