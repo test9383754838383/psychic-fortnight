@@ -1,5 +1,5 @@
 import uuid
-from typing import Dict, List, Optional, TypedDict, Union, cast
+from typing import List, Optional, TypedDict
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -92,9 +92,13 @@ class VesselService:
         # Note: get_many will filter by None if passed, so we must only pass what is set.
 
         if status and vessel_type and flag:
-            vessels = await self.repository.get_many(status=status, vessel_type=vessel_type, flag=flag)
+            vessels = await self.repository.get_many(
+                status=status, vessel_type=vessel_type, flag=flag
+            )
         elif status and vessel_type:
-            vessels = await self.repository.get_many(status=status, vessel_type=vessel_type)
+            vessels = await self.repository.get_many(
+                status=status, vessel_type=vessel_type
+            )
         elif status and flag:
             vessels = await self.repository.get_many(status=status, flag=flag)
         elif vessel_type and flag:
@@ -109,7 +113,6 @@ class VesselService:
             vessels = await self.repository.get_many()
 
         return list(vessels)
-
 
     async def update(self, vessel_id: uuid.UUID, data: VesselUpdateData) -> Vessel:
         vessel = await self.get(vessel_id)
