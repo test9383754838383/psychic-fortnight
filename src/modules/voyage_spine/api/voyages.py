@@ -1,9 +1,9 @@
 import uuid
 from datetime import date, datetime
-from typing import Any, List, Optional
+from typing import List, Optional
 
 from fastapi import APIRouter, Depends, status
-from pydantic import BaseModel, ConfigDict, model_validator
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.dependencies import get_current_user, get_db_session
@@ -85,21 +85,23 @@ class VoyageResponseDTO(BaseModel):
     created_at: datetime
     updated_at: datetime
     terms: Optional[VoyageTermsDTO] = None
-    itinerary_lines: List[ItineraryLineResponseDTO] = []
+    itinerary_lines: List[ItineraryLineResponseDTO] = Field(default_factory=list)
 
     model_config = ConfigDict(from_attributes=True)
 
     @model_validator(mode="before")
     @classmethod
-    def nest_terms(cls, data: Any) -> Any:
+    def nest_terms(cls, data: object) -> object:
         if isinstance(data, dict):
-            if "terms" not in data:
-                data["terms"] = {
-                    "charterer_name": data.get("terms_charterer_name"),
-                    "cp_type": data.get("terms_cp_type"),
-                    "cp_date": data.get("terms_cp_date"),
-                    "cp_document_ref": data.get("terms_cp_document_ref"),
+            data_dict = dict(data)
+            if "terms" not in data_dict:
+                data_dict["terms"] = {
+                    "charterer_name": data_dict.get("terms_charterer_name"),
+                    "cp_type": data_dict.get("terms_cp_type"),
+                    "cp_date": data_dict.get("terms_cp_date"),
+                    "cp_document_ref": data_dict.get("terms_cp_document_ref"),
                 }
+            return data_dict
         else:
             # SQLAlchemy model instance
             terms_dict = {
@@ -112,23 +114,27 @@ class VoyageResponseDTO(BaseModel):
             has_terms = any(val is not None for val in terms_dict.values())
 
             data_dict = {
-                "id": data.id,
-                "voyage_no": data.voyage_no,
-                "vessel_ref": data.vessel_ref,
-                "charterer_ref": data.charterer_ref,
-                "status": data.status,
-                "commencing_datetime": data.commencing_datetime,
-                "expected_completing_datetime": data.expected_completing_datetime,
-                "expected_completing_manual_override": data.expected_completing_manual_override,
-                "previous_voyage_ref": data.previous_voyage_ref,
-                "voyage_instructions": data.voyage_instructions,
-                "ops_notes": data.ops_notes,
-                "commenced_at": data.commenced_at,
-                "completed_at": data.completed_at,
-                "closed_at": data.closed_at,
-                "cancelled_at": data.cancelled_at,
-                "created_at": data.created_at,
-                "updated_at": data.updated_at,
+                "id": getattr(data, "id"),
+                "voyage_no": getattr(data, "voyage_no"),
+                "vessel_ref": getattr(data, "vessel_ref"),
+                "charterer_ref": getattr(data, "charterer_ref", None),
+                "status": getattr(data, "status"),
+                "commencing_datetime": getattr(data, "commencing_datetime"),
+                "expected_completing_datetime": getattr(
+                    data, "expected_completing_datetime", None
+                ),
+                "expected_completing_manual_override": getattr(
+                    data, "expected_completing_manual_override"
+                ),
+                "previous_voyage_ref": getattr(data, "previous_voyage_ref", None),
+                "voyage_instructions": getattr(data, "voyage_instructions", None),
+                "ops_notes": getattr(data, "ops_notes", None),
+                "commenced_at": getattr(data, "commenced_at", None),
+                "completed_at": getattr(data, "completed_at", None),
+                "closed_at": getattr(data, "closed_at", None),
+                "cancelled_at": getattr(data, "cancelled_at", None),
+                "created_at": getattr(data, "created_at"),
+                "updated_at": getattr(data, "updated_at"),
                 "terms": terms_dict if has_terms else None,
                 "itinerary_lines": [
                     ItineraryLineResponseDTO.model_validate(line)
@@ -136,7 +142,6 @@ class VoyageResponseDTO(BaseModel):
                 ],
             }
             return data_dict
-        return data
 
 
 class ItineraryLineCreateDTO(BaseModel):
@@ -196,6 +201,8 @@ async def list_voyages(
     charterer_ref: Optional[uuid.UUID] = None,
     commencing_start: Optional[datetime] = None,
     commencing_end: Optional[datetime] = None,
+    limit: int = 50,
+    offset: int = 0,
     session: AsyncSession = Depends(get_db_session),
     current_user: str = Depends(get_current_user),
 ) -> List[VoyageResponseDTO]:
@@ -206,6 +213,8 @@ async def list_voyages(
         charterer_ref=charterer_ref,
         commencing_start=commencing_start,
         commencing_end=commencing_end,
+        limit=limit,
+        offset=offset,
     )
     return [VoyageResponseDTO.model_validate(v) for v in voyages]
 
@@ -231,20 +240,26 @@ async def update_voyage(
     service = VoyageService(session)
     update_data: VoyageUpdateData = {}
 
-    for field in [
-        "voyage_no",
-        "vessel_ref",
-        "commencing_datetime",
-        "charterer_ref",
-        "previous_voyage_ref",
-        "voyage_instructions",
-        "ops_notes",
-        "expected_completing_manual_override",
-        "expected_completing_datetime",
-    ]:
-        val = getattr(data, field, None)
-        if val is not None:
-            update_data[field] = val  # type: ignore
+    if data.voyage_no is not None:
+        update_data["voyage_no"] = data.voyage_no
+    if data.vessel_ref is not None:
+        update_data["vessel_ref"] = data.vessel_ref
+    if data.commencing_datetime is not None:
+        update_data["commencing_datetime"] = data.commencing_datetime
+    if data.charterer_ref is not None:
+        update_data["charterer_ref"] = data.charterer_ref
+    if data.previous_voyage_ref is not None:
+        update_data["previous_voyage_ref"] = data.previous_voyage_ref
+    if data.voyage_instructions is not None:
+        update_data["voyage_instructions"] = data.voyage_instructions
+    if data.ops_notes is not None:
+        update_data["ops_notes"] = data.ops_notes
+    if data.expected_completing_manual_override is not None:
+        update_data["expected_completing_manual_override"] = (
+            data.expected_completing_manual_override
+        )
+    if data.expected_completing_datetime is not None:
+        update_data["expected_completing_datetime"] = data.expected_completing_datetime
 
     if data.terms:
         update_data["terms"] = {
@@ -317,16 +332,16 @@ async def update_itinerary_line(
     service = VoyageService(session)
     update_data: ItineraryLineUpdateData = {}
 
-    for field in [
-        "port_ref",
-        "port_function",
-        "planned_eta",
-        "planned_etd",
-        "sequence_no",
-    ]:
-        val = getattr(data, field, None)
-        if val is not None:
-            update_data[field] = val  # type: ignore
+    if data.port_ref is not None:
+        update_data["port_ref"] = data.port_ref
+    if data.port_function is not None:
+        update_data["port_function"] = data.port_function
+    if data.planned_eta is not None:
+        update_data["planned_eta"] = data.planned_eta
+    if data.planned_etd is not None:
+        update_data["planned_etd"] = data.planned_etd
+    if data.sequence_no is not None:
+        update_data["sequence_no"] = data.sequence_no
 
     line = await service.update_itinerary_line(voyage_id, line_id, update_data)
     return ItineraryLineResponseDTO.model_validate(line)

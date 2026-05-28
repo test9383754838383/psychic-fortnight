@@ -991,6 +991,26 @@
               ],
               "title": "Commencing End"
             }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 50,
+              "title": "Limit"
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 0,
+              "title": "Offset"
+            }
           }
         ],
         "responses": {
@@ -2409,8 +2429,7 @@
               "$ref": "#/components/schemas/ItineraryLineResponseDTO"
             },
             "type": "array",
-            "title": "Itinerary Lines",
-            "default": []
+            "title": "Itinerary Lines"
           }
         },
         "type": "object",

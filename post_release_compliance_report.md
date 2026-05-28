@@ -1,35 +1,38 @@
-# Post-Release Compliance Report — Block 2 & Block 3 (M1)
+# Block 2 Post-Release Compliance Report
 
-This report verifies the applicable principles from the 12-Factor App methodology for the **Master Data** and **Voyage Spine (M1)** releases. 12-Factor Agent principles do not apply as there are no LLM or agent integrations in these modules.
+This report verifies the applicable principles from the 12-Factor App methodology for the Block 2 (Master Data) release. As per `AGENTS.md`, 12-Factor Agent principles do not apply to this release, as Block 2 contains no LLM or agent integrations.
 
 ## 1. Codebase
-* **File/Config Pointer**: `.git/` tracking the single repository.
-* **Verification Step**: Run `git remote -v` to confirm exactly one tracked source repository for this modular monolith.
+- **File/Config Pointer**: `.git/` tracking the single repository.
+- **Verification Step**: Run `git remote -v` to confirm exactly one tracked source repository for this codebase.
 
 ## 2. Dependencies
-* **File/Config Pointer**: `pyproject.toml` and `uv.lock`.
-* **Verification Step**: Run `uv sync` to confirm that all backend dependencies (including advanced-alchemy and sqlalchemy) are explicitly declared and the virtual environment can be cleanly rebuilt.
+- **File/Config Pointer**: `pyproject.toml` and `uv.lock`.
+- **Verification Step**: Run `uv sync` to confirm that all dependencies are explicitly declared and the environment can be cleanly rebuilt.
 
 ## 3. Config
-* **File/Config Pointer**: `src/config.py` (`Settings`) loading from environment variables.
-* **Verification Step**: Review `src/config.py` to ensure that configuration values (like `DATABASE_URL`) are loaded from environment variables and never hardcoded in the codebase.
+- **File/Config Pointer**: `src/config.py` (`Settings`) and `.env.example`.
+- **Verification Step**: Review `src/config.py` and `.env.example` to ensure that configuration values (such as `DATABASE_URL` and `SESSION_SECRET`) are declared in the settings class loading from the environment via `pydantic-settings` and never hardcoded with production secrets.
 
 ## 4. Backing Services
-* **File/Config Pointer**: `src/dependencies.py` providing `get_db_session`, and `alembic/env.py`.
-* **Verification Step**: Supply the database connection string via `DATABASE_URL` and confirm the app connects to the backing service (SQLite in dev/test, Postgres in prod) seamlessly.
+- **File/Config Pointer**: `src/dependencies.py` (which creates the async engine and provides `get_db_session`), `alembic/env.py`, `alembic.ini`, and `docker-compose.yml` (specifying the PostgreSQL container backing service).
+- **Verification Step**: Start the Postgres container using `docker compose up -d`, supply the PostgreSQL connection string via the `DATABASE_URL` environment variable, and confirm the application connects successfully to the database backing service without modifying source code.
 
 ## 6. Processes
-* **File/Config Pointer**: stateless service classes in `src/modules/master_data/services/` and `src/modules/voyage_spine/services/`.
-* **Verification Step**: Confirm that service states are persisted entirely in the database; restarting the dev server (`make dev`) retains all resources and entities.
+- **File/Config Pointer**: `src/modules/master_data/services/` (stateless service classes).
+- **Verification Step**: Restart the local `uvicorn` development server (`make dev`) and confirm that API functionality continues seamlessly, relying only on the external database for state.
 
 ## 7. Port Binding
-* **File/Config Pointer**: `Makefile` (`dev` target invoking `uvicorn`).
-* **Verification Step**: Run `make dev` and confirm that the application binds directly to the port (default 8000) and serves requests without relying on a web server container.
+- **File/Config Pointer**: `Makefile` (`dev` target invoking `uvicorn`).
+- **Verification Step**: Run `make dev` and observe that the application directly binds to port 8000 (or the port specified in the environment) without needing an external web server container.
 
 ## 11. Logs
-* **File/Config Pointer**: FastAPI/Uvicorn standard logging configuration.
-* **Verification Step**: Make an invalid API call (e.g. illegal status transition) and observe the logs streaming to `stdout` rather than local log files.
+- **File/Config Pointer**: FastAPI/Uvicorn standard logging configuration.
+- **Verification Step**: Send an invalid request (e.g., duplicate UNLOCODE) to the API and observe that the error is emitted as an event stream to `stdout` rather than written to local log files.
 
 ## 12. Admin Processes
-* **File/Config Pointer**: `alembic/versions/` migrations and `Makefile` (`migrate` target).
-* **Verification Step**: Run `make migrate` to verify database schema updates execute as a one-off administrative command within the same environment.
+- **File/Config Pointer**: `alembic/versions/` for migrations and `Makefile` (`migrate` target).
+- **Verification Step**: Execute `make migrate` to confirm that database migrations run as a one-off administrative process within the identical environment and codebase as the main application.
+
+---
+*Note: Factors 5 (Build, Release, Run), 8 (Concurrency), 9 (Disposability), and 10 (Dev/Prod Parity) are handled at the infrastructure/CI level and are not actively changed or verifiable through Block 2 application code edits.*

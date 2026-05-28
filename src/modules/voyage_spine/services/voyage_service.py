@@ -1,6 +1,6 @@
 import uuid
 from datetime import date, datetime, timezone
-from typing import Any, List, Optional, TypedDict
+from typing import List, Optional, TypedDict
 
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
@@ -174,7 +174,7 @@ class VoyageService:
                 )
 
         # 4. Construct flat model parameters
-        params: dict[str, Any] = {
+        params: dict[str, str | uuid.UUID | datetime | date | bool | None] = {
             "voyage_no": voyage_no,
             "vessel_ref": vessel_ref,
             "commencing_datetime": data.get("commencing_datetime"),
@@ -216,6 +216,8 @@ class VoyageService:
         charterer_ref: Optional[uuid.UUID] = None,
         commencing_start: Optional[datetime] = None,
         commencing_end: Optional[datetime] = None,
+        limit: int = 50,
+        offset: int = 0,
     ) -> List[Voyage]:
         stmt = select(Voyage)
         if vessel_ref is not None:
@@ -230,6 +232,12 @@ class VoyageService:
             stmt = stmt.where(Voyage.commencing_datetime <= commencing_end)
 
         stmt = stmt.order_by(Voyage.voyage_no)
+
+        # Enforce limits D-3 / D-4
+        clamped_limit = min(max(1, limit), 500)
+        clamped_offset = max(0, offset)
+        stmt = stmt.limit(clamped_limit).offset(clamped_offset)
+
         res = await self.session.execute(stmt)
         return list(res.scalars().all())
 
@@ -260,17 +268,20 @@ class VoyageService:
                 )
 
         # Apply flat attributes
-        for key in [
-            "voyage_no",
-            "vessel_ref",
-            "commencing_datetime",
-            "charterer_ref",
-            "previous_voyage_ref",
-            "voyage_instructions",
-            "ops_notes",
-        ]:
-            if key in data and data[key] is not None:  # type: ignore
-                setattr(voyage, key, data[key])  # type: ignore
+        if "voyage_no" in data and data["voyage_no"] is not None:
+            voyage.voyage_no = data["voyage_no"]
+        if "vessel_ref" in data and data["vessel_ref"] is not None:
+            voyage.vessel_ref = data["vessel_ref"]
+        if "commencing_datetime" in data and data["commencing_datetime"] is not None:
+            voyage.commencing_datetime = data["commencing_datetime"]
+        if "charterer_ref" in data:
+            voyage.charterer_ref = data["charterer_ref"]
+        if "previous_voyage_ref" in data:
+            voyage.previous_voyage_ref = data["previous_voyage_ref"]
+        if "voyage_instructions" in data:
+            voyage.voyage_instructions = data["voyage_instructions"]
+        if "ops_notes" in data:
+            voyage.ops_notes = data["ops_notes"]
 
         # Handle nested terms mapping
         terms = data.get("terms")
