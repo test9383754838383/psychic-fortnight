@@ -119,6 +119,7 @@ jobs:
           curl -LsSf https://astral.sh/uv/install.sh | sh
           export PATH="$HOME/.local/bin:$PATH"
           uv sync --all-extras --dev
+          DATABASE_URL="sqlite:///dev.db" uv run alembic upgrade head
           DATABASE_URL="sqlite:///dev.db" uv run uvicorn src.app:create_app --factory --host 127.0.0.1 --port 8000 &
           for i in {1..30}; do
             curl -s http://127.0.0.1:8000/api/v1/voyages && break
