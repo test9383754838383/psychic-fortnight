@@ -29,10 +29,10 @@ Durable project rules and roadmap: `ORCHESTRA.md`.
 
 **Date:** 2026-05-28
 
-**Status:** Block 3 (Voyage Spine) **complete**. Final commit `592186c`, CI green, runbook + post-release compliance report committed. Block 3.5 (Auth + RBAC) is next.
+**Status:** Block 3 (Voyage Spine) **complete**. Runbook + post-release compliance report committed, CI green. Block 3.5 (Auth + RBAC) is next.
 
 **Block 3 evidence:**
-- Final commit: `592186c11b7de1921c2901e4dd835366dfdaae6c`
+- Accepted Block 3 release/runbook commit: `592186c11b7de1921c2901e4dd835366dfdaae6c`
 - Last CI run: green ([Actions run 26580204291](https://github.com/test9383754838383/psychic-fortnight/actions/runs/26580204291))
 - Runbook: `docs/voyage_spine/runbook.md`
 - Post-release compliance: `post_release_compliance_report.md`
