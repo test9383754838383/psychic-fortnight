@@ -166,13 +166,16 @@ curl -X POST http://localhost:8000/api/v1/voyages/<voyage_uuid>/itinerary \
 ### Regenerating Frontend Client Types
 Our React application is bound to the backend REST API via generated type interfaces. When DTOs or endpoint signatures in the Python module change, regenerate the types:
 
-1. Ensure the latest schema is written to `openapi/openapi.json` (running backend tests via `make test` does this automatically).
-2. Generate the types using the codegen script:
+1. Regenerate the backend schema file `openapi/openapi.json` from the root directory:
+   ```bash
+   PYTHONPATH=. uv run python scripts/generate_openapi.py
+   ```
+2. Navigate to the frontend directory and generate the types using the codegen script:
    ```bash
    cd frontend
    pnpm run codegen
    ```
-   This triggers `openapi-typescript` to build `frontend/src/api/schema.ts` based on `openapi/openapi.json`.
+   This triggers `openapi-typescript` to read the schema file and compile TypeScript interfaces into `frontend/src/api/schema.ts`.
 3. Verify type compilation:
    ```bash
    pnpm run typecheck
@@ -225,7 +228,7 @@ Dual-database support (dev/CI on SQLite and production on PostgreSQL) is in effe
 ### 4. OpenAPI Codegen Drift
 - **Problem**: Frontend compilation fails during type checking (`pnpm run typecheck` or in the CI pipeline).
 - **Diagnostics**: Python DTOs or endpoints were added/changed in the backend, but the frontend schema wasn't updated.
-- **Resolution**: Update the committed OpenAPI schema by running tests, then run `pnpm run codegen` in `frontend/` and commit the updated `frontend/src/api/schema.ts`.
+- **Resolution**: Regenerate the schema using `PYTHONPATH=. uv run python scripts/generate_openapi.py`, then run `pnpm run codegen` in `frontend/` and commit the updated `frontend/src/api/schema.ts`.
 
 ### 5. TanStack Router / Lockfile Drift
 - **Problem**: Frontend routing failures, typescript errors on page navigation, or security warning gates (`npm audit`) flag version conflicts in CI.
