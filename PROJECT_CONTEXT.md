@@ -33,7 +33,7 @@ Durable project rules and roadmap: `ORCHESTRA.md`.
 
 **Block 3 evidence:**
 - Accepted Block 3 release/runbook commit: `592186c11b7de1921c2901e4dd835366dfdaae6c`
-- Last CI run: green ([Actions run 26580204291](https://github.com/test9383754838383/psychic-fortnight/actions/runs/26580204291))
+- Accepted release CI run: green ([Actions run 26580204291](https://github.com/test9383754838383/psychic-fortnight/actions/runs/26580204291))
 - Runbook: `docs/voyage_spine/runbook.md`
 - Post-release compliance: `post_release_compliance_report.md`
 - Frontend scaffold: Verified in `frontend/` (React + Vite + TS strict, routing, codegen, auth stub).
