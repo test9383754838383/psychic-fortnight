@@ -29,18 +29,19 @@ Durable project rules and roadmap: `ORCHESTRA.md`.
 
 **Date:** 2026-05-28
 
-**Status:** Block 2 (Master Data) **complete**. Final commit `577b0c3`, CI green, runbook + post-release compliance report committed. Block 3 (Voyage Spine) is next — specs being drafted in `docs/voyage_spine/`.
+**Status:** Block 3 (Voyage Spine) **complete**. Final commit `592186c`, CI green, runbook + post-release compliance report committed. Block 3.5 (Auth + RBAC) is next.
+
+**Block 3 evidence:**
+- Final commit: `592186c11b7de1921c2901e4dd835366dfdaae6c`
+- Last CI run: green ([Actions run 26580204291](https://github.com/test9383754838383/psychic-fortnight/actions/runs/26580204291))
+- Runbook: `docs/voyage_spine/runbook.md`
+- Post-release compliance: `post_release_compliance_report.md`
+- Frontend scaffold: Verified in `frontend/` (React + Vite + TS strict, routing, codegen, auth stub).
 
 **Block 2 evidence:**
 - Final commit: `577b0c36ba6e10e9fbe051a6fa52e63afd9d3951`
 - Last CI run: green (Actions run `26549180985`)
 - Runbook: `docs/master_data/runbook.md`
-- Post-release compliance: `post_release_compliance_report.md`
-
-**Roadmap updates (2026-05-28):**
-- Frontend scaffold folded into Block 3 as its final milestone (React + Vite + TS strict, OpenAPI codegen, auth context shell — no feature screens).
-- Block 3.5 — Auth + RBAC inserted between Voyage Spine and Vessel Schedule. Replaces `get_current_user_stub` with real session auth so every block from 4 onward inherits real auth from day one.
-- Deployment gap remains open — to be resolved at Block 10 spec time.
 
 **Open gates:**
 - Founder budget approval for Bryntum Scheduler licensing (`[ADR-0006]`) — still open; binds at Block 4.
@@ -88,8 +89,4 @@ See `CLAUDE.md`. Highlights:
 
 ## Next step
 
-Block 3 (Voyage Spine) four-doc spec being drafted in `docs/voyage_spine/`. Founder approval gate between each doc per `[ADR-0012]`. When all four are approved, open M0 coordinator with the prompt from `docs/voyage_spine/plan.md`.
-
-Block 3 carries two coding milestones:
-- **M1** — Voyage Spine API (Voyage, VoyageOperatingTerms, ItineraryLine vertical slice).
-- **M2** — Frontend scaffold (React + Vite + TS strict, router, OpenAPI codegen, auth context shell — no feature screens).
+Block 3.5 (Auth + RBAC) is next. This block replaces the `get_current_user_stub` with real session auth so every block from Block 4 (Vessel Schedule) onward inherits real auth from day one.
