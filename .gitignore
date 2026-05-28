@@ -167,3 +167,13 @@ tests/test.db-journal
 .pytest_cache
 __pycache__
 *.pyc
+
+# Frontend
+node_modules/
+.pnpm-store/
+frontend/node_modules/
+frontend/dist/
+frontend/tmp/
+frontend/test-results/
+frontend/playwright-report/
+
