@@ -40,7 +40,7 @@ export const indexRoute = createRoute({
 // Authenticated Layout Route
 export const authenticatedRoute = createRoute({
   getParentRoute: () => rootRoute,
-  id: "_authenticated",
+  path: "/_authenticated",
   component: () => (
     <RequireAuth>
       <Outlet />
@@ -48,18 +48,8 @@ export const authenticatedRoute = createRoute({
   ),
 });
 
-// Placeholder child route to prevent empty layout route collision
-export const authenticatedPlaceholderRoute = createRoute({
-  getParentRoute: () => authenticatedRoute,
-  path: "/authenticated-placeholder",
-  component: () => <div>Guarded Zone Placeholder</div>,
-});
-
 // Build Route Tree
-const routeTree = rootRoute.addChildren([
-  indexRoute,
-  authenticatedRoute.addChildren([authenticatedPlaceholderRoute]),
-]);
+const routeTree = rootRoute.addChildren([indexRoute, authenticatedRoute]);
 
 // Create Router instance
 export const router = createRouter({ routeTree });
