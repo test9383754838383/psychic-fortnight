@@ -48,8 +48,18 @@ export const authenticatedRoute = createRoute({
   ),
 });
 
+// Placeholder child route to prevent empty layout route collision
+export const authenticatedPlaceholderRoute = createRoute({
+  getParentRoute: () => authenticatedRoute,
+  path: "/authenticated-placeholder",
+  component: () => <div>Guarded Zone Placeholder</div>,
+});
+
 // Build Route Tree
-const routeTree = rootRoute.addChildren([indexRoute, authenticatedRoute]);
+const routeTree = rootRoute.addChildren([
+  indexRoute,
+  authenticatedRoute.addChildren([authenticatedPlaceholderRoute]),
+]);
 
 // Create Router instance
 export const router = createRouter({ routeTree });
