@@ -27,24 +27,26 @@ Durable project rules and roadmap: `ORCHESTRA.md`.
 
 ## Where we are now
 
-**Date:** 2026-05-28
+**Date:** 2026-05-29
 
-**Status:** Block 3 (Voyage Spine) **complete**. Runbook + post-release compliance report committed, CI green. Block 3.5 (Auth + RBAC) is next.
+**Status:** Block 3.5 (Auth + RBAC) **complete**. CI green, runbook committed. Block 4 (Vessel Schedule) is next — Bryntum license gate must be resolved first.
+
+**Block 3.5 evidence:**
+- Final commit: `c3985aa feat: implement Block 3.5 Auth + RBAC module`
+- Runbook: `docs/auth_rbac/runbook.md`
 
 **Block 3 evidence:**
 - Accepted Block 3 release/runbook commit: `592186c11b7de1921c2901e4dd835366dfdaae6c`
-- Accepted release CI run: green ([Actions run 26580204291](https://github.com/test9383754838383/psychic-fortnight/actions/runs/26580204291))
+- Accepted release CI run: green (Actions run 26580204291)
 - Runbook: `docs/voyage_spine/runbook.md`
 - Post-release compliance: `post_release_compliance_report.md`
-- Frontend scaffold: Verified in `frontend/` (React + Vite + TS strict, routing, codegen, auth stub).
 
 **Block 2 evidence:**
 - Final commit: `577b0c36ba6e10e9fbe051a6fa52e63afd9d3951`
-- Last CI run: green (Actions run `26549180985`)
 - Runbook: `docs/master_data/runbook.md`
 
 **Open gates:**
-- Founder budget approval for Bryntum Scheduler licensing (`[ADR-0006]`) — still open; binds at Block 4.
+- Founder budget approval for Bryntum Scheduler licensing (`[ADR-0006]`) — **still open; blocks Block 4 start**.
 
 ## Build workflow
 
@@ -89,7 +91,8 @@ See `CLAUDE.md`. Highlights:
 - 2026-05-28 — Block 3 closed (CI green at `74834e0`). Block 3.5 spec drafting begins.
 - 2026-05-28 — Block 3.5 Prompt A run, returned `NO_FIT`. No OSS repo fits (AuthTuna forces multi-tenancy; starsessions is inactive; fastapi-user-auth requires Casbin + admin UI). Custom implementation confirmed.
 - 2026-05-28 — Block 3.5 Prompt B run. All preliminary decisions confirmed. One override: starlette-session inactive → custom FastAPI dependency. New decisions: slowapi brute-force (in V1), hybrid TTL (30-min idle / 8-hr absolute), case-insensitive usernames. All locked in [ADR-0016]. Five-doc spec complete in `docs/auth_rbac/`.
+- 2026-05-29 — Block 3.5 closed (CI green at `c3985aa`). Block 4 (Vessel Schedule) is next — Bryntum license gate binds before spec drafting begins.
 
 ## Next step
 
-Block 3.5 (Auth + RBAC) — specs complete. Open M0 coordinator with the prompt from `docs/auth_rbac/plan.md` to begin coding.
+Block 4 (Vessel Schedule) — waiting on Bryntum Scheduler license budget approval (`[ADR-0006]`, `OPEN_DECISIONS §1`). Once approved: run Prompt A → Prompt B → draft five docs in `docs/vessel_schedule/` → open M0.
