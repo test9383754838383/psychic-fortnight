@@ -6,10 +6,35 @@ source_roots = [
 ]
 modules = [
     { path = "modules.master_data", depends_on = [] },
+    { path = "modules.voyage_spine", depends_on = ["modules.master_data"] },
 ]
 
 [[interfaces]]
-expose = []
+expose = [
+    "router",
+    "VesselService",
+    "PortService",
+    "CounterpartyService",
+    "VesselStatus",
+    "VesselType",
+    "PortStatus",
+    "CounterpartyStatus",
+    "CounterpartyRoleEnum",
+    "VesselNotFoundError",
+    "PortNotFoundError",
+    "CounterpartyNotFoundError",
+]
 from = [
     "modules.master_data",
 ]
+
+[[interfaces]]
+expose = [
+    "router",
+    "VoyageStatus",
+    "PortFunction",
+]
+from = [
+    "modules.voyage_spine",
+]
+

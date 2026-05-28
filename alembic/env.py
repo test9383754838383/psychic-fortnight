@@ -22,6 +22,7 @@ if config.config_file_name is not None:
 # target_metadata = mybase.metadata
 from src.config import settings
 from src.modules.master_data.models import Base
+from src.modules.voyage_spine.models import Voyage, ItineraryLine
 target_metadata = Base.metadata
 
 # other values from the config, defined by the needs of env.py,
