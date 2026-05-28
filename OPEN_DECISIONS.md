@@ -94,10 +94,9 @@ Never let a deferred item hide. If a deferred item's blocking condition arrives,
 
 ## 13. Password hashing library + auth approach (Block 3.5 Auth)
 
-- **Status:** DECIDED
-- **Decision shape:** `[x] DECIDED: argon2-cffi + first-party DB-backed sessions (no fastapi-users) — 2026-05-28.`
-- **Context:** Confirmed by Prompt B and recheck. argon2-cffi is MIT, actively maintained; Argon2id is the current OWASP-recommended password hashing algorithm. fastapi-users explicitly entered maintenance mode per maintainer announcement dated Oct 25, 2025 (verified by recheck) — security/dependency-only updates, no new features. First-party DB-backed session implementation (users / roles / permissions / user_roles / sessions tables, HttpOnly Secure SameSite cookies, opaque server-side session IDs) is the locked approach.
-- **Promote to ADR when:** Block 3.5 (Auth + RBAC) spec is drafted.
+- **Status:** DECIDED — closed by [ADR-0016]
+- **Decision shape:** `[x] DECIDED: argon2-cffi + first-party DB-backed sessions, custom FastAPI dependency, slowapi brute-force, hybrid TTL (30-min idle / 8-hr absolute), case-insensitive usernames — 2026-05-28. Promoted to [ADR-0016].`
+- **Context:** Confirmed by Prompt B and recheck. Block 3.5 Prompt A (NO_FIT) + Prompt B full-stack verification expanded and confirmed all sub-decisions. starlette-session overridden (inactive); slowapi added for V1 brute-force; TTL and username decisions resolved. Full detail in [ADR-0016].
 
 ## 14. Postgres integration-test harness in CI
 

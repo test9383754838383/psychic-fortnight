@@ -86,7 +86,10 @@ See `CLAUDE.md`. Highlights:
 - 2026-05-28 — Block 3 Prompt A run, returned `NO_FIT`. Tactical implementation decisions locked in `docs/voyage_spine/locked_decisions.md` (orderinglist for ItineraryLine, flat columns for VoyageOperatingTerms, service-layer recompute, service-layer state machine).
 - 2026-05-28 — Block 3 Prompt B run (full-stack verification, research 1). Result: seven Block 2 ADRs independently confirmed. Three supersedes: [ADR-0013] APScheduler replaces Huey; [ADR-0014] OpenAI SDK + Pydantic direct replaces Instructor; [ADR-0015] Caddy locked as reverse proxy (closes OPEN_DECISIONS §12). New decisions: argon2-cffi (§13), Testcontainers (§14), openapi-typescript + openapi-fetch (§15), structlog + Vector + GlitchTip (§11 closed). [ADR-0010] Tach pending recheck on 2026 maturity claim.
 - 2026-05-28 — Recheck run on six suspect claims. Verdicts: Tach Beta classifier CONFIRMED (decision pending); TypeScript 6.0.3 stable CONFIRMED (locked); Vite 8.0.14 stable CONFIRMED (locked); TanStack Router supply-chain incident May 11 2026 resolved May 15 2026 CONFIRMED (router locked, lockfile + audit gate required); fastapi-users maintenance mode since Oct 25 2025 CONFIRMED (first-party auth approach stands for Block 3.5); Postgres 18.4 current stable CONFIRMED (production target bumped 16→18 in locked_summary.md).
+- 2026-05-28 — Block 3 closed (CI green at `74834e0`). Block 3.5 spec drafting begins.
+- 2026-05-28 — Block 3.5 Prompt A run, returned `NO_FIT`. No OSS repo fits (AuthTuna forces multi-tenancy; starsessions is inactive; fastapi-user-auth requires Casbin + admin UI). Custom implementation confirmed.
+- 2026-05-28 — Block 3.5 Prompt B run. All preliminary decisions confirmed. One override: starlette-session inactive → custom FastAPI dependency. New decisions: slowapi brute-force (in V1), hybrid TTL (30-min idle / 8-hr absolute), case-insensitive usernames. All locked in [ADR-0016]. Five-doc spec complete in `docs/auth_rbac/`.
 
 ## Next step
 
-Block 3.5 (Auth + RBAC) is next. This block replaces the `get_current_user_stub` with real session auth so every block from Block 4 (Vessel Schedule) onward inherits real auth from day one.
+Block 3.5 (Auth + RBAC) — specs complete. Open M0 coordinator with the prompt from `docs/auth_rbac/plan.md` to begin coding.

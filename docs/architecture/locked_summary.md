@@ -34,7 +34,12 @@ Authoritative snapshot of the architectural baseline. Every bullet cites the ADR
 ## Identity & Authorization
 
 - Session-based auth, single-tenant, server-side session store in the DB. [ADR-0007]
-- Block 2 ships a `get_current_user_stub` dependency; full auth + RBAC lands in its own block before production. [ADR-0007]
+- Block 2/3 ship a `get_current_user_stub`; Block 3.5 replaces it with the real implementation. [ADR-0007]
+- argon2-cffi (Argon2id), opaque session IDs (`secrets.token_hex(32)`), HttpOnly+Secure+SameSite=Strict cookie. [ADR-0016]
+- Custom FastAPI dependency reads session cookie; no session middleware library. [ADR-0016]
+- RBAC: `require_role(role: str)` dependency factory; three flat roles (`Admin / Operations / Viewer`). [ADR-0016]
+- slowapi rate-limits the login endpoint (5/min/IP, in-memory store). [ADR-0016]
+- Session TTL: 30-min idle, 8-hr absolute; APScheduler purge task every 6 hours. [ADR-0016]
 
 ## Async & Background Work
 
