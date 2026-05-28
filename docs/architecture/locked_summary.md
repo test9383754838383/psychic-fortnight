@@ -29,7 +29,7 @@ Authoritative snapshot of the architectural baseline. Every bullet cites the ADR
 - React + Vite + TypeScript in strict mode. [ADR-0005]
 - Per-module directory layout mirroring backend domains; boundary enforcement via ESLint rules (specific tool a D-entry). [ADR-0005]
 - OpenAPI → TypeScript client codegen from FastAPI's generated schema. [ADR-0002], [ADR-0005]
-- Bryntum Scheduler for the Vessel Schedule Gantt (Block 4). [ADR-0006]
+- Apache ECharts (`echarts`, Apache-2.0) for the Vessel Schedule Gantt (Block 4). [ADR-0017] supersedes [ADR-0006].
 
 ## Identity & Authorization
 

@@ -12,10 +12,9 @@ Never let a deferred item hide. If a deferred item's blocking condition arrives,
 
 ## 1. Bryntum Scheduler license budget approval
 
-- **Status:** OPEN
-- **Decision shape:** `[ ] TBD — founder budget approval for ~$800/developer one-time Bryntum Scheduler seat(s).`
-- **Context:** Engineering decision is locked in [ADR-0006]; only the budget gate remains.
-- **Becomes blocking when:** start of Block 4 (Vessel Schedule). Has no impact on Blocks 2 or 3.
+- **Status:** DECIDED — closed by [ADR-0017]
+- **Decision shape:** `[x] DECIDED: Bryntum dropped (budget unavailable). Apache ECharts (Apache-2.0, free) adopted for Block 4 Vessel Schedule Gantt — 2026-05-29.`
+- **Context:** Deep research confirmed Apache ECharts covers all Block 4 requirements. Custom `renderItem` layer (~80 lines) replaces the Bryntum bar renderer. No license cost. [ADR-0006] superseded by [ADR-0017].
 
 ## 2. Multi-tenancy
 

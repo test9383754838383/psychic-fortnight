@@ -46,7 +46,7 @@ Durable project rules and roadmap: `ORCHESTRA.md`.
 - Runbook: `docs/master_data/runbook.md`
 
 **Open gates:**
-- Founder budget approval for Bryntum Scheduler licensing (`[ADR-0006]`) — **still open; blocks Block 4 start**.
+- None. Bryntum replaced by Apache ECharts (free, Apache-2.0). [ADR-0017]. Block 4 is unblocked.
 
 ## Build workflow
 
@@ -92,6 +92,7 @@ See `CLAUDE.md`. Highlights:
 - 2026-05-28 — Block 3.5 Prompt A run, returned `NO_FIT`. No OSS repo fits (AuthTuna forces multi-tenancy; starsessions is inactive; fastapi-user-auth requires Casbin + admin UI). Custom implementation confirmed.
 - 2026-05-28 — Block 3.5 Prompt B run. All preliminary decisions confirmed. One override: starlette-session inactive → custom FastAPI dependency. New decisions: slowapi brute-force (in V1), hybrid TTL (30-min idle / 8-hr absolute), case-insensitive usernames. All locked in [ADR-0016]. Five-doc spec complete in `docs/auth_rbac/`.
 - 2026-05-29 — Block 3.5 closed (CI green at `c3985aa`). Block 4 (Vessel Schedule) is next — Bryntum license gate binds before spec drafting begins.
+- 2026-05-29 — Bryntum dropped (budget unavailable). Deep research run; Apache ECharts (Apache-2.0, v6.1.0) adopted. [ADR-0006] superseded by [ADR-0017]. OPEN_DECISIONS §1 closed. Block 4 unblocked.
 
 ## Next step
 

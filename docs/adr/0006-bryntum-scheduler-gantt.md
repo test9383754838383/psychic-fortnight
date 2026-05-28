@@ -1,6 +1,6 @@
 # ADR-0006 — Bryntum Scheduler for the Vessel Schedule Gantt
 
-**Status:** Accepted — 2026-05-27 (pending founder budget approval)
+**Status:** Superseded by [ADR-0017] — 2026-05-29 (budget unavailable; Apache ECharts adopted)
 
 ## Context
 
