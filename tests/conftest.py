@@ -1,5 +1,8 @@
 import asyncio
+import os
 from typing import AsyncGenerator, Generator
+
+os.environ["TESTING"] = "True"
 
 import pytest
 import pytest_asyncio
@@ -75,6 +78,9 @@ async def session(engine) -> AsyncGenerator[AsyncSession, None]:
 
 @pytest_asyncio.fixture
 async def app(session: AsyncSession) -> FastAPI:
+    from src.config import settings
+
+    settings.TESTING = True
     application = create_app()
 
     async def override_get_db_session():
@@ -85,8 +91,38 @@ async def app(session: AsyncSession) -> FastAPI:
 
 
 @pytest_asyncio.fixture
-async def client(app: FastAPI) -> AsyncGenerator[AsyncClient, None]:
+async def client(
+    app: FastAPI, session: AsyncSession
+) -> AsyncGenerator[AsyncClient, None]:
+    # Create a test user and session so existing tests continue to work
+    from src.modules.auth.services.auth_service import AuthService
+    from src.modules.auth.models.role import Role
+    from sqlalchemy import select
+
+    # Ensure some basic roles exist for tests that might check them
+    for role_name in ["Admin", "Operations", "Viewer"]:
+        stmt = select(Role).where(Role.name == role_name)
+        result = await session.execute(stmt)
+        if not result.scalar_one_or_none():
+            session.add(Role(name=role_name))
+    await session.commit()
+
+    auth_service = AuthService(session)
+    user = await auth_service.create_user("testuser", "password", [])
+    session_record = await auth_service.create_session(user.id)
+
     async with AsyncClient(
-        transport=ASGITransport(app=app), base_url="http://test"
+        transport=ASGITransport(app=app),
+        base_url="http://testserver",
+        cookies={"session_id": session_record.session_id},
+    ) as client:
+        yield client
+
+
+@pytest_asyncio.fixture
+async def unauthenticated_client(app: FastAPI) -> AsyncGenerator[AsyncClient, None]:
+    async with AsyncClient(
+        transport=ASGITransport(app=app),
+        base_url="http://testserver",
     ) as client:
         yield client

@@ -24,14 +24,6 @@ jobs:
         run: make typecheck
       - name: Tach Check
         run: make tach-check
-      - name: Auth stub guard
-        run: |
-          # Forbidden if get_current_user_stub appears in any .py file under src/ EXCEPT exactly src/dependencies.py
-          if find src -name "*.py" ! -path "src/dependencies.py" -exec grep -H "get_current_user_stub" {} +; then
-            echo "Error: get_current_user_stub found outside src/dependencies.py"
-            exit 1
-          fi
-          echo "Auth stub guard passed."
 
   test:
     runs-on: ubuntu-latest
@@ -47,7 +39,7 @@ jobs:
       - name: Run tests with coverage and runtime check
         run: |
           START_TIME=$(date +%s)
-          uv run pytest --cov=src/modules/master_data --cov=src/modules/voyage_spine --cov-fail-under=95 tests
+          uv run pytest --cov=src/modules/master_data --cov=src/modules/voyage_spine --cov=src/modules/auth --cov-fail-under=95 tests
           END_TIME=$(date +%s)
           RUNTIME=$((END_TIME - START_TIME))
           echo "Runtime: ${RUNTIME}s"

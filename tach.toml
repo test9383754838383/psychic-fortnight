@@ -7,11 +7,28 @@ source_roots = [
 modules = [
     { path = "modules.master_data", depends_on = [] },
     { path = "modules.voyage_spine", depends_on = ["modules.master_data"] },
+    { path = "modules.auth", depends_on = [] },
 ]
 
 [[interfaces]]
 expose = [
     "router",
+    "admin_router",
+]
+from = [
+    "modules.auth.api",
+]
+
+[[interfaces]]
+expose = [
+    "router",
+]
+from = [
+    "modules.master_data.api",
+]
+
+[[interfaces]]
+expose = [
     "VesselService",
     "PortService",
     "CounterpartyService",
