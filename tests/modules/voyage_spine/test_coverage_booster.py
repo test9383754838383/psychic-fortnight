@@ -89,13 +89,31 @@ async def test_list_voyages_filtering_comprehensive(session: AsyncSession):
 
 
 @pytest.mark.asyncio
-async def test_voyage_service_unused_exceptions(session: AsyncSession):
-    # Cover the domain exception direct instantiations
-    e = ItineraryLineNotFoundError("abc")
-    assert e.status_code == 404
+async def test_voyage_service_exceptions_behavioral(session: AsyncSession):
+    service = VoyageService(session)
+    non_existent_id = uuid.uuid4()
 
-    e2 = VoyageNotFoundError("abc")
-    assert e2.status_code == 404
+    # 1. VoyageNotFoundError behavioral trigger
+    with pytest.raises(VoyageNotFoundError) as exc_info1:
+        await service.get(non_existent_id)
+    assert exc_info1.value.status_code == 404
+    assert str(non_existent_id) in exc_info1.value.message
+
+    # 2. ItineraryLineNotFoundError behavioral trigger
+    vessel = VesselFactory.build(status="Active")
+    session.add(vessel)
+    await session.commit()
+
+    voyage = VoyageFactory.build(vessel_ref=vessel.id)
+    session.add(voyage)
+    await session.commit()
+
+    with pytest.raises(ItineraryLineNotFoundError) as exc_info2:
+        await service.update_itinerary_line(
+            voyage.id, non_existent_id, {"port_function": "Load"}
+        )
+    assert exc_info2.value.status_code == 404
+    assert str(non_existent_id) in exc_info2.value.message
 
 
 @pytest.mark.asyncio
