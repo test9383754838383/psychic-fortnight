@@ -27,13 +27,23 @@ Durable project rules and roadmap: `ORCHESTRA.md`.
 
 ## Where we are now
 
-**Date:** 2026-05-27
+**Date:** 2026-05-28
 
-**Status:** Pre-code. All architectural decisions locked (see `docs/adr/0001–0012`). Block 2 (Master Data) is fully specified in `docs/master_data/`. Stack locked. The repository contains no application code yet.
+**Status:** Block 2 (Master Data) **complete**. Final commit `577b0c3`, CI green, runbook + post-release compliance report committed. Block 3 (Voyage Spine) is next — specs being drafted in `docs/voyage_spine/`.
+
+**Block 2 evidence:**
+- Final commit: `577b0c36ba6e10e9fbe051a6fa52e63afd9d3951`
+- Last CI run: green (Actions run `26549180985`)
+- Runbook: `docs/master_data/runbook.md`
+- Post-release compliance: `post_release_compliance_report.md`
+
+**Roadmap updates (2026-05-28):**
+- Frontend scaffold folded into Block 3 as its final milestone (React + Vite + TS strict, OpenAPI codegen, auth context shell — no feature screens).
+- Block 3.5 — Auth + RBAC inserted between Voyage Spine and Vessel Schedule. Replaces `get_current_user_stub` with real session auth so every block from 4 onward inherits real auth from day one.
+- Deployment gap remains open — to be resolved at Block 10 spec time.
 
 **Open gates:**
-- Founder budget approval for Bryntum Scheduler licensing (`[ADR-0006]`).
-- Awaiting green light to open M0 coordinator terminal for Block 2.
+- Founder budget approval for Bryntum Scheduler licensing (`[ADR-0006]`) — still open; binds at Block 4.
 
 ## Build workflow
 
@@ -71,7 +81,15 @@ See `CLAUDE.md`. Highlights:
 - 2026-05-27 — Stack research completed; Bryntum selected for Gantt; FastAPI replaces Litestar; Huey on SQLite-dev / Redis-prod locked.
 - 2026-05-27 — Block 2 (Master Data) specs drafted.
 - 2026-05-27 — Adopted new doc system: ADRs (12 seeded), `PROJECT_CONTEXT.md`, `OPEN_DECISIONS.md`, `docs/<module>/` per-block specs.
+- 2026-05-28 — Block 2 closed (CI green at `577b0c3`). Roadmap gaps resolved: frontend scaffold into Block 3 M2, Block 3.5 Auth + RBAC inserted. Block 3 spec drafting begins.
+- 2026-05-28 — Block 3 Prompt A run, returned `NO_FIT`. Tactical implementation decisions locked in `docs/voyage_spine/locked_decisions.md` (orderinglist for ItineraryLine, flat columns for VoyageOperatingTerms, service-layer recompute, service-layer state machine).
+- 2026-05-28 — Block 3 Prompt B run (full-stack verification, research 1). Result: seven Block 2 ADRs independently confirmed. Three supersedes: [ADR-0013] APScheduler replaces Huey; [ADR-0014] OpenAI SDK + Pydantic direct replaces Instructor; [ADR-0015] Caddy locked as reverse proxy (closes OPEN_DECISIONS §12). New decisions: argon2-cffi (§13), Testcontainers (§14), openapi-typescript + openapi-fetch (§15), structlog + Vector + GlitchTip (§11 closed). [ADR-0010] Tach pending recheck on 2026 maturity claim.
+- 2026-05-28 — Recheck run on six suspect claims. Verdicts: Tach Beta classifier CONFIRMED (decision pending); TypeScript 6.0.3 stable CONFIRMED (locked); Vite 8.0.14 stable CONFIRMED (locked); TanStack Router supply-chain incident May 11 2026 resolved May 15 2026 CONFIRMED (router locked, lockfile + audit gate required); fastapi-users maintenance mode since Oct 25 2025 CONFIRMED (first-party auth approach stands for Block 3.5); Postgres 18.4 current stable CONFIRMED (production target bumped 16→18 in locked_summary.md).
 
 ## Next step
 
-Founder confirms readiness to start Block 2 coding. Open M0 coordinator with the prompt from `docs/master_data/plan.md`. Bryntum budget approval can run in parallel — it doesn't gate Block 2, which has no UI.
+Block 3 (Voyage Spine) four-doc spec being drafted in `docs/voyage_spine/`. Founder approval gate between each doc per `[ADR-0012]`. When all four are approved, open M0 coordinator with the prompt from `docs/voyage_spine/plan.md`.
+
+Block 3 carries two coding milestones:
+- **M1** — Voyage Spine API (Voyage, VoyageOperatingTerms, ItineraryLine vertical slice).
+- **M2** — Frontend scaffold (React + Vite + TS strict, router, OpenAPI codegen, auth context shell — no feature screens).

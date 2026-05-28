@@ -20,7 +20,7 @@ Authoritative snapshot of the architectural baseline. Every bullet cites the ADR
 ## Persistence
 
 - SQLAlchemy 2.0 declarative + Alembic with batch mode. [ADR-0003]
-- SQLite in dev/CI; PostgreSQL 16 in production. [ADR-0004]
+- SQLite in dev/CI; PostgreSQL 18 in production. [ADR-0004] — version target bumped from 16 → 18 on 2026-05-28 per recheck-verified current-stable status.
 - Domain code restricted to portable ANSI-SQL features. JSON columns read/written whole. UUIDv4 app-side. Enums = String + CheckConstraint. [ADR-0004]
 - CI replays the full Alembic history against an ephemeral Postgres container on every PR. [ADR-0004], [ADR-0011]
 
@@ -38,15 +38,16 @@ Authoritative snapshot of the architectural baseline. Every bullet cites the ADR
 
 ## Async & Background Work
 
-- Huey task queue. SQLite broker in dev/CI; Redis broker in production. [ADR-0008]
-- Not provisioned until Block 7 demands it.
+- APScheduler, in-process, SQLAlchemy-backed job store (same DB as the app). [ADR-0013] supersedes [ADR-0008]
+- No broker, no Redis. Single-process scheduler suffices at V1 scale.
+- Not provisioned until Block 7 or Block 10 demands it.
 - No WebSockets / SSE in V1. HTTP polling for cross-operator state freshness.
 
 ## LLM Integration (Block 7 only)
 
-- Instructor + Pydantic for structured extraction. [ADR-0009]
-- OpenAI `gpt-4o-mini` in cloud production; Ollama + `phi4` for local/offline. [ADR-0009]
-- Provider boundary isolated behind a `FormParserService` interface. Domain code never imports the LLM SDK directly. [ADR-0009]
+- OpenAI SDK + Pydantic v2 directly, using native Structured Outputs (`response_format` with `json_schema`, `strict: true`). [ADR-0014] supersedes [ADR-0009]
+- OpenAI `gpt-4o-mini` (or current cost-equivalent) in cloud production; Ollama with JSON-Schema structured outputs for local/offline. [ADR-0014]
+- Provider boundary isolated behind a `FormParserService` interface. Domain code never imports the LLM SDK directly. [ADR-0014]
 
 ## Discipline & Testing
 
@@ -54,6 +55,19 @@ Authoritative snapshot of the architectural baseline. Every bullet cites the ADR
 - Real-DB integration tests only. No mocked persistence anywhere, ever. [ADR-0011]
 - External systems mocked via recorded fixtures, not in-process mocks. [ADR-0011]
 - Module boundaries enforced by Tach in CI. [ADR-0010]
+
+## Deployment
+
+- Docker Compose for the production topology: app, postgres, caddy. [ADR-0015]
+- Caddy 2.x as reverse proxy with automatic HTTPS via Let's Encrypt. Customer-supplied TLS supported for air-gapped installs. [ADR-0015]
+- Dev does not use Caddy: `uvicorn` on `localhost:8000` and Vite on `localhost:5173`.
+
+## Observability
+
+- structlog JSON logs to stdout. [OPEN_DECISIONS §11 — promote to ADR before first production deploy]
+- Vector for on-prem log shipping (MPL-2.0).
+- GlitchTip optional for Sentry-compatible error tracking.
+- No metrics, no distributed tracing in V1.
 
 ## Workflow
 

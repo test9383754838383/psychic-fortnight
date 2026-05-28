@@ -49,14 +49,6 @@ Agent role adds: ports-serviced[] and nomination contact email.
 
 Do not split counterparties into separate entities.
 
-## GAP — Auth Block (resolve before Block 4 coding starts)
-
-Real session-based auth + RBAC is not an explicitly numbered block in this roadmap. The auth stub in Block 2 is intentional. But Block 4 is the first block with real UI and real users — no frontend should ship without real auth behind it.
-
-When speccing Block 3, decide: does the auth block become Block 3.5 (its own block between Voyage Spine and Vessel Schedule), or does Block 4 open with an auth milestone (M1 = auth, M2 = Gantt) before any UI work starts? One of these two options must be chosen and written into the Block 4 spec before Block 4 coding begins. Tracked in OPEN_DECISIONS.md §3.
-
----
-
 ## Block 3 — Voyage Spine
 
 - **`VoyageOperatingTerms`** *(reference field on Voyage, not a separate entity)*: charterer name, CP type (`CVC / TC / VC`), CP date, cp_document_ref. No CP logic owned.
@@ -65,13 +57,19 @@ When speccing Block 3, decide: does the auth block become Block 3.5 (its own blo
 
 Execution fields do not live on `ItineraryLine`. They belong to `PortCall`.
 
-## GAP — Frontend Scaffold (resolve at Block 3 spec time)
+**Frontend scaffold lands here.** Block 3 carries the React + Vite + TypeScript strict project shell as its final milestone — Vite config, TS strict, router, OpenAPI codegen client, global error handling, auth context shell. No feature screens. Keeps Block 4 focused purely on Bryntum integration. [ADR-0005]
 
-Blocks 2 and 3 are API-only. The React + Vite + TypeScript strict frontend project (ADR-0005) has no explicit starting milestone. The frontend scaffold — Vite config, TS strict, router setup, OpenAPI codegen client, global error handling, auth context shell — must exist before Block 4 (Bryntum Scheduler) starts. If it lands inside Block 4, the Bryntum milestone carries double the work.
+## Block 3.5 — Auth + RBAC
 
-Recommended resolution: the Block 3 plan includes a frontend scaffold milestone (narrow scope — no feature screens, just the project shell and API client). If Block 3 is already at the 3-milestone cap, create a dedicated stub block between 3 and 4. Decide and document when writing the Block 3 spec.
+Replaces `get_current_user_stub` with a real session-based auth implementation per [ADR-0007]. Discrete, well-bounded block specced and tested on its own so every later block inherits real auth from day one.
 
----
+- Server-side session storage (no JWT for V1).
+- Login / logout / current-user endpoints.
+- Role catalogue and decorator-style RBAC checks on FastAPI routers.
+- Frontend auth context wired to real endpoints (replacing the shell from Block 3).
+- CI grep gate removes its narrow allow-list once the stub is fully replaced.
+
+No password reset flows, no MFA, no SSO in V1. Single-tenant role catalogue only.
 
 ## Block 4 — Vessel Schedule
 
@@ -183,3 +181,4 @@ Recommended resolution: Block 10 plan includes a deployment milestone as its fin
 - 2026-05-26 — Voyage spine accepted with `Scheduled / Commenced / Completed / Closed / Cancelled`, ordered `ItineraryLine`, commencing/completing datetimes, `cp_document_ref`, and `previous_voyage_ref`.
 - 2026-05-26 — Vessel Schedule accepted as read-only Gantt with voyage/reference search and dormant exception dot.
 - 2026-05-26 — Port Call through Alerts accepted with the final V1 shape now recorded in Blocks 5-10, including `ActivityLog`, checklist entities, trimmed bunker request, structured delay tracking, and manual alert-to-task escalation only.
+- 2026-05-28 — Roadmap gaps resolved: frontend scaffold folded into Block 3 as final milestone; Block 3.5 inserted for real session-based auth + RBAC. Deployment gap still open — to be resolved at Block 10 spec time.

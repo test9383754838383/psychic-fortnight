@@ -1,68 +1,111 @@
-# Prompt B — Targeted Pushback Recheck
+# Recheck — Six Suspect Claims From Prompt B (Research 1)
 
 ## Role
 
-You are a senior technical researcher. Verify or refute the four claims below with primary sources only (official repos, official docs, official pricing pages). No marketing blogs. No hallucination — if you cannot find a primary source, say so.
+You are an independent senior technical verifier. The job is narrow: confirm or refute six specific claims made by a prior researcher about real, verifiable, current (mid-2026) state of named open-source projects.
 
-## Context (one paragraph)
+No hallucination. Every answer must cite a primary source — the project's own repository, official release notes, or an officially-linked security advisory / postmortem. Marketing pages and unofficial summaries do not count as primary.
 
-We are designing a Python + React modular monolith ERP for ship-management operations. Local-first (SQLite dev, Postgres prod), TDD with real-DB tests, on-prem Docker Compose. Another researcher recommended a stack. I need four specific claims verified before we lock it.
+For each claim, return one of three verdicts:
+- **CONFIRMED** with the primary source link and the relevant excerpt.
+- **REFUTED** with the primary source link and the correct fact.
+- **UNCERTAIN** with a one-sentence explanation of what evidence is missing.
 
----
-
-## Claim 1 — Planby Gantt library
-
-The prior researcher claims:
-
-- **Planby** is a React-native scheduler suitable for rendering 20–200 vessel rows with voyage bars as a Gantt-style operational schedule.
-- It has a **commercial "PRO" license at a flat $400 per developer**.
-- It delivers **"60fps with 10,000+ items"** via bidirectional DOM virtualization.
-
-Verify:
-
-1. What is Planby's actual primary use case (per its official GitHub repo and docs)? Is it a generic Gantt/resource scheduler, or specifically an Electronic Program Guide (EPG) for TV schedules?
-2. What is its **actual license**? Find the LICENSE file in the repo. Is there a paid PRO tier, and if so, at what price? Cite the URL.
-3. Is the "10,000+ items at 60fps" claim substantiated anywhere in official docs or benchmarks?
-4. Last commit date, release cadence, star count, open issues.
-5. **Verdict:** is Planby a credible choice for a maritime vessel-schedule Gantt, or is the prior researcher's recommendation off-base?
-
-## Claim 2 — Litestar vs FastAPI
-
-The prior researcher chose **Litestar** over FastAPI, citing native SQLAlchemy repository integration and better DI.
-
-Verify with primary sources:
-
-1. Current GitHub stars, contributors, release cadence, and last commit for both Litestar and FastAPI.
-2. Does FastAPI have a comparable SQLAlchemy repository pattern available via a well-maintained extension, or does it require hand-rolling? Name the extension if it exists.
-3. Hiring-pool reality: rough indicator of which has more job postings / Stack Overflow answers / tutorial volume.
-4. **Verdict:** for a small team building a production ERP that needs to be maintained for years, is Litestar's edge worth the smaller ecosystem, or is FastAPI the safer pick?
-
-## Claim 3 — Huey with SQLite broker in production
-
-The prior researcher recommends **Huey with a SQLite backend** as the task queue, both locally and in production. They flag concurrency risk but downplay it.
-
-Verify:
-
-1. Does Huey officially support SQLite as a broker? Cite the docs.
-2. What are the documented concurrency limits of SQLite as a Huey broker under multiple worker processes, even with WAL mode enabled?
-3. Are there documented production deployments of Huey-on-SQLite under non-trivial load, or is this a development-only pattern?
-4. **Verdict:** is Huey-on-SQLite production-viable for a ~20–200 vessel ERP with email-parsing background jobs, or should production use Redis from day one?
-
-## Claim 4 — Anything else suspicious
-
-Skim the prior researcher's full output (summarized below) and flag any other specific claim that looks hallucinated, outdated, or unsupported by primary sources. Keep this section under 200 words.
-
-**Prior output summary:** Python 3.12 + Litestar + SQLAlchemy 2.0 + Alembic + Tach (boundary enforcement) + React/Vite/TS strict + Planby Gantt + Litestar session auth + Huey on SQLite + imap-tools + mail-parser + GreenMail (IMAP test server) + Instructor + Pydantic + OpenAI gpt-4o-mini (cloud) / Ollama + phi4 (local) + pytest + FactoryBoy.
+No equivocation. No "it depends." Each claim is a factual yes/no.
 
 ---
 
-## Output Format
+## Claim 1 — Tach maturity status
 
-For each of the four claims:
+> A prior researcher described Tach (the Python module-boundary enforcement tool at `gauge-sh/tach`) as **"still beta-positioned"** as of 2026, and recommended `import-linter` instead as a more established alternative.
 
-- **Claim:** [restate in one line]
-- **Verdict:** Confirmed / Partially confirmed / Refuted / Unverifiable
-- **Evidence:** primary-source URLs only, with the specific quote or data point each one supports
-- **Recommendation:** keep, amend, or replace — with one concrete alternative if replacing
+**Verify:**
 
-End with a one-paragraph bottom-line: which parts of the prior stack should we lock, which should we change, and which need a third pass.
+- What is Tach's actual current version and stability self-classification on the project's GitHub repository and PyPI page as of mid-2026?
+- Does the project's own documentation describe it as beta, alpha, stable, production-ready, or otherwise?
+- Are there visible production-grade signals: weekly downloads, public adopters, issue hygiene, release cadence?
+- For comparison: what is `import-linter`'s current state in the same dimensions?
+
+**Why it matters:** the orchestrator is deciding whether to keep Tach (locked in [ADR-0010] and already configured in the shipped Block 2 of the project) or switch to import-linter. A "still beta" claim, if true, would justify the switch. If false, the original ADR holds.
+
+---
+
+## Claim 2 — TypeScript 6.x existence
+
+> The prior researcher recommended **"TypeScript 6.x"** as the current stable version for 2026 and linked to a "TypeScript 6.0 announcement" blog post.
+
+**Verify:**
+
+- What is the actual current stable major version of TypeScript as of mid-2026, per the official TypeScript release page (`https://devblogs.microsoft.com/typescript/`) and the `typescript` npm package?
+- Does an announcement for TypeScript 6.0 actually exist, or is the latest a 5.x release?
+
+**Why it matters:** version pinning in `package.json` will be wrong if TypeScript is still on a 5.x major.
+
+---
+
+## Claim 3 — Vite 8.x existence
+
+> The prior researcher recommended **"Vite 8.x"** as the current stable version for 2026.
+
+**Verify:**
+
+- What is the actual current stable major version of Vite as of mid-2026, per the official Vite releases page on GitHub and the `vite` npm package?
+
+**Why it matters:** same as Claim 2 — version pinning in `package.json`.
+
+---
+
+## Claim 4 — TanStack Router supply-chain compromise May 2026
+
+> The prior researcher stated that **"the TanStack Router/Start repo had a supply-chain compromise that was announced as cleared on May 15, 2026"** and recommended TanStack Router with the caveat of "use exact lockfiles and audit gates."
+
+**Verify:**
+
+- Did a supply-chain compromise of TanStack Router / TanStack Start actually occur in 2026?
+- Is there an official postmortem at `https://tanstack.com/blog/` or in the GitHub repo's security advisories?
+- What was the date of the incident, what was the date of the all-clear, and what was the scope (which packages, which versions)?
+- As of today, is the project considered safe to install at current latest versions?
+
+**Why it matters:** the orchestrator is choosing between TanStack Router and React Router 7 for Block 3 M2 (frontend scaffold). A real, confirmed supply-chain incident weighs heavily against TanStack Router unless the postmortem demonstrably resolved it.
+
+---
+
+## Claim 5 — FastAPI Users in maintenance mode
+
+> The prior researcher stated that **"FastAPI Users project is in maintenance mode"** as a reason to reject it as the auth library and instead recommended a first-party DB-backed session implementation with `argon2-cffi`.
+
+**Verify:**
+
+- What is the current activity level of the `fastapi-users` project on GitHub and PyPI as of mid-2026?
+- Has the maintainer publicly declared maintenance mode, archived the project, transferred ownership, or otherwise signalled reduced commitment?
+- What is the release cadence in the last 12 months?
+
+**Why it matters:** the orchestrator is designing Block 3.5 (Auth + RBAC). If FastAPI Users is in maintenance mode, building a first-party session auth is justified. If it's active, FastAPI Users may be a reasonable shortcut.
+
+---
+
+## Claim 6 — Postgres 18 currency
+
+> The prior researcher recommended **Postgres 18** for production.
+
+**Verify:** what is the current Postgres major version per `https://www.postgresql.org/`? If Postgres 18 is the latest stable, confirm. If it's still 17 or earlier, refute. Either answer is fine; we just need to pin the right number.
+
+---
+
+## Required Output Format
+
+For each of the six claims, in order:
+
+```
+### Claim N — <short label>
+
+**Verdict:** CONFIRMED / REFUTED / UNCERTAIN
+
+**Primary source:** <direct URL to the authoritative page>
+
+**Evidence:** <one-or-two-sentence excerpt or paraphrase of the relevant fact, with date if available>
+
+**Notes (optional):** <anything the orchestrator needs to act on beyond the verdict>
+```
+
+No prose intro, no executive summary, no closing paragraph. Six blocks, that's it.

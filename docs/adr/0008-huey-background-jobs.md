@@ -1,6 +1,7 @@
 # ADR-0008 — Huey for Background Jobs (SQLite Local, Redis Production)
 
-**Status:** Accepted — 2026-05-27
+**Status:** Superseded by [ADR-0013] — 2026-05-28
+**Originally accepted:** 2026-05-27
 
 ## Context
 

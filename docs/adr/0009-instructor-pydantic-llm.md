@@ -1,6 +1,7 @@
 # ADR-0009 — Instructor + Pydantic for LLM Structured Output
 
-**Status:** Accepted — 2026-05-27
+**Status:** Superseded by [ADR-0014] — 2026-05-28
+**Originally accepted:** 2026-05-27
 
 ## Context
 
