@@ -93,7 +93,8 @@ See `CLAUDE.md`. Highlights:
 - 2026-05-28 — Block 3.5 Prompt B run. All preliminary decisions confirmed. One override: starlette-session inactive → custom FastAPI dependency. New decisions: slowapi brute-force (in V1), hybrid TTL (30-min idle / 8-hr absolute), case-insensitive usernames. All locked in [ADR-0016]. Five-doc spec complete in `docs/auth_rbac/`.
 - 2026-05-29 — Block 3.5 closed (CI green at `c3985aa`). Block 4 (Vessel Schedule) is next — Bryntum license gate binds before spec drafting begins.
 - 2026-05-29 — Bryntum dropped (budget unavailable). Deep research run; Apache ECharts (Apache-2.0, v6.1.0) adopted. [ADR-0006] superseded by [ADR-0017]. OPEN_DECISIONS §1 closed. Block 4 unblocked.
+- 2026-05-29 — Block 4 Prompt A run twice, both `NO_FIT` (no OSS vessel-schedule ERP UI on this stack). Prompt B run: all 10 layers confirmed. Picks locked — date picker react-day-picker 10.x, multi-select downshift 9.x, direct ECharts integration (no wrapper), DOM-overlay e2e hit-targets, schedule stays in voyage_spine, JSON-style URL filters, UTC date policy. Five-doc spec complete in `docs/vessel_schedule/`.
 
 ## Next step
 
-Block 4 (Vessel Schedule) — waiting on Bryntum Scheduler license budget approval (`[ADR-0006]`, `OPEN_DECISIONS §1`). Once approved: run Prompt A → Prompt B → draft five docs in `docs/vessel_schedule/` → open M0.
+Block 4 (Vessel Schedule) — five-doc spec complete in `docs/vessel_schedule/`. Open M0 coordinator with the prompt from `docs/vessel_schedule/plan.md` to begin coding (M1 backend → M2 frontend).
