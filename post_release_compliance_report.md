@@ -11,12 +11,12 @@ This report verifies the applicable principles from the 12-Factor App methodolog
 - **Verification Step**: Run `uv sync` to confirm that all dependencies are explicitly declared and the environment can be cleanly rebuilt.
 
 ## 3. Config
-- **File/Config Pointer**: `src/core/config.py` (`BaseSettings`).
-- **Verification Step**: Review `src/core/config.py` to ensure that values like `DATABASE_URL` are strictly loaded from environment variables and never hardcoded.
+- **File/Config Pointer**: `src/config.py` (`Settings`) and `.env.example`.
+- **Verification Step**: Review `src/config.py` and `.env.example` to ensure that configuration values (such as `DATABASE_URL` and `SESSION_SECRET`) are declared in the settings class loading from the environment via `pydantic-settings` and never hardcoded with production secrets.
 
 ## 4. Backing Services
-- **File/Config Pointer**: Database configuration managed via `alembic.ini` and `src/core/database.py`.
-- **Verification Step**: Supply a different PostgreSQL connection string via the `DATABASE_URL` environment variable and confirm the application attaches to the new service without altering source code.
+- **File/Config Pointer**: `src/dependencies.py` (which creates the async engine and provides `get_db_session`), `alembic/env.py`, `alembic.ini`, and `docker-compose.yml` (specifying the PostgreSQL container backing service).
+- **Verification Step**: Start the Postgres container using `docker compose up -d`, supply the PostgreSQL connection string via the `DATABASE_URL` environment variable, and confirm the application connects successfully to the database backing service without modifying source code.
 
 ## 6. Processes
 - **File/Config Pointer**: `src/modules/master_data/services/` (stateless service classes).
