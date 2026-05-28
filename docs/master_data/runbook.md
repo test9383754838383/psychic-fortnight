@@ -23,7 +23,7 @@ We can seed test data via the REST API endpoints using standard HTTP clients (e.
 ```bash
 curl -X POST http://localhost:8000/api/v1/counterparties \
   -H "Content-Type: application/json" \
-  -d '\''{
+  -d '{
     "code": "CP-MAERSK",
     "name": "Maersk Line",
     "contacts": [
@@ -34,32 +34,32 @@ curl -X POST http://localhost:8000/api/v1/counterparties \
         "role_hint": "Operations Director"
       }
     ]
-  }'\''
+  }'
 ```
 
 **2. Attach a Role (e.g., Agent):**
 ```bash
 curl -X POST http://localhost:8000/api/v1/counterparties/<counterparty_uuid>/roles \
   -H "Content-Type: application/json" \
-  -d '\''{
+  -d '{
     "role": "Agent",
     "ports_serviced": ["NLRTM", "USNYC"],
     "nomination_contact_email": "ops@maersk-agent.com"
-  }'\''
+  }'
 ```
 
 **3. Create a Port:**
 ```bash
 curl -X POST http://localhost:8000/api/v1/ports \
   -H "Content-Type: application/json" \
-  -d '\''{
+  -d '{
     "unlocode": "NLRTM",
     "name": "Rotterdam",
     "timezone": "Europe/Amsterdam",
     "latitude": 51.9244,
     "longitude": 4.4777,
     "distance_table_ref": "DIS-001"
-  }'\''
+  }'
 ```
 
 ### Inspecting the OpenAPI Schema
@@ -71,7 +71,7 @@ curl -X POST http://localhost:8000/api/v1/ports \
 ## 2. How to run the tests
 
 ### Run the Full Suite
-To run all tests (SQLite in-memory, zero mock persistence, TDD compliant):
+To run all tests (migration-backed temporary SQLite database, zero mock persistence, TDD compliant):
 ```bash
 make test
 ```
