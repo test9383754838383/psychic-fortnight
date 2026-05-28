@@ -49,6 +49,14 @@ Agent role adds: ports-serviced[] and nomination contact email.
 
 Do not split counterparties into separate entities.
 
+## GAP — Auth Block (resolve before Block 4 coding starts)
+
+Real session-based auth + RBAC is not an explicitly numbered block in this roadmap. The auth stub in Block 2 is intentional. But Block 4 is the first block with real UI and real users — no frontend should ship without real auth behind it.
+
+When speccing Block 3, decide: does the auth block become Block 3.5 (its own block between Voyage Spine and Vessel Schedule), or does Block 4 open with an auth milestone (M1 = auth, M2 = Gantt) before any UI work starts? One of these two options must be chosen and written into the Block 4 spec before Block 4 coding begins. Tracked in OPEN_DECISIONS.md §3.
+
+---
+
 ## Block 3 — Voyage Spine
 
 - **`VoyageOperatingTerms`** *(reference field on Voyage, not a separate entity)*: charterer name, CP type (`CVC / TC / VC`), CP date, cp_document_ref. No CP logic owned.
@@ -56,6 +64,14 @@ Do not split counterparties into separate entities.
 - **`ItineraryLine`** *(ordered, under Voyage)*: sequence_no, port_ref, port_function (`Load / Discharge / Bunker / Canal / Transit / Repairs / Other`), planned_eta, planned_etd.
 
 Execution fields do not live on `ItineraryLine`. They belong to `PortCall`.
+
+## GAP — Frontend Scaffold (resolve at Block 3 spec time)
+
+Blocks 2 and 3 are API-only. The React + Vite + TypeScript strict frontend project (ADR-0005) has no explicit starting milestone. The frontend scaffold — Vite config, TS strict, router setup, OpenAPI codegen client, global error handling, auth context shell — must exist before Block 4 (Bryntum Scheduler) starts. If it lands inside Block 4, the Bryntum milestone carries double the work.
+
+Recommended resolution: the Block 3 plan includes a frontend scaffold milestone (narrow scope — no feature screens, just the project shell and API client). If Block 3 is already at the 3-milestone cap, create a dedicated stub block between 3 and 4. Decide and document when writing the Block 3 spec.
+
+---
 
 ## Block 4 — Vessel Schedule
 
@@ -127,6 +143,14 @@ V1 keeps delay tracking operational first, with enough structure to support late
 Tasks do not auto-spawn from alerts in V1. Escalation is manual only.
 
 The `Vessel Schedule` exception dot can light up once this block exists.
+
+## GAP — Deployment (resolve at Block 10 spec time)
+
+No block covers: Nginx/reverse proxy config, TLS termination, production Postgres setup, Docker Compose production profile, CI/CD image build and push pipeline, health check endpoints, or production environment variable documentation. None of these are complex individually, but together they are a full milestone of work.
+
+Recommended resolution: Block 10 plan includes a deployment milestone as its final milestone (M2 or M3). Scope: production Docker Compose, reverse proxy + TLS, CI/CD image build/push job, health endpoint, env var documentation. If Block 10 is already at cap, create a Block 10.5 or renumber. Decide and document when writing the Block 10 spec. Tracked in OPEN_DECISIONS.md §12.
+
+---
 
 ## Block 11 — Scope Boundaries
 
