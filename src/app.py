@@ -9,7 +9,11 @@ from apscheduler.triggers.interval import IntervalTrigger  # type: ignore
 from src.config import settings
 from src.exceptions import DomainError, domain_error_handler
 from src.modules.master_data.api import router as master_data_router
-from src.modules.voyage_spine import router as voyage_spine_router
+from src.modules.voyage_spine import (
+    router as voyage_spine_router,
+    schedule_router,
+    workspace_router,
+)
 from src.modules.auth.api import router as auth_router, admin_router
 from src.modules.auth.api.auth import limiter
 from src.modules.auth.services.auth_service import AuthService
@@ -54,5 +58,7 @@ def create_app() -> FastAPI:
     app.include_router(admin_router, prefix="/api/v1")
     app.include_router(master_data_router, prefix="/api/v1")
     app.include_router(voyage_spine_router, prefix="/api/v1/voyages", tags=["voyages"])
+    app.include_router(workspace_router, prefix="/api/v1/voyages", tags=["voyages"])
+    app.include_router(schedule_router, prefix="/api/v1/schedule", tags=["schedule"])
 
     return app

@@ -78,3 +78,12 @@ class MissingMasterDataReferenceError(VoyageSpineError):
             code="MISSING_MASTER_DATA_REFERENCE",
             status_code=status.HTTP_400_BAD_REQUEST,
         )
+
+
+class ScheduleWindowTooLargeError(VoyageSpineError):
+    def __init__(self, max_days: int):
+        super().__init__(
+            f"Schedule window exceeds maximum allowed of {max_days} days.",
+            code="SCHEDULE_WINDOW_TOO_LARGE",
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+        )

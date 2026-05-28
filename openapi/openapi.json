@@ -79,7 +79,13 @@
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "type": "object",
+                  "title": "Response Logout Api V1 Auth Logout Post"
+                }
               }
             }
           }
@@ -127,7 +133,7 @@
           "required": true
         },
         "responses": {
-          "200": {
+          "201": {
             "description": "Successful Response",
             "content": {
               "application/json": {
@@ -1590,6 +1596,157 @@
           }
         }
       }
+    },
+    "/api/v1/voyages/{voyage_id}/workspace": {
+      "get": {
+        "tags": [
+          "voyages"
+        ],
+        "summary": "Get Workspace",
+        "operationId": "get_workspace_api_v1_voyages__voyage_id__workspace_get",
+        "parameters": [
+          {
+            "name": "voyage_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Voyage Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VoyageWorkspaceResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/schedule": {
+      "get": {
+        "tags": [
+          "schedule"
+        ],
+        "summary": "Get Schedule",
+        "operationId": "get_schedule_api_v1_schedule_get",
+        "parameters": [
+          {
+            "name": "date_from",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "date",
+              "title": "Date From"
+            }
+          },
+          {
+            "name": "date_to",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "date",
+              "title": "Date To"
+            }
+          },
+          {
+            "name": "vessel_ids",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "format": "uuid"
+                  }
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Vessel Ids"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Status"
+            }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Search"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VesselScheduleResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -2133,6 +2290,31 @@
         ],
         "title": "PortResponseDTO"
       },
+      "PortSequenceItemDTO": {
+        "properties": {
+          "port_code": {
+            "type": "string",
+            "title": "Port Code"
+          },
+          "planned_eta": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Planned Eta"
+          },
+          "planned_etd": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Planned Etd"
+          }
+        },
+        "type": "object",
+        "required": [
+          "port_code",
+          "planned_eta",
+          "planned_etd"
+        ],
+        "title": "PortSequenceItemDTO"
+      },
       "PortUpdateDTO": {
         "properties": {
           "unlocode": {
@@ -2380,6 +2562,25 @@
         ],
         "title": "VesselCreateDTO"
       },
+      "VesselHeaderDTO": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "name"
+        ],
+        "title": "VesselHeaderDTO"
+      },
       "VesselResponseDTO": {
         "properties": {
           "code": {
@@ -2428,6 +2629,49 @@
           "status"
         ],
         "title": "VesselResponseDTO"
+      },
+      "VesselScheduleItemDTO": {
+        "properties": {
+          "vessel_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Vessel Id"
+          },
+          "vessel_name": {
+            "type": "string",
+            "title": "Vessel Name"
+          },
+          "voyages": {
+            "items": {
+              "$ref": "#/components/schemas/VoyageBarDTO"
+            },
+            "type": "array",
+            "title": "Voyages"
+          }
+        },
+        "type": "object",
+        "required": [
+          "vessel_id",
+          "vessel_name",
+          "voyages"
+        ],
+        "title": "VesselScheduleItemDTO"
+      },
+      "VesselScheduleResponse": {
+        "properties": {
+          "vessels": {
+            "items": {
+              "$ref": "#/components/schemas/VesselScheduleItemDTO"
+            },
+            "type": "array",
+            "title": "Vessels"
+          }
+        },
+        "type": "object",
+        "required": [
+          "vessels"
+        ],
+        "title": "VesselScheduleResponse"
       },
       "VesselUpdateDTO": {
         "properties": {
@@ -2500,6 +2744,78 @@
         },
         "type": "object",
         "title": "VesselUpdateDTO"
+      },
+      "VoyageBarDTO": {
+        "properties": {
+          "voyage_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Voyage Id"
+          },
+          "voyage_no": {
+            "type": "string",
+            "title": "Voyage No"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "commencing_datetime": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Commencing Datetime"
+          },
+          "expected_completing_datetime": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Expected Completing Datetime"
+          },
+          "current_next_port_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Current Next Port Code"
+          },
+          "charterer": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Charterer"
+          },
+          "port_sequence": {
+            "items": {
+              "$ref": "#/components/schemas/PortSequenceItemDTO"
+            },
+            "type": "array",
+            "title": "Port Sequence"
+          }
+        },
+        "type": "object",
+        "required": [
+          "voyage_id",
+          "voyage_no",
+          "status",
+          "commencing_datetime",
+          "port_sequence"
+        ],
+        "title": "VoyageBarDTO"
       },
       "VoyageCreateDTO": {
         "properties": {
@@ -2941,6 +3257,157 @@
         },
         "type": "object",
         "title": "VoyageUpdateDTO"
+      },
+      "VoyageWorkspaceResponse": {
+        "properties": {
+          "voyage_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Voyage Id"
+          },
+          "voyage_no": {
+            "type": "string",
+            "title": "Voyage No"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "vessel": {
+            "$ref": "#/components/schemas/VesselHeaderDTO"
+          },
+          "charterer": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Charterer"
+          },
+          "cp_type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cp Type"
+          },
+          "cp_date": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cp Date"
+          },
+          "cp_document_ref": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cp Document Ref"
+          },
+          "commencing_datetime": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Commencing Datetime"
+          },
+          "expected_completing_datetime": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Expected Completing Datetime"
+          },
+          "itinerary": {
+            "items": {
+              "$ref": "#/components/schemas/WorkspaceItineraryItemDTO"
+            },
+            "type": "array",
+            "title": "Itinerary"
+          },
+          "voyage_instructions": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Voyage Instructions"
+          },
+          "ops_notes": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ops Notes"
+          }
+        },
+        "type": "object",
+        "required": [
+          "voyage_id",
+          "voyage_no",
+          "status",
+          "vessel",
+          "commencing_datetime",
+          "itinerary"
+        ],
+        "title": "VoyageWorkspaceResponse"
+      },
+      "WorkspaceItineraryItemDTO": {
+        "properties": {
+          "sequence_no": {
+            "type": "integer",
+            "title": "Sequence No"
+          },
+          "port_code": {
+            "type": "string",
+            "title": "Port Code"
+          },
+          "planned_eta": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Planned Eta"
+          },
+          "planned_etd": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Planned Etd"
+          }
+        },
+        "type": "object",
+        "required": [
+          "sequence_no",
+          "port_code",
+          "planned_eta",
+          "planned_etd"
+        ],
+        "title": "WorkspaceItineraryItemDTO"
       }
     }
   }

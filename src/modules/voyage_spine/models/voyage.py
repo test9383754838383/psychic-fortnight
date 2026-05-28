@@ -6,7 +6,7 @@ from typing import List, Optional, TYPE_CHECKING
 if TYPE_CHECKING:
     from src.modules.voyage_spine.models.itinerary_line import ItineraryLine
 
-from sqlalchemy import CheckConstraint, ForeignKey, String
+from sqlalchemy import CheckConstraint, ForeignKey, String, Index
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.ext.orderinglist import ordering_list
 from advanced_alchemy.base import UUIDAuditBase
@@ -95,4 +95,12 @@ class Voyage(Base):
             terms_cp_type.in_([e.value for e in CpType]),
             name="check_voyage_cp_type_enum",
         ),
+        Index("ix_voyages_window", commencing_datetime, expected_completing_datetime),
+        Index(
+            "ix_voyages_vessel_window",
+            vessel_ref,
+            commencing_datetime,
+            expected_completing_datetime,
+        ),
+        Index("ix_voyages_status", status),
     )
