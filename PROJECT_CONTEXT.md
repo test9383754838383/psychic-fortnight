@@ -109,7 +109,8 @@ See `CLAUDE.md`. Highlights:
 - 2026-05-29 — Block 4 closed (CI green at `44704cd`, run 26628624880). M1 schedule + workspace endpoints, M2 ECharts Gantt + Voyage Workspace pages. Runbook committed. Block 5 (Port Call) is next.
 - 2026-05-29 — Block 5 Prompt A `NO_FIT` (DCSA Port Call v2.0 kept as vocabulary blueprint only; Port Activity App + SPOCP rejected). Prompt B architecture review overrode 4 preliminary decisions; founder approved all 6 gates. Locked (D-LOCK-1..10): new port_call Tach module (one-directional deps, scalar FKs, no ORM back-import), skip-allowed state machine + privileged correction path, three added timestamp fields, IANA tz snapshot + UTC, derived active agent appointment (no FK pointer) with partial unique index, asymmetric clearance invariant, nested+member API shape, datetime-local frontend. Five-doc spec complete in `docs/port_call/`.
 - 2026-05-29 — Block 5 closed (M1 `5cd7914`, M2 `b9b7626`). PortCall + AgentAppointment module: 24 backend tests 96% coverage, 21 frontend tests, Playwright e2e. Runbook committed. Block 6 is next.
+- 2026-05-29 — Block 6 Prompt A `NO_FIT`. Two PARTIAL_FITs noted: windmar-nav/windmar (exact stack, Apache-2.0, covers OperationalReport/Noon reports but wrong domain focus — hydrodynamic performance not commercial port ops); SPOCP/spocp-port-call-api (perfect domain model for 21-event port call vocabulary, wrong stack — Java/Spring Boot). No open-source maritime ERP covers commercial Laytime/SOF/ActivityLog logic. Building from scratch. Prompt B drafted in `docs/operational_reporting/prompt_b.md`.
 
 ## Next step
 
-Block 6 — next block per V1_ROADMAP. Run Prompt A (baseline search) then Prompt B (stack verification) before spec drafting.
+Block 6 — Prompt A complete (NO_FIT). Run Prompt B (`docs/operational_reporting/prompt_b.md`) to verify the preliminary implementation decisions before spec drafting.
