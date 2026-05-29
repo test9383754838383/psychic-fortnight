@@ -29,7 +29,13 @@ Durable project rules and roadmap: `ORCHESTRA.md`.
 
 **Date:** 2026-05-29
 
-**Status:** Block 3.5 (Auth + RBAC) **complete**. CI green, runbook committed. Block 4 (Vessel Schedule) is next — Bryntum license gate must be resolved first.
+**Status:** Block 4 (Vessel Schedule) **complete**. CI green, runbook committed. Block 5 (Port Call) is next.
+
+**Block 4 evidence:**
+- Final commit: `44704cdaa2fc07658ce0e3073dd5a9d241f58cf6`
+- CI run: green (run `26628624880`)
+- Local gates: typecheck, lint, test (12), test:e2e (3), build, audit — all pass
+- Runbook: `docs/vessel_schedule/runbook.md`
 
 **Block 3.5 evidence:**
 - Final commit: `c3985aa feat: implement Block 3.5 Auth + RBAC module`
@@ -94,7 +100,8 @@ See `CLAUDE.md`. Highlights:
 - 2026-05-29 — Block 3.5 closed (CI green at `c3985aa`). Block 4 (Vessel Schedule) is next — Bryntum license gate binds before spec drafting begins.
 - 2026-05-29 — Bryntum dropped (budget unavailable). Deep research run; Apache ECharts (Apache-2.0, v6.1.0) adopted. [ADR-0006] superseded by [ADR-0017]. OPEN_DECISIONS §1 closed. Block 4 unblocked.
 - 2026-05-29 — Block 4 Prompt A run twice, both `NO_FIT` (no OSS vessel-schedule ERP UI on this stack). Prompt B run: all 10 layers confirmed. Picks locked — date picker react-day-picker 10.x, multi-select downshift 9.x, direct ECharts integration (no wrapper), DOM-overlay e2e hit-targets, schedule stays in voyage_spine, JSON-style URL filters, UTC date policy. Five-doc spec complete in `docs/vessel_schedule/`.
+- 2026-05-29 — Block 4 closed (CI green at `44704cd`, run 26628624880). M1 schedule + workspace endpoints, M2 ECharts Gantt + Voyage Workspace pages. Runbook committed. Block 5 (Port Call) is next.
 
 ## Next step
 
-Block 4 (Vessel Schedule) — five-doc spec complete in `docs/vessel_schedule/`. Open M0 coordinator with the prompt from `docs/vessel_schedule/plan.md` to begin coding (M1 backend → M2 frontend).
+Block 5 (Port Call) is next. Per the spec workflow: run Prompt A → Prompt B → draft five docs in `docs/port_call/` → founder approval gate between each doc → open M0.
