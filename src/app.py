@@ -23,6 +23,13 @@ from src.modules.port_call import (
     pc_appointment_router,
     appointment_member_router,
 )
+from src.modules.operational_reporting import (
+    port_call_events_router,
+    port_call_log_router,
+    voyage_reports_router,
+    port_call_reports_router,
+    reports_member_router,
+)
 from src.dependencies import AsyncSessionLocal
 
 
@@ -75,6 +82,23 @@ def create_app() -> FastAPI:
     )
     app.include_router(
         appointment_member_router, prefix="/api/v1", tags=["agent-appointments"]
+    )
+
+    # Operational Reporting module
+    app.include_router(
+        port_call_events_router, prefix="/api/v1", tags=["operational-reporting"]
+    )
+    app.include_router(
+        port_call_log_router, prefix="/api/v1", tags=["operational-reporting"]
+    )
+    app.include_router(
+        voyage_reports_router, prefix="/api/v1", tags=["operational-reporting"]
+    )
+    app.include_router(
+        port_call_reports_router, prefix="/api/v1", tags=["operational-reporting"]
+    )
+    app.include_router(
+        reports_member_router, prefix="/api/v1", tags=["operational-reporting"]
     )
 
     return app
