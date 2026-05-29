@@ -27,7 +27,6 @@ interface RenderItemApi {
   value: (idx: number) => unknown;
   coord: (data: unknown[]) => [number, number];
   size: (data: unknown[]) => [number, number];
-  style: () => Record<string, unknown>;
 }
 
 export function buildScheduleOption(data: VesselScheduleResponse): EChartsOption {
@@ -142,7 +141,7 @@ export function buildScheduleOption(data: VesselScheduleResponse): EChartsOption
           const voyage = a.value(3) as VoyageBarDTO;
           const label = `${voyage.voyage_no} ${voyage.current_next_port_code ?? ""}`;
 
-          const barStyle = a.style();
+          const barColor = getStatusColor(voyage.status);
           const textStyle = {
             text: label,
             x: rectShape ? rectShape.x + 5 : 0,
@@ -163,7 +162,10 @@ export function buildScheduleOption(data: VesselScheduleResponse): EChartsOption
                 type: "rect",
                 ignore: !rectShape,
                 shape: rectShape,
-                style: barStyle,
+                style: {
+                  fill: barColor,
+                  opacity: 0.8,
+                },
               },
               {
                 type: "text",
@@ -172,9 +174,6 @@ export function buildScheduleOption(data: VesselScheduleResponse): EChartsOption
               },
             ],
           };
-        },
-        itemStyle: {
-          opacity: 0.8,
         },
         encode: {
           x: [1, 2],

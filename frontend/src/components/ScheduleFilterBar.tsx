@@ -56,10 +56,10 @@ export const ScheduleFilterBar: React.FC<ScheduleFilterBarProps> = ({
 
   // Vessel Multi-select
   const {
-    getSelectedItemProps,
-    getDropdownProps,
-    addSelectedItem,
-    removeSelectedItem,
+    getSelectedItemProps: getVesselSelectedItemProps,
+    getDropdownProps: getVesselDropdownProps,
+    addSelectedItem: addVesselSelectedItem,
+    removeSelectedItem: removeVesselSelectedItem,
     selectedItems: selectedVessels,
   } = useMultipleSelection({
     selectedItems: availableVessels.filter((v) => filters.vesselIds.includes(v.id)),
@@ -83,16 +83,18 @@ export const ScheduleFilterBar: React.FC<ScheduleFilterBarProps> = ({
     itemToString: (item) => (item ? item.name : ""),
     onSelectedItemChange: ({ selectedItem }) => {
       if (selectedItem) {
-        addSelectedItem(selectedItem);
+        addVesselSelectedItem(selectedItem);
       }
     },
   });
 
   // Status Multi-select
   const {
-    selectedItems: selectedStatuses,
+    getSelectedItemProps: getStatusSelectedItemProps,
+    getDropdownProps: getStatusDropdownProps,
     addSelectedItem: addStatus,
     removeSelectedItem: removeStatus,
+    selectedItems: selectedStatuses,
   } = useMultipleSelection({
     selectedItems: filters.statuses,
     onSelectedItemsChange: ({ selectedItems }) => {
@@ -109,6 +111,7 @@ export const ScheduleFilterBar: React.FC<ScheduleFilterBarProps> = ({
     getMenuProps: getStatusMenuProps,
     getItemProps: getStatusItemProps,
     getInputProps: getStatusInputProps,
+    getLabelProps: getStatusLabelProps,
   } = useCombobox({
     items: AVAILABLE_STATUSES.filter((s) => !filters.statuses.includes(s)),
     onSelectedItemChange: ({ selectedItem }) => {
@@ -151,21 +154,22 @@ export const ScheduleFilterBar: React.FC<ScheduleFilterBarProps> = ({
         <div className="filter-item" style={{ minWidth: "200px" }}>
           <label {...getVesselLabelProps()} style={{ display: "block", marginBottom: "0.5rem", fontSize: "0.875rem", color: "var(--text-secondary)" }}>Vessels</label>
           <div 
-            {...getDropdownProps()}
             style={{ display: "flex", flexWrap: "wrap", gap: "0.25rem", padding: "0.25rem", border: "1px solid var(--border-glass)", borderRadius: "var(--radius-sm)", background: "rgba(255,255,255,0.05)" }}
           >
             {selectedVessels.map((v, index) => (
-              <span key={v.id} {...getSelectedItemProps({ selectedItem: v, index })} style={{ background: "var(--accent-primary)", color: "var(--bg-primary)", padding: "0.125rem 0.5rem", borderRadius: "var(--radius-sm)", fontSize: "0.75rem", display: "flex", alignItems: "center", gap: "0.25rem" }}>
+              <span key={v.id} {...getVesselSelectedItemProps({ selectedItem: v, index })} style={{ background: "var(--accent-primary)", color: "var(--bg-primary)", padding: "0.125rem 0.5rem", borderRadius: "var(--radius-sm)", fontSize: "0.75rem", display: "flex", alignItems: "center", gap: "0.25rem" }}>
                 {v.name}
-                <button onClick={() => removeSelectedItem(v)} style={{ border: "none", background: "none", cursor: "pointer", color: "var(--bg-primary)", fontWeight: "bold" }}>×</button>
+                <button onClick={() => removeVesselSelectedItem(v)} style={{ border: "none", background: "none", cursor: "pointer", color: "var(--bg-primary)", fontWeight: "bold" }}>×</button>
               </span>
             ))}
-            <input 
-              {...getVesselInputProps()}
-              placeholder={selectedVessels.length === 0 ? "Select vessel..." : ""}
-              style={{ background: "none", border: "none", color: "var(--text-primary)", outline: "none", width: "100px" }}
-            />
-            <button {...getVesselToggleProps()} style={{ background: "none", border: "none", color: "var(--text-secondary)", cursor: "pointer" }}>▼</button>
+            <div {...getVesselDropdownProps()} style={{ display: "inline-block" }}>
+              <input 
+                {...getVesselInputProps()}
+                placeholder={selectedVessels.length === 0 ? "Select vessel..." : ""}
+                style={{ background: "none", border: "none", color: "var(--text-primary)", outline: "none", width: "100px" }}
+              />
+              <button {...getVesselToggleProps()} style={{ background: "none", border: "none", color: "var(--text-secondary)", cursor: "pointer" }}>▼</button>
+            </div>
           </div>
           <ul {...getVesselMenuProps()} style={{ listStyle: "none", padding: 0, margin: 0, background: "var(--bg-secondary)", border: isVesselOpen ? "1px solid var(--border-glass)" : "none", position: "absolute", zIndex: 30, maxHeight: "200px", overflowY: "auto" }}>
             {isVesselOpen && availableVessels.filter(v => !filters.vesselIds.includes(v.id)).map((item, index) => (
@@ -178,23 +182,24 @@ export const ScheduleFilterBar: React.FC<ScheduleFilterBarProps> = ({
 
         {/* Status Filter */}
         <div className="filter-item" style={{ minWidth: "150px" }}>
-          <label style={{ display: "block", marginBottom: "0.5rem", fontSize: "0.875rem", color: "var(--text-secondary)" }}>Status</label>
+          <label {...getStatusLabelProps()} style={{ display: "block", marginBottom: "0.5rem", fontSize: "0.875rem", color: "var(--text-secondary)" }}>Status</label>
           <div 
-            {...getDropdownProps()}
             style={{ display: "flex", flexWrap: "wrap", gap: "0.25rem", padding: "0.25rem", border: "1px solid var(--border-glass)", borderRadius: "var(--radius-sm)", background: "rgba(255,255,255,0.05)" }}
           >
             {selectedStatuses.map((s, index) => (
-              <span key={s} {...getSelectedItemProps({ selectedItem: s, index })} style={{ background: "var(--accent-secondary)", color: "white", padding: "0.125rem 0.5rem", borderRadius: "var(--radius-sm)", fontSize: "0.75rem", display: "flex", alignItems: "center", gap: "0.25rem" }}>
+              <span key={s} {...getStatusSelectedItemProps({ selectedItem: s, index })} style={{ background: "var(--accent-secondary)", color: "white", padding: "0.125rem 0.5rem", borderRadius: "var(--radius-sm)", fontSize: "0.75rem", display: "flex", alignItems: "center", gap: "0.25rem" }}>
                 {s}
                 <button onClick={() => removeStatus(s)} style={{ border: "none", background: "none", cursor: "pointer", color: "white", fontWeight: "bold" }}>×</button>
               </span>
             ))}
-            <input 
-              {...getStatusInputProps()}
-              placeholder={selectedStatuses.length === 0 ? "Select status..." : ""}
-              style={{ background: "none", border: "none", color: "var(--text-primary)", outline: "none", width: "100px" }}
-            />
-            <button {...getStatusToggleProps()} style={{ background: "none", border: "none", color: "var(--text-secondary)", cursor: "pointer" }}>▼</button>
+            <div {...getStatusDropdownProps()} style={{ display: "inline-block" }}>
+              <input 
+                {...getStatusInputProps()}
+                placeholder={selectedStatuses.length === 0 ? "Select status..." : ""}
+                style={{ background: "none", border: "none", color: "var(--text-primary)", outline: "none", width: "100px" }}
+              />
+              <button {...getStatusToggleProps()} style={{ background: "none", border: "none", color: "var(--text-secondary)", cursor: "pointer" }}>▼</button>
+            </div>
           </div>
           <ul {...getStatusMenuProps()} style={{ listStyle: "none", padding: 0, margin: 0, background: "var(--bg-secondary)", border: isStatusOpen ? "1px solid var(--border-glass)" : "none", position: "absolute", zIndex: 30 }}>
             {isStatusOpen && AVAILABLE_STATUSES.filter(s => !filters.statuses.includes(s)).map((item, index) => (
