@@ -372,6 +372,40 @@ export interface paths {
         patch: operations["update_itinerary_line_api_v1_voyages__voyage_id__itinerary__line_id__patch"];
         trace?: never;
     };
+    "/api/v1/voyages/{voyage_id}/workspace": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Workspace */
+        get: operations["get_workspace_api_v1_voyages__voyage_id__workspace_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/schedule": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Schedule */
+        get: operations["get_schedule_api_v1_schedule_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -588,6 +622,21 @@ export interface components {
             /** Status */
             status: string;
         };
+        /** PortSequenceItemDTO */
+        PortSequenceItemDTO: {
+            /** Port Code */
+            port_code: string;
+            /**
+             * Planned Eta
+             * Format: date-time
+             */
+            planned_eta: string;
+            /**
+             * Planned Etd
+             * Format: date-time
+             */
+            planned_etd: string;
+        };
         /** PortUpdateDTO */
         PortUpdateDTO: {
             /** Unlocode */
@@ -666,6 +715,16 @@ export interface components {
              */
             active_for_reporting: boolean;
         };
+        /** VesselHeaderDTO */
+        VesselHeaderDTO: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Name */
+            name: string;
+        };
         /** VesselResponseDTO */
         VesselResponseDTO: {
             /** Code */
@@ -691,6 +750,23 @@ export interface components {
             /** Status */
             status: string;
         };
+        /** VesselScheduleItemDTO */
+        VesselScheduleItemDTO: {
+            /**
+             * Vessel Id
+             * Format: uuid
+             */
+            vessel_id: string;
+            /** Vessel Name */
+            vessel_name: string;
+            /** Voyages */
+            voyages: components["schemas"]["VoyageBarDTO"][];
+        };
+        /** VesselScheduleResponse */
+        VesselScheduleResponse: {
+            /** Vessels */
+            vessels: components["schemas"]["VesselScheduleItemDTO"][];
+        };
         /** VesselUpdateDTO */
         VesselUpdateDTO: {
             /** Code */
@@ -705,6 +781,31 @@ export interface components {
             flag?: string | null;
             /** Active For Reporting */
             active_for_reporting?: boolean | null;
+        };
+        /** VoyageBarDTO */
+        VoyageBarDTO: {
+            /**
+             * Voyage Id
+             * Format: uuid
+             */
+            voyage_id: string;
+            /** Voyage No */
+            voyage_no: string;
+            /** Status */
+            status: string;
+            /**
+             * Commencing Datetime
+             * Format: date-time
+             */
+            commencing_datetime: string;
+            /** Expected Completing Datetime */
+            expected_completing_datetime?: string | null;
+            /** Current Next Port Code */
+            current_next_port_code?: string | null;
+            /** Charterer */
+            charterer?: string | null;
+            /** Port Sequence */
+            port_sequence: components["schemas"]["PortSequenceItemDTO"][];
         };
         /** VoyageCreateDTO */
         VoyageCreateDTO: {
@@ -823,6 +924,57 @@ export interface components {
             expected_completing_datetime?: string | null;
             terms?: components["schemas"]["VoyageTermsDTO"] | null;
         };
+        /** VoyageWorkspaceResponse */
+        VoyageWorkspaceResponse: {
+            /**
+             * Voyage Id
+             * Format: uuid
+             */
+            voyage_id: string;
+            /** Voyage No */
+            voyage_no: string;
+            /** Status */
+            status: string;
+            vessel: components["schemas"]["VesselHeaderDTO"];
+            /** Charterer */
+            charterer?: string | null;
+            /** Cp Type */
+            cp_type?: string | null;
+            /** Cp Date */
+            cp_date?: string | null;
+            /** Cp Document Ref */
+            cp_document_ref?: string | null;
+            /**
+             * Commencing Datetime
+             * Format: date-time
+             */
+            commencing_datetime: string;
+            /** Expected Completing Datetime */
+            expected_completing_datetime?: string | null;
+            /** Itinerary */
+            itinerary: components["schemas"]["WorkspaceItineraryItemDTO"][];
+            /** Voyage Instructions */
+            voyage_instructions?: string | null;
+            /** Ops Notes */
+            ops_notes?: string | null;
+        };
+        /** WorkspaceItineraryItemDTO */
+        WorkspaceItineraryItemDTO: {
+            /** Sequence No */
+            sequence_no: number;
+            /** Port Code */
+            port_code: string;
+            /**
+             * Planned Eta
+             * Format: date-time
+             */
+            planned_eta: string;
+            /**
+             * Planned Etd
+             * Format: date-time
+             */
+            planned_etd: string;
+        };
     };
     responses: never;
     parameters: never;
@@ -900,7 +1052,9 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": unknown;
+                    "application/json": {
+                        [key: string]: string;
+                    };
                 };
             };
         };
@@ -939,7 +1093,7 @@ export interface operations {
         };
         responses: {
             /** @description Successful Response */
-            200: {
+            201: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -1837,6 +1991,72 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ItineraryLineResponseDTO"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_workspace_api_v1_voyages__voyage_id__workspace_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                voyage_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["VoyageWorkspaceResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_schedule_api_v1_schedule_get: {
+        parameters: {
+            query: {
+                date_from: string;
+                date_to: string;
+                vessel_ids?: string[] | null;
+                status?: string[] | null;
+                search?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["VesselScheduleResponse"];
                 };
             };
             /** @description Validation Error */

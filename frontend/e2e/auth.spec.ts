@@ -9,7 +9,7 @@ test.beforeAll(() => {
 test("API: login -> /me -> logout -> 401", async ({ request }) => {
   // Wait for the backend to be ready
   await expect.poll(async () => {
-    const res = await request.get("/api/v1/voyages");
+    const res = await request.get("/api/v1/schedule?date_from=2026-01-01&date_to=2026-12-31");
     return res.status();
   }, { timeout: 10000 }).toBe(401);
 

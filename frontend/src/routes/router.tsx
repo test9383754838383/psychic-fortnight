@@ -2,6 +2,8 @@
 import { createRootRoute, createRoute, createRouter, Outlet } from "@tanstack/react-router";
 import { useCurrentUser } from "../auth/AuthContext";
 import { RequireAuth } from "../auth/RequireAuth";
+import { scheduleRoute } from "./schedule";
+import { voyageWorkspaceRoute } from "./voyages.$voyageId.workspace";
 
 // Root Route - Layout wrapper
 export const rootRoute = createRootRoute({
@@ -40,7 +42,7 @@ export const indexRoute = createRoute({
 // Authenticated Layout Route
 export const authenticatedRoute = createRoute({
   getParentRoute: () => rootRoute,
-  path: "/_authenticated",
+  id: "authenticated",
   component: () => (
     <RequireAuth>
       <Outlet />
@@ -49,7 +51,10 @@ export const authenticatedRoute = createRoute({
 });
 
 // Build Route Tree
-const routeTree = rootRoute.addChildren([indexRoute, authenticatedRoute]);
+const routeTree = rootRoute.addChildren([
+  indexRoute,
+  authenticatedRoute.addChildren([scheduleRoute, voyageWorkspaceRoute]),
+]);
 
 // Create Router instance
 export const router = createRouter({ routeTree });

@@ -79,13 +79,21 @@ Architectural boundaries are strictly enforced via ESLint rules in [.eslintrc.cj
 src/
 ├── api/             # Generated OpenAPI schema + typed fetch client wrapper
 ├── auth/            # AuthContext and RequireAuth route guards
-├── lib/             # Sensible defaults (queryClient, ErrorBoundary)
-├── routes/          # Route tree definitions
-├── components/      # (Future) Reusable global visual components
-└── modules/         # (Future) Isolated domain features (Gantt, PortCall, delays, etc.)
+├── lib/             # Sensible defaults, chart option builders
+├── routes/          # Route tree definitions (/schedule, /voyages/$id/workspace)
+├── components/      # Reusable components (Gantt, FilterBar, WorkspaceHeader, etc.)
+└── modules/         # (Future) Isolated domain features
 ```
 
-### Boundary Import Restrictions:
+### 🧭 New Routes
+- `/schedule`: Vessel Schedule Gantt (Home)
+- `/voyages/$voyageId/workspace`: Voyage detail workspace
+
+### 📊 ECharts Gantt
+We use Apache ECharts with a `custom` series for the Vessel Schedule.
+- **Pure logic**: `src/lib/scheduleChartOption.ts` transforms API data to ECharts options.
+- **Component**: `src/components/VesselScheduleChart.tsx` manages the ECharts instance.
+- **Testing**: We use DOM overlay hit-targets (`data-testid="voyage-bar-{id}"`) for deterministic E2E testing of voyage bar interactions.
 - Reusable `components` can only import from utility contexts (`lib`, `auth`, `api`).
 - Domain `modules` cannot import from other domain modules (maintaining absolute modular boundary parity with the Python monolith).
 - Modules cannot import from the `routes` directory (routing binds modules, modules do not bind routing).
