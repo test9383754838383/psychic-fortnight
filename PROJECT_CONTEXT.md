@@ -101,7 +101,8 @@ See `CLAUDE.md`. Highlights:
 - 2026-05-29 — Bryntum dropped (budget unavailable). Deep research run; Apache ECharts (Apache-2.0, v6.1.0) adopted. [ADR-0006] superseded by [ADR-0017]. OPEN_DECISIONS §1 closed. Block 4 unblocked.
 - 2026-05-29 — Block 4 Prompt A run twice, both `NO_FIT` (no OSS vessel-schedule ERP UI on this stack). Prompt B run: all 10 layers confirmed. Picks locked — date picker react-day-picker 10.x, multi-select downshift 9.x, direct ECharts integration (no wrapper), DOM-overlay e2e hit-targets, schedule stays in voyage_spine, JSON-style URL filters, UTC date policy. Five-doc spec complete in `docs/vessel_schedule/`.
 - 2026-05-29 — Block 4 closed (CI green at `44704cd`, run 26628624880). M1 schedule + workspace endpoints, M2 ECharts Gantt + Voyage Workspace pages. Runbook committed. Block 5 (Port Call) is next.
+- 2026-05-29 — Block 5 Prompt A `NO_FIT` (DCSA Port Call v2.0 kept as vocabulary blueprint only; Port Activity App + SPOCP rejected). Prompt B architecture review overrode 4 preliminary decisions; founder approved all 6 gates. Locked (D-LOCK-1..10): new port_call Tach module (one-directional deps, scalar FKs, no ORM back-import), skip-allowed state machine + privileged correction path, three added timestamp fields, IANA tz snapshot + UTC, derived active agent appointment (no FK pointer) with partial unique index, asymmetric clearance invariant, nested+member API shape, datetime-local frontend. Five-doc spec complete in `docs/port_call/`.
 
 ## Next step
 
-Block 5 (Port Call) is next. Per the spec workflow: run Prompt A → Prompt B → draft five docs in `docs/port_call/` → founder approval gate between each doc → open M0.
+Block 5 (Port Call) — five-doc spec complete in `docs/port_call/`. Open M0 coordinator with the prompt from `docs/port_call/plan.md` to begin coding (M1 backend → M2 frontend).
