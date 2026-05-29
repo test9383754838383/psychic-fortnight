@@ -119,7 +119,7 @@ jobs:
           curl -LsSf https://astral.sh/uv/install.sh | sh
           export PATH="$HOME/.local/bin:$PATH"
           uv sync --all-extras --dev
-          export DATABASE_URL="sqlite+aiosqlite:///$(pwd)/dev.db"
+          export DATABASE_URL="sqlite+aiosqlite:///${{ github.workspace }}/dev.db"
           uv run alembic upgrade head
           uv run uvicorn src.app:create_app --factory --host 127.0.0.1 --port 8000 &
           for i in {1..30}; do
@@ -128,7 +128,7 @@ jobs:
           done
       - name: Run Playwright E2E Tests
         env:
-          DATABASE_URL: sqlite+aiosqlite://${{ github.workspace }}/dev.db
+          DATABASE_URL: sqlite+aiosqlite:///${{ github.workspace }}/dev.db
         run: pnpm run test:e2e
         working-directory: frontend
       - name: Audit dependencies
