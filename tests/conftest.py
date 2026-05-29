@@ -13,9 +13,19 @@ from httpx import ASGITransport, AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 from sqlalchemy import event
 from sqlalchemy.engine import Engine
+from argon2 import PasswordHasher
+import src.modules.auth.services.auth_service
 
 from src.app import create_app
 from src.dependencies import get_db_session
+
+
+@pytest.fixture(scope="session", autouse=True)
+def fast_argon2():
+    """Override Argon2 parameters for faster tests."""
+    fast_ph = PasswordHasher(time_cost=1, memory_cost=256, parallelism=1)
+    src.modules.auth.services.auth_service.ph = fast_ph
+    yield fast_ph
 
 
 @event.listens_for(Engine, "connect")
