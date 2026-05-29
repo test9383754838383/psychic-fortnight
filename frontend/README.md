@@ -62,6 +62,15 @@ We have selected **Code-Based Routing** (via TanStack Router manual route tree m
 
 ---
 
+### Port Call Panel
+The Port Call Panel manages the lifecycle of a port visit, from planning through actuals to departure.
+- **Grouped Form Pattern:** A grouped form separates Planning, Actuals, NOR & Clearance, Agent, and Notes for clarity and focused editing.
+- **Datetime Handling:** Uses native `input[type=datetime-local]` with explicit port-timezone labels to handle local port time requirements safely.
+- **Agent Management:** Integrated `downshift` combobox for selecting agents, with a clear display of the current active appointment and nomination history.
+- **State Machine:** Integrated `StatusTransitionControl` to guide operators through legal status transitions per the port-call state machine.
+
+---
+
 ## ❄️ Feature Page Freeze Contract
 
 > [!WARNING]

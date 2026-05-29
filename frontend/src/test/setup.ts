@@ -1,7 +1,6 @@
 import "@testing-library/jest-dom";
 import { afterAll, afterEach, beforeAll } from "vitest";
 import { cleanup } from "@testing-library/react";
-import { server } from "./server";
 import { fetch, Request, Response, Headers } from 'undici';
 
 // @ts-expect-error: Undici types differ slightly from DOM types
@@ -12,6 +11,8 @@ global.Request = Request;
 global.Response = Response;
 // @ts-expect-error: Undici types differ slightly from DOM types
 global.Headers = Headers;
+
+import { server } from "./server";
 
 beforeAll(() => {
     server.listen({ onUnhandledRequest: 'error' });
