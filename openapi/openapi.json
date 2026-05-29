@@ -1747,10 +1747,530 @@
           }
         }
       }
+    },
+    "/api/v1/voyages/{voyage_id}/port-calls": {
+      "post": {
+        "tags": [
+          "port-calls"
+        ],
+        "summary": "Create Port Call",
+        "operationId": "create_port_call_api_v1_voyages__voyage_id__port_calls_post",
+        "parameters": [
+          {
+            "name": "voyage_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Voyage Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PortCallCreateDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PortCallResponseDTO"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "port-calls"
+        ],
+        "summary": "List Port Calls",
+        "operationId": "list_port_calls_api_v1_voyages__voyage_id__port_calls_get",
+        "parameters": [
+          {
+            "name": "voyage_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Voyage Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PortCallResponseDTO"
+                  },
+                  "title": "Response List Port Calls Api V1 Voyages  Voyage Id  Port Calls Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/port-calls/{port_call_id}": {
+      "get": {
+        "tags": [
+          "port-calls"
+        ],
+        "summary": "Get Port Call",
+        "operationId": "get_port_call_api_v1_port_calls__port_call_id__get",
+        "parameters": [
+          {
+            "name": "port_call_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Port Call Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PortCallResponseDTO"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "port-calls"
+        ],
+        "summary": "Update Port Call",
+        "operationId": "update_port_call_api_v1_port_calls__port_call_id__patch",
+        "parameters": [
+          {
+            "name": "port_call_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Port Call Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PortCallUpdateDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PortCallResponseDTO"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/port-calls/{port_call_id}/transition": {
+      "post": {
+        "tags": [
+          "port-calls"
+        ],
+        "summary": "Transition Port Call",
+        "operationId": "transition_port_call_api_v1_port_calls__port_call_id__transition_post",
+        "parameters": [
+          {
+            "name": "port_call_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Port Call Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PortCallTransitionDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PortCallResponseDTO"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/port-calls/{port_call_id}/agent-appointments": {
+      "get": {
+        "tags": [
+          "agent-appointments"
+        ],
+        "summary": "List Agent Appointments",
+        "operationId": "list_agent_appointments_api_v1_port_calls__port_call_id__agent_appointments_get",
+        "parameters": [
+          {
+            "name": "port_call_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Port Call Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AgentAppointmentResponseDTO"
+                  },
+                  "title": "Response List Agent Appointments Api V1 Port Calls  Port Call Id  Agent Appointments Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "agent-appointments"
+        ],
+        "summary": "Nominate Agent",
+        "operationId": "nominate_agent_api_v1_port_calls__port_call_id__agent_appointments_post",
+        "parameters": [
+          {
+            "name": "port_call_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Port Call Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AgentAppointmentCreateDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AgentAppointmentResponseDTO"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/agent-appointments/{id}/cancel": {
+      "post": {
+        "tags": [
+          "agent-appointments"
+        ],
+        "summary": "Cancel Agent Appointment",
+        "operationId": "cancel_agent_appointment_api_v1_agent_appointments__id__cancel_post",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AgentAppointmentResponseDTO"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/agent-appointments/{id}/appoint": {
+      "patch": {
+        "tags": [
+          "agent-appointments"
+        ],
+        "summary": "Appoint Agent",
+        "operationId": "appoint_agent_api_v1_agent_appointments__id__appoint_patch",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AgentAppointmentResponseDTO"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
     "schemas": {
+      "AgentAppointmentCreateDTO": {
+        "properties": {
+          "agent_ref": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Agent Ref"
+          },
+          "appointed_date": {
+            "type": "string",
+            "format": "date",
+            "title": "Appointed Date"
+          },
+          "agent_appointment_ref": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Agent Appointment Ref"
+          }
+        },
+        "type": "object",
+        "required": [
+          "agent_ref",
+          "appointed_date"
+        ],
+        "title": "AgentAppointmentCreateDTO"
+      },
+      "AgentAppointmentResponseDTO": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "port_call_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Port Call Id"
+          },
+          "agent_ref": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Agent Ref"
+          },
+          "appointed_date": {
+            "type": "string",
+            "format": "date",
+            "title": "Appointed Date"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "agent_appointment_ref": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Agent Appointment Ref"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updated At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "port_call_id",
+          "agent_ref",
+          "appointed_date",
+          "status",
+          "created_at",
+          "updated_at"
+        ],
+        "title": "AgentAppointmentResponseDTO"
+      },
       "ContactDTO": {
         "properties": {
           "name": {
@@ -2185,6 +2705,533 @@
           "password"
         ],
         "title": "LoginDTO"
+      },
+      "PortCallCreateDTO": {
+        "properties": {
+          "port_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Port Id"
+          },
+          "itinerary_line_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Itinerary Line Id"
+          },
+          "eta": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Eta"
+          },
+          "etd": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Etd"
+          },
+          "ops_notes": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ops Notes"
+          }
+        },
+        "type": "object",
+        "required": [
+          "port_id"
+        ],
+        "title": "PortCallCreateDTO"
+      },
+      "PortCallResponseDTO": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "voyage_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Voyage Id"
+          },
+          "port_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Port Id"
+          },
+          "itinerary_line_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Itinerary Line Id"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "eta": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Eta"
+          },
+          "etd": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Etd"
+          },
+          "ata": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ata"
+          },
+          "anchored_datetime": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Anchored Datetime"
+          },
+          "atb": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Atb"
+          },
+          "cargo_ops_started_datetime": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cargo Ops Started Datetime"
+          },
+          "cargo_ops_completed_datetime": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cargo Ops Completed Datetime"
+          },
+          "atd": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Atd"
+          },
+          "timezone_name": {
+            "type": "string",
+            "title": "Timezone Name"
+          },
+          "timezone_offset_minutes": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Timezone Offset Minutes"
+          },
+          "nor_tendered_datetime": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Nor Tendered Datetime"
+          },
+          "nor_accepted_datetime": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Nor Accepted Datetime"
+          },
+          "free_pratique_granted": {
+            "type": "boolean",
+            "title": "Free Pratique Granted"
+          },
+          "free_pratique_granted_datetime": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Free Pratique Granted Datetime"
+          },
+          "customs_cleared": {
+            "type": "boolean",
+            "title": "Customs Cleared"
+          },
+          "customs_cleared_datetime": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Customs Cleared Datetime"
+          },
+          "ops_notes": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ops Notes"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updated At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "voyage_id",
+          "port_id",
+          "status",
+          "timezone_name",
+          "free_pratique_granted",
+          "customs_cleared",
+          "created_at",
+          "updated_at"
+        ],
+        "title": "PortCallResponseDTO"
+      },
+      "PortCallTransitionDTO": {
+        "properties": {
+          "to": {
+            "type": "string",
+            "title": "To"
+          },
+          "at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "to"
+        ],
+        "title": "PortCallTransitionDTO"
+      },
+      "PortCallUpdateDTO": {
+        "properties": {
+          "status": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Status"
+          },
+          "eta": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Eta"
+          },
+          "etd": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Etd"
+          },
+          "ata": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ata"
+          },
+          "anchored_datetime": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Anchored Datetime"
+          },
+          "atb": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Atb"
+          },
+          "cargo_ops_started_datetime": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cargo Ops Started Datetime"
+          },
+          "cargo_ops_completed_datetime": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cargo Ops Completed Datetime"
+          },
+          "atd": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Atd"
+          },
+          "nor_tendered_datetime": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Nor Tendered Datetime"
+          },
+          "nor_accepted_datetime": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Nor Accepted Datetime"
+          },
+          "free_pratique_granted": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Free Pratique Granted"
+          },
+          "free_pratique_granted_datetime": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Free Pratique Granted Datetime"
+          },
+          "customs_cleared": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Customs Cleared"
+          },
+          "customs_cleared_datetime": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Customs Cleared Datetime"
+          },
+          "ops_notes": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ops Notes"
+          },
+          "correction_reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Correction Reason"
+          }
+        },
+        "type": "object",
+        "title": "PortCallUpdateDTO"
       },
       "PortCreateDTO": {
         "properties": {
