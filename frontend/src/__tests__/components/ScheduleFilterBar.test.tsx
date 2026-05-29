@@ -55,7 +55,7 @@ describe("ScheduleFilterBar", () => {
     vi.useRealTimers();
   });
 
-  it("displays available vessels when 'Select vessel...' is clicked", () => {
+  it("displays available vessels when vessel dropdown is opened", () => {
     const onFilterChange = vi.fn();
     render(
       <ScheduleFilterBar
@@ -65,7 +65,7 @@ describe("ScheduleFilterBar", () => {
       />
     );
 
-    const selectVesselBtn = screen.getByText("Select vessel...");
+    const selectVesselBtn = screen.getByPlaceholderText("Select vessel...");
     fireEvent.click(selectVesselBtn);
 
     expect(screen.getByText("Vessel 1")).toBeInTheDocument();

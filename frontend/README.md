@@ -79,21 +79,24 @@ Architectural boundaries are strictly enforced via ESLint rules in [.eslintrc.cj
 src/
 ├── api/             # Generated OpenAPI schema + typed fetch client wrapper
 ├── auth/            # AuthContext and RequireAuth route guards
-├── lib/             # Sensible defaults, chart option builders
-├── routes/          # Route tree definitions (/schedule, /voyages/$id/workspace)
+├── lib/             # Chart option builders, status colors
+├── routes/          # Route tree definitions and Page components
 ├── components/      # Reusable components (Gantt, FilterBar, WorkspaceHeader, etc.)
 └── modules/         # (Future) Isolated domain features
 ```
 
 ### 🧭 New Routes
-- `/schedule`: Vessel Schedule Gantt (Home)
-- `/voyages/$voyageId/workspace`: Voyage detail workspace
+- `/schedule`: Vessel Schedule Gantt (Home). Supports filtering by date range, vessels, status, and voyage no.
+- `/voyages/$voyageId/workspace`: Voyage detail workspace. Shows header details, ordered itinerary, and instructions/notes.
 
 ### 📊 ECharts Gantt
 We use Apache ECharts with a `custom` series for the Vessel Schedule.
 - **Pure logic**: `src/lib/scheduleChartOption.ts` transforms API data to ECharts options.
-- **Component**: `src/components/VesselScheduleChart.tsx` manages the ECharts instance.
-- **Testing**: We use DOM overlay hit-targets (`data-testid="voyage-bar-{id}"`) for deterministic E2E testing of voyage bar interactions.
+- **Component**: `src/components/VesselScheduleChart.tsx` manages the ECharts instance and DOM overlay.
+- **Testing**: We use DOM overlay hit-targets (`data-testid="voyage-bar-{id}"`) positioned exactly over visible voyage bars for deterministic E2E testing of voyage bar interactions.
+
+### 📅 Date Handling
+We use `date-fns` for robust date formatting, parsing, and manipulation, particularly for the timeline view and the `react-day-picker` integration.
 - Reusable `components` can only import from utility contexts (`lib`, `auth`, `api`).
 - Domain `modules` cannot import from other domain modules (maintaining absolute modular boundary parity with the Python monolith).
 - Modules cannot import from the `routes` directory (routing binds modules, modules do not bind routing).
