@@ -39,7 +39,7 @@ jobs:
       - name: Run tests with coverage and runtime check
         run: |
           START_TIME=$(date +%s)
-          uv run pytest --cov=src/modules/master_data --cov=src/modules/voyage_spine --cov=src/modules/auth --cov-fail-under=95 tests
+          uv run pytest -n auto --cov=src/modules/master_data --cov=src/modules/voyage_spine --cov=src/modules/auth --cov-fail-under=95 tests
           END_TIME=$(date +%s)
           RUNTIME=$((END_TIME - START_TIME))
           echo "Runtime: ${RUNTIME}s"
