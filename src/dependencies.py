@@ -1,4 +1,4 @@
-from typing import AsyncGenerator, Callable, Any
+from typing import AsyncGenerator, Callable, Any, Union, Set
 from fastapi import Request, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine, async_sessionmaker
 from src.config import settings
@@ -38,10 +38,18 @@ async def get_current_user(
     return user
 
 
-def require_role(role: str) -> Callable[..., Any]:
+def require_role(allowed: Union[str, Set[str]]) -> Callable[..., Any]:
+    """Dependency factory. Accepts a single role name or a set of role names (OR logic).
+
+    Usage:
+        require_role("Admin")          — Admin only
+        require_role({"Admin", "Operations"})  — Admin OR Operations
+    """
+    allowed_set: Set[str] = {allowed} if isinstance(allowed, str) else set(allowed)
+
     async def role_checker(user: User = Depends(get_current_user)) -> User:
         user_roles = {ur.role.name for ur in user.user_roles if ur.role}
-        if role not in user_roles:
+        if not user_roles.intersection(allowed_set):
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail="Insufficient permissions",

@@ -3,6 +3,8 @@ import { useQuery } from "@tanstack/react-query";
 import { apiClient } from "../api/client";
 import { VoyageWorkspaceHeader } from "../components/VoyageWorkspaceHeader";
 import { ItineraryTable } from "../components/ItineraryTable";
+import { PortCallPanel } from "../components/PortCallPanel/PortCallPanel";
+
 import type { ScheduleFilters } from "../components/ScheduleFilterBar";
 import { voyageWorkspaceRoute } from "./voyages.$voyageId.workspace";
 
@@ -67,8 +69,9 @@ export function VoyageWorkspacePage() {
       <VoyageWorkspaceHeader voyage={voyage} />
 
       <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: "2rem" }}>
-        <div>
+        <div style={{ display: "flex", flexDirection: "column", gap: "2rem" }}>
           <ItineraryTable itinerary={voyage.itinerary} />
+          <PortCallPanel voyageId={voyageId} />
         </div>
         <div style={{ display: "flex", flexDirection: "column", gap: "2rem" }}>
           <div className="itinerary-section" style={{ marginTop: "2rem" }}>

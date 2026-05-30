@@ -24,6 +24,8 @@ from src.config import settings
 from src.modules.master_data.models import Base
 from src.modules.voyage_spine.models import Voyage, ItineraryLine
 from src.modules.auth.models import User, Role, Permission, UserRole, Session
+from src.modules.port_call.models import PortCall, AgentAppointment
+from src.modules.operational_reporting.models import PortActivity, ActivityLog, OperationalReport
 target_metadata = Base.metadata
 
 # other values from the config, defined by the needs of env.py,

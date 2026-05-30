@@ -29,7 +29,19 @@ Durable project rules and roadmap: `ORCHESTRA.md`.
 
 **Date:** 2026-05-29
 
-**Status:** Block 3.5 (Auth + RBAC) **complete**. CI green, runbook committed. Block 4 (Vessel Schedule) is next — Bryntum license gate must be resolved first.
+**Status:** Block 5 (Port Call) **complete**. All gates green, runbook committed. Block 6 is next.
+
+**Block 5 evidence:**
+- M1 commit: `5cd7914 feat(port_call): implement Block 5 M1 Port Call API`
+- M2 commit: `b9b7626 feat(port_call): implement Block 5 M2 Port Call Panel`
+- Local gates: make lint, make typecheck, tach check, pytest (24 tests, 96% coverage), pnpm typecheck, pnpm lint, pnpm test (21), pnpm build, pnpm test:e2e (port_call spec), pnpm audit — all pass
+- Runbook: `docs/port_call/runbook.md`
+
+**Block 4 evidence:**
+- Final commit: `44704cdaa2fc07658ce0e3073dd5a9d241f58cf6`
+- CI run: green (run `26628624880`)
+- Local gates: typecheck, lint, test (12), test:e2e (3), build, audit — all pass
+- Runbook: `docs/vessel_schedule/runbook.md`
 
 **Block 3.5 evidence:**
 - Final commit: `c3985aa feat: implement Block 3.5 Auth + RBAC module`
@@ -94,7 +106,12 @@ See `CLAUDE.md`. Highlights:
 - 2026-05-29 — Block 3.5 closed (CI green at `c3985aa`). Block 4 (Vessel Schedule) is next — Bryntum license gate binds before spec drafting begins.
 - 2026-05-29 — Bryntum dropped (budget unavailable). Deep research run; Apache ECharts (Apache-2.0, v6.1.0) adopted. [ADR-0006] superseded by [ADR-0017]. OPEN_DECISIONS §1 closed. Block 4 unblocked.
 - 2026-05-29 — Block 4 Prompt A run twice, both `NO_FIT` (no OSS vessel-schedule ERP UI on this stack). Prompt B run: all 10 layers confirmed. Picks locked — date picker react-day-picker 10.x, multi-select downshift 9.x, direct ECharts integration (no wrapper), DOM-overlay e2e hit-targets, schedule stays in voyage_spine, JSON-style URL filters, UTC date policy. Five-doc spec complete in `docs/vessel_schedule/`.
+- 2026-05-29 — Block 4 closed (CI green at `44704cd`, run 26628624880). M1 schedule + workspace endpoints, M2 ECharts Gantt + Voyage Workspace pages. Runbook committed. Block 5 (Port Call) is next.
+- 2026-05-29 — Block 5 Prompt A `NO_FIT` (DCSA Port Call v2.0 kept as vocabulary blueprint only; Port Activity App + SPOCP rejected). Prompt B architecture review overrode 4 preliminary decisions; founder approved all 6 gates. Locked (D-LOCK-1..10): new port_call Tach module (one-directional deps, scalar FKs, no ORM back-import), skip-allowed state machine + privileged correction path, three added timestamp fields, IANA tz snapshot + UTC, derived active agent appointment (no FK pointer) with partial unique index, asymmetric clearance invariant, nested+member API shape, datetime-local frontend. Five-doc spec complete in `docs/port_call/`.
+- 2026-05-29 — Block 5 closed (M1 `5cd7914`, M2 `b9b7626`). PortCall + AgentAppointment module: 24 backend tests 96% coverage, 21 frontend tests, Playwright e2e. Runbook committed. Block 6 is next.
+- 2026-05-29 — Block 6 Prompt A `NO_FIT`. Two PARTIAL_FITs noted: windmar-nav/windmar (exact stack, Apache-2.0, covers OperationalReport/Noon reports but wrong domain focus — hydrodynamic performance not commercial port ops); SPOCP/spocp-port-call-api (perfect domain model for 21-event port call vocabulary, wrong stack — Java/Spring Boot). No open-source maritime ERP covers commercial Laytime/SOF/ActivityLog logic. Building from scratch. Prompt B drafted in `docs/operational_reporting/prompt_b.md`.
+- 2026-05-29 — Block 6 Prompt B run. Four must-fixes, six overrides. Founder approved all gates. Locked (D-LOCK-1..11): new operational_reporting Tach module; append-only PortActivity with self-FK correction chain; append-only ActivityLog; event_type String+CheckConstraint (21 values); voyage_id XOR port_call_id CHECK on OperationalReport; explicit-dict report status machine (Pending→Queried/Accepted/Rejected); accepted-in-error via superseding report row (no status mutation); flat nullable structured fields + bunker_rob_total_mt; mutations require Operations/Admin; API shape with port-call + voyage report routes; two frontend panels in Voyage Workspace. Five-doc spec complete in `docs/operational_reporting/`.
 
 ## Next step
 
-Block 4 (Vessel Schedule) — five-doc spec complete in `docs/vessel_schedule/`. Open M0 coordinator with the prompt from `docs/vessel_schedule/plan.md` to begin coding (M1 backend → M2 frontend).
+Block 6 — five-doc spec complete in `docs/operational_reporting/`. Open M0 coordinator with the prompt from `docs/operational_reporting/plan.md` to begin coding (M1 backend → M2 frontend).

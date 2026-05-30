@@ -406,10 +406,167 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/voyages/{voyage_id}/port-calls": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Port Calls */
+        get: operations["list_port_calls_api_v1_voyages__voyage_id__port_calls_get"];
+        put?: never;
+        /** Create Port Call */
+        post: operations["create_port_call_api_v1_voyages__voyage_id__port_calls_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/port-calls/{port_call_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Port Call */
+        get: operations["get_port_call_api_v1_port_calls__port_call_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Update Port Call */
+        patch: operations["update_port_call_api_v1_port_calls__port_call_id__patch"];
+        trace?: never;
+    };
+    "/api/v1/port-calls/{port_call_id}/transition": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Transition Port Call */
+        post: operations["transition_port_call_api_v1_port_calls__port_call_id__transition_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/port-calls/{port_call_id}/agent-appointments": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Agent Appointments */
+        get: operations["list_agent_appointments_api_v1_port_calls__port_call_id__agent_appointments_get"];
+        put?: never;
+        /** Nominate Agent */
+        post: operations["nominate_agent_api_v1_port_calls__port_call_id__agent_appointments_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/agent-appointments/{id}/cancel": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Cancel Agent Appointment */
+        post: operations["cancel_agent_appointment_api_v1_agent_appointments__id__cancel_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/agent-appointments/{id}/appoint": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Appoint Agent */
+        patch: operations["appoint_agent_api_v1_agent_appointments__id__appoint_patch"];
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        /** AgentAppointmentCreateDTO */
+        AgentAppointmentCreateDTO: {
+            /**
+             * Agent Ref
+             * Format: uuid
+             */
+            agent_ref: string;
+            /**
+             * Appointed Date
+             * Format: date
+             */
+            appointed_date: string;
+            /** Agent Appointment Ref */
+            agent_appointment_ref?: string | null;
+        };
+        /** AgentAppointmentResponseDTO */
+        AgentAppointmentResponseDTO: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Port Call Id
+             * Format: uuid
+             */
+            port_call_id: string;
+            /**
+             * Agent Ref
+             * Format: uuid
+             */
+            agent_ref: string;
+            /**
+             * Appointed Date
+             * Format: date
+             */
+            appointed_date: string;
+            /** Status */
+            status: string;
+            /** Agent Appointment Ref */
+            agent_appointment_ref?: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+        };
         /** ContactDTO */
         ContactDTO: {
             /** Name */
@@ -582,6 +739,132 @@ export interface components {
             username: string;
             /** Password */
             password: string;
+        };
+        /** PortCallCreateDTO */
+        PortCallCreateDTO: {
+            /**
+             * Port Id
+             * Format: uuid
+             */
+            port_id: string;
+            /** Itinerary Line Id */
+            itinerary_line_id?: string | null;
+            /** Eta */
+            eta?: string | null;
+            /** Etd */
+            etd?: string | null;
+            /** Ops Notes */
+            ops_notes?: string | null;
+        };
+        /** PortCallResponseDTO */
+        PortCallResponseDTO: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Voyage Id
+             * Format: uuid
+             */
+            voyage_id: string;
+            /**
+             * Port Id
+             * Format: uuid
+             */
+            port_id: string;
+            /** Itinerary Line Id */
+            itinerary_line_id?: string | null;
+            /** Status */
+            status: string;
+            /** Eta */
+            eta?: string | null;
+            /** Etd */
+            etd?: string | null;
+            /** Ata */
+            ata?: string | null;
+            /** Anchored Datetime */
+            anchored_datetime?: string | null;
+            /** Atb */
+            atb?: string | null;
+            /** Cargo Ops Started Datetime */
+            cargo_ops_started_datetime?: string | null;
+            /** Cargo Ops Completed Datetime */
+            cargo_ops_completed_datetime?: string | null;
+            /** Atd */
+            atd?: string | null;
+            /** Timezone Name */
+            timezone_name: string;
+            /** Timezone Offset Minutes */
+            timezone_offset_minutes?: number | null;
+            /** Nor Tendered Datetime */
+            nor_tendered_datetime?: string | null;
+            /** Nor Accepted Datetime */
+            nor_accepted_datetime?: string | null;
+            /** Free Pratique Granted */
+            free_pratique_granted: boolean;
+            /** Free Pratique Granted Datetime */
+            free_pratique_granted_datetime?: string | null;
+            /** Customs Cleared */
+            customs_cleared: boolean;
+            /** Customs Cleared Datetime */
+            customs_cleared_datetime?: string | null;
+            /** Ops Notes */
+            ops_notes?: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+        };
+        /** PortCallTransitionDTO */
+        PortCallTransitionDTO: {
+            /** To */
+            to: string;
+            /** At */
+            at?: string | null;
+        };
+        /** PortCallUpdateDTO */
+        PortCallUpdateDTO: {
+            /** Status */
+            status?: string | null;
+            /** Eta */
+            eta?: string | null;
+            /** Etd */
+            etd?: string | null;
+            /** Ata */
+            ata?: string | null;
+            /** Anchored Datetime */
+            anchored_datetime?: string | null;
+            /** Atb */
+            atb?: string | null;
+            /** Cargo Ops Started Datetime */
+            cargo_ops_started_datetime?: string | null;
+            /** Cargo Ops Completed Datetime */
+            cargo_ops_completed_datetime?: string | null;
+            /** Atd */
+            atd?: string | null;
+            /** Nor Tendered Datetime */
+            nor_tendered_datetime?: string | null;
+            /** Nor Accepted Datetime */
+            nor_accepted_datetime?: string | null;
+            /** Free Pratique Granted */
+            free_pratique_granted?: boolean | null;
+            /** Free Pratique Granted Datetime */
+            free_pratique_granted_datetime?: string | null;
+            /** Customs Cleared */
+            customs_cleared?: boolean | null;
+            /** Customs Cleared Datetime */
+            customs_cleared_datetime?: string | null;
+            /** Ops Notes */
+            ops_notes?: string | null;
+            /** Correction Reason */
+            correction_reason?: string | null;
         };
         /** PortCreateDTO */
         PortCreateDTO: {
@@ -2057,6 +2340,301 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["VesselScheduleResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_port_calls_api_v1_voyages__voyage_id__port_calls_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                voyage_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PortCallResponseDTO"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_port_call_api_v1_voyages__voyage_id__port_calls_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                voyage_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PortCallCreateDTO"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PortCallResponseDTO"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_port_call_api_v1_port_calls__port_call_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                port_call_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PortCallResponseDTO"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_port_call_api_v1_port_calls__port_call_id__patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                port_call_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PortCallUpdateDTO"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PortCallResponseDTO"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    transition_port_call_api_v1_port_calls__port_call_id__transition_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                port_call_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PortCallTransitionDTO"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PortCallResponseDTO"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_agent_appointments_api_v1_port_calls__port_call_id__agent_appointments_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                port_call_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AgentAppointmentResponseDTO"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    nominate_agent_api_v1_port_calls__port_call_id__agent_appointments_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                port_call_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AgentAppointmentCreateDTO"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AgentAppointmentResponseDTO"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    cancel_agent_appointment_api_v1_agent_appointments__id__cancel_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AgentAppointmentResponseDTO"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    appoint_agent_api_v1_agent_appointments__id__appoint_patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AgentAppointmentResponseDTO"];
                 };
             };
             /** @description Validation Error */
