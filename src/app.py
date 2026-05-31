@@ -30,6 +30,7 @@ from src.modules.operational_reporting import (
     port_call_reports_router,
     reports_member_router,
 )
+from src.modules.forms.api.router import router as forms_router
 from src.dependencies import AsyncSessionLocal
 
 
@@ -100,5 +101,8 @@ def create_app() -> FastAPI:
     app.include_router(
         reports_member_router, prefix="/api/v1", tags=["operational-reporting"]
     )
+
+    # Forms module
+    app.include_router(forms_router, prefix="/api/v1")
 
     return app

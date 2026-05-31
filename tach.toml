@@ -106,6 +106,7 @@ from = [
 
 [[interfaces]]
 expose = [
+    "router",
     "FORM_TYPES",
     "FormParserService",
     "ParseOutcome",

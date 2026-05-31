@@ -17,6 +17,7 @@ from src.modules.forms.service.parser import (
     ParseOutcome,
     UnknownFormTypeError,
 )
+from src.modules.forms.api.router import router
 
 __all__ = [
     "FORM_TYPES",
@@ -29,4 +30,5 @@ __all__ = [
     "ParseOutcome",
     "UnknownFormTypeError",
     "ExtractionError",
+    "router",
 ]
