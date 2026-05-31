@@ -703,6 +703,58 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/port-calls/{port_call_id}/checklists": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Checklists */
+        get: operations["list_checklists_api_v1_port_calls__port_call_id__checklists_get"];
+        put?: never;
+        /** Create Checklist */
+        post: operations["create_checklist_api_v1_port_calls__port_call_id__checklists_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/checklists/{checklist_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Checklist */
+        get: operations["get_checklist_api_v1_checklists__checklist_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/checklist-items/{item_id}/sign-off": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Sign Off Checklist Item */
+        post: operations["sign_off_checklist_item_api_v1_checklist_items__item_id__sign_off_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -790,6 +842,61 @@ export interface components {
              * Format: date-time
              */
             updated_at: string;
+        };
+        /** ChecklistCreateDTO */
+        ChecklistCreateDTO: {
+            /**
+             * Checklist Type
+             * @enum {string}
+             */
+            checklist_type: "Pre-Arrival" | "Pre-Departure";
+        };
+        /** ChecklistItemReadDTO */
+        ChecklistItemReadDTO: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Checklist Id
+             * Format: uuid
+             */
+            checklist_id: string;
+            /** Sequence No */
+            sequence_no: number;
+            /** Item Name */
+            item_name: string;
+            /** Status */
+            status: string;
+            /** Signed Off At */
+            signed_off_at?: string | null;
+            /** Signed Off By */
+            signed_off_by?: string | null;
+        };
+        /** ChecklistReadDTO */
+        ChecklistReadDTO: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Port Call Id
+             * Format: uuid
+             */
+            port_call_id: string;
+            /** Checklist Type */
+            checklist_type: string;
+            /** Status */
+            status: string;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Items */
+            items: components["schemas"]["ChecklistItemReadDTO"][];
         };
         /** ContactDTO */
         ContactDTO: {
@@ -3717,6 +3824,134 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["FormReadDTO"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_checklists_api_v1_port_calls__port_call_id__checklists_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                port_call_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ChecklistReadDTO"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_checklist_api_v1_port_calls__port_call_id__checklists_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                port_call_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ChecklistCreateDTO"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ChecklistReadDTO"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_checklist_api_v1_checklists__checklist_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                checklist_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ChecklistReadDTO"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    sign_off_checklist_item_api_v1_checklist_items__item_id__sign_off_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                item_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ChecklistItemReadDTO"];
                 };
             };
             /** @description Validation Error */
