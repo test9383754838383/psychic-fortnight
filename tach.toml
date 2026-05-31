@@ -8,6 +8,27 @@ modules = [
     { path = "modules.master_data", depends_on = [] },
     { path = "modules.voyage_spine", depends_on = ["modules.master_data"] },
     { path = "modules.auth", depends_on = [] },
+    { path = "modules.port_call", depends_on = ["modules.voyage_spine", "modules.master_data"] },
+    {
+        path = "modules.operational_reporting",
+        depends_on = [
+            "modules.port_call",
+            "modules.voyage_spine",
+            "modules.master_data",
+            "modules.auth",
+        ]
+    },
+]
+
+[[interfaces]]
+expose = [
+    "router",
+    "PortCallStatus",
+    "AgentAppointmentStatus",
+    "validate_port_call_exists",
+]
+from = [
+    "modules.port_call",
 ]
 
 [[interfaces]]
@@ -40,6 +61,8 @@ expose = [
     "VesselNotFoundError",
     "PortNotFoundError",
     "CounterpartyNotFoundError",
+    "validate_port_active",
+    "validate_agent_active_with_role",
 ]
 from = [
     "modules.master_data",
@@ -50,8 +73,24 @@ expose = [
     "router",
     "VoyageStatus",
     "PortFunction",
+    "validate_voyage_exists",
+    "validate_itinerary_line_belongs_to_voyage",
 ]
 from = [
     "modules.voyage_spine",
 ]
 
+[[interfaces]]
+expose = [
+    "port_call_events_router",
+    "port_call_log_router",
+    "voyage_reports_router",
+    "port_call_reports_router",
+    "reports_member_router",
+    "PortActivityEventType",
+    "OperationalReportType",
+    "OperationalReportStatus",
+]
+from = [
+    "modules.operational_reporting",
+]

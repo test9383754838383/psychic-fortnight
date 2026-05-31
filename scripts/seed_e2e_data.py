@@ -11,6 +11,8 @@ from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
 from src.config import settings
 from src.modules.master_data.models.vessel import Vessel
 from src.modules.master_data.models.port import Port
+from src.modules.master_data.models.counterparty import Counterparty
+from src.modules.master_data.models.counterparty_role import CounterpartyRole
 from src.modules.voyage_spine.models.voyage import Voyage
 from src.modules.voyage_spine.models.itinerary_line import ItineraryLine
 from sqlalchemy import select
@@ -98,6 +100,29 @@ async def main():
             )
             session.add_all([line1, line2])
             print("Seeded E2E Voyage and Itinerary.")
+            
+        # 4. Create an Agent if it doesn't exist
+        agent_id = str(uuid.UUID('00000000-0000-0000-0000-000000000005'))
+        stmt = select(Counterparty).where(Counterparty.id == agent_id)
+        result = await session.execute(stmt)
+        agent = result.scalar_one_or_none()
+        if not agent:
+            agent = Counterparty(
+                id=agent_id,
+                code="E2EAGENT",
+                name="E2E GLOBAL AGENT",
+                status="Active"
+            )
+            session.add(agent)
+            
+            # Attach Agent role
+            role = CounterpartyRole(
+                id=str(uuid.uuid4()),
+                counterparty_id=agent_id,
+                role="Agent"
+            )
+            session.add(role)
+            print("Seeded E2E Agent.")
             
         await session.commit()
 
