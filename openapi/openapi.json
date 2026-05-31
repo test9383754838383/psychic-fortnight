@@ -3234,6 +3234,256 @@
           }
         }
       }
+    },
+    "/api/v1/voyages/{voyage_id}/bunker-requests": {
+      "post": {
+        "tags": [
+          "bunker-requests",
+          "bunker-requests"
+        ],
+        "summary": "Create Bunker Request",
+        "operationId": "create_bunker_request_api_v1_voyages__voyage_id__bunker_requests_post",
+        "parameters": [
+          {
+            "name": "voyage_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Voyage Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BunkerRequestCreateBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BunkerRequestReadDTO"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "bunker-requests",
+          "bunker-requests"
+        ],
+        "summary": "List Bunker Requests",
+        "operationId": "list_bunker_requests_api_v1_voyages__voyage_id__bunker_requests_get",
+        "parameters": [
+          {
+            "name": "voyage_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Voyage Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/BunkerRequestReadDTO"
+                  },
+                  "title": "Response List Bunker Requests Api V1 Voyages  Voyage Id  Bunker Requests Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/bunker-requests/{bunker_request_id}": {
+      "get": {
+        "tags": [
+          "bunker-requests",
+          "bunker-requests"
+        ],
+        "summary": "Get Bunker Request",
+        "operationId": "get_bunker_request_api_v1_bunker_requests__bunker_request_id__get",
+        "parameters": [
+          {
+            "name": "bunker_request_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Bunker Request Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BunkerRequestReadDTO"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "bunker-requests",
+          "bunker-requests"
+        ],
+        "summary": "Update Bunker Request",
+        "operationId": "update_bunker_request_api_v1_bunker_requests__bunker_request_id__patch",
+        "parameters": [
+          {
+            "name": "bunker_request_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Bunker Request Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BunkerRequestUpdateBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BunkerRequestReadDTO"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/bunker-requests/{bunker_request_id}/transition": {
+      "post": {
+        "tags": [
+          "bunker-requests",
+          "bunker-requests"
+        ],
+        "summary": "Transition Bunker Request",
+        "operationId": "transition_bunker_request_api_v1_bunker_requests__bunker_request_id__transition_post",
+        "parameters": [
+          {
+            "name": "bunker_request_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Bunker Request Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BunkerRequestTransitionBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BunkerRequestReadDTO"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -3390,6 +3640,295 @@
           "updated_at"
         ],
         "title": "AgentAppointmentResponseDTO"
+      },
+      "BunkerRequestCreateBody": {
+        "properties": {
+          "fuel_type": {
+            "type": "string",
+            "enum": [
+              "HFO",
+              "VLSFO",
+              "MGO",
+              "LSMGO",
+              "HSFO",
+              "ULSD",
+              "LNG",
+              "Biofuel"
+            ],
+            "title": "Fuel Type"
+          },
+          "quantity_required_mt": {
+            "type": "number",
+            "title": "Quantity Required Mt"
+          },
+          "specification_grade": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Specification Grade"
+          },
+          "max_sulphur_content": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Max Sulphur Content"
+          },
+          "port_call_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Port Call Id"
+          },
+          "supplier_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Supplier Id"
+          },
+          "eta_supply": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Eta Supply"
+          }
+        },
+        "type": "object",
+        "required": [
+          "fuel_type",
+          "quantity_required_mt"
+        ],
+        "title": "BunkerRequestCreateBody"
+      },
+      "BunkerRequestReadDTO": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "voyage_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Voyage Id"
+          },
+          "port_call_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Port Call Id"
+          },
+          "fuel_type": {
+            "type": "string",
+            "title": "Fuel Type"
+          },
+          "quantity_required_mt": {
+            "type": "number",
+            "title": "Quantity Required Mt"
+          },
+          "specification_grade": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Specification Grade"
+          },
+          "max_sulphur_content": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Max Sulphur Content"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "blocker_note": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Blocker Note"
+          },
+          "raised_by": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Raised By"
+          },
+          "raised_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Raised At"
+          },
+          "supplier_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Supplier Id"
+          },
+          "eta_supply": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Eta Supply"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "voyage_id",
+          "fuel_type",
+          "quantity_required_mt",
+          "status",
+          "raised_by",
+          "raised_at"
+        ],
+        "title": "BunkerRequestReadDTO"
+      },
+      "BunkerRequestTransitionBody": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "blocker_note": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Blocker Note"
+          }
+        },
+        "type": "object",
+        "required": [
+          "status"
+        ],
+        "title": "BunkerRequestTransitionBody"
+      },
+      "BunkerRequestUpdateBody": {
+        "properties": {
+          "quantity_required_mt": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Quantity Required Mt"
+          },
+          "specification_grade": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Specification Grade"
+          },
+          "max_sulphur_content": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Max Sulphur Content"
+          },
+          "supplier_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Supplier Id"
+          },
+          "eta_supply": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Eta Supply"
+          }
+        },
+        "type": "object",
+        "title": "BunkerRequestUpdateBody"
       },
       "ChecklistCreateDTO": {
         "properties": {

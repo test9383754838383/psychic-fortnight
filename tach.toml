@@ -34,6 +34,15 @@ modules = [
             "modules.auth",
         ]
     },
+    {
+        path = "modules.bunker_request",
+        depends_on = [
+            "modules.voyage_spine",
+            "modules.port_call",
+            "modules.master_data",
+            "modules.auth",
+        ]
+    },
 ]
 
 [[interfaces]]
@@ -139,4 +148,14 @@ expose = [
 ]
 from = [
     "modules.checklists",
+]
+
+[[interfaces]]
+expose = [
+    "voyage_router",
+    "member_router",
+    "BunkerRequestReadDTO",
+]
+from = [
+    "modules.bunker_request",
 ]
