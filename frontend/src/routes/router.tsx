@@ -4,6 +4,7 @@ import { useCurrentUser } from "../auth/AuthContext";
 import { RequireAuth } from "../auth/RequireAuth";
 import { scheduleRoute } from "./schedule";
 import { voyageWorkspaceRoute } from "./voyages.$voyageId.workspace";
+import { formsRoute } from "./forms";
 
 // Root Route - Layout wrapper
 export const rootRoute = createRootRoute({
@@ -53,7 +54,7 @@ export const authenticatedRoute = createRoute({
 // Build Route Tree
 const routeTree = rootRoute.addChildren([
   indexRoute,
-  authenticatedRoute.addChildren([scheduleRoute, voyageWorkspaceRoute]),
+  authenticatedRoute.addChildren([scheduleRoute, voyageWorkspaceRoute, formsRoute]),
 ]);
 
 // Create Router instance

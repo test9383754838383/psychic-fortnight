@@ -7,6 +7,7 @@ import { ItineraryTable } from "../components/ItineraryTable";
 import { PortCallPanel } from "../components/PortCallPanel/PortCallPanel";
 import { EventLogPanel } from "../components/EventLogPanel/EventLogPanel";
 import { ReportsPanel } from "../components/ReportsPanel/ReportsPanel";
+import { VoyageFormsPanel } from "../components/FormsQueue/VoyageFormsPanel";
 
 import type { ScheduleFilters } from "../components/ScheduleFilterBar";
 import { voyageWorkspaceRoute } from "./voyages.$voyageId.workspace";
@@ -102,7 +103,10 @@ export function VoyageWorkspacePage() {
           </div>
 
           {activeTab === "reports" ? (
-            <ReportsPanel voyageId={voyageId} portCallId={selectedPortCallId} />
+            <>
+              <ReportsPanel voyageId={voyageId} portCallId={selectedPortCallId} />
+              <VoyageFormsPanel voyageId={voyageId} />
+            </>
           ) : (
             <>
               <div className="itinerary-section">
