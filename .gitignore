@@ -177,4 +177,5 @@ frontend/dist/
 frontend/tmp/
 frontend/test-results/
 frontend/playwright-report/
+frontend/.vite-cache/
 

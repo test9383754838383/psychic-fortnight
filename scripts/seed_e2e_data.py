@@ -15,6 +15,7 @@ from src.modules.master_data.models.counterparty import Counterparty
 from src.modules.master_data.models.counterparty_role import CounterpartyRole
 from src.modules.voyage_spine.models.voyage import Voyage
 from src.modules.voyage_spine.models.itinerary_line import ItineraryLine
+from src.modules.port_call.models.port_call import PortCall
 from sqlalchemy import select
 
 async def main():
@@ -123,6 +124,30 @@ async def main():
             )
             session.add(role)
             print("Seeded E2E Agent.")
+            
+        # 5. Create a Port Call if it doesn't exist
+        port_call_id = str(uuid.UUID('00000000-0000-0000-0000-000000000004'))
+        stmt = select(PortCall).where(PortCall.id == port_call_id)
+        result = await session.execute(stmt)
+        port_call = result.scalar_one_or_none()
+        if not port_call:
+            now = datetime.now(timezone.utc)
+            port_call = PortCall(
+                id=port_call_id,
+                voyage_id=voyage_id,
+                port_id=port_id,
+                itinerary_line_id=None,
+                status="Planned",
+                eta=now + timedelta(days=4),
+                etd=now + timedelta(days=5),
+                timezone_name="Europe/Amsterdam",
+                timezone_offset_minutes=120,
+                free_pratique_granted=False,
+                customs_cleared=False,
+                ops_notes="E2E test port call notes"
+            )
+            session.add(port_call)
+            print("Seeded E2E Port Call.")
             
         await session.commit()
 

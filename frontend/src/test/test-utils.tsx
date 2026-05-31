@@ -1,6 +1,7 @@
 import React, { ReactElement } from "react";
 import { render, RenderOptions } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { AuthProvider } from "../auth/AuthContext";
 
 const createTestQueryClient = () =>
   new QueryClient({
@@ -19,7 +20,7 @@ const AllTheProviders = ({ children }: AllTheProvidersProps) => {
   const queryClient = createTestQueryClient();
   return (
     <QueryClientProvider client={queryClient}>
-      {children}
+      <AuthProvider>{children}</AuthProvider>
     </QueryClientProvider>
   );
 };

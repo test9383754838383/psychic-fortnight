@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiClient } from "../../api/client";
 import { format } from "date-fns";
@@ -9,9 +9,15 @@ import { components } from "../../api/schema";
 
 interface PortCallPanelProps {
   voyageId: string;
+  selectedPortCallId?: string | null;
+  onSelectPortCall?: (id: string) => void;
 }
 
-export const PortCallPanel: React.FC<PortCallPanelProps> = ({ voyageId }) => {
+export const PortCallPanel: React.FC<PortCallPanelProps> = ({
+  voyageId,
+  selectedPortCallId,
+  onSelectPortCall,
+}) => {
   const queryClient = useQueryClient();
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingPortCall, setEditingPortCall] = useState<components["schemas"]["PortCallResponseDTO"] | null>(null);
@@ -80,6 +86,15 @@ export const PortCallPanel: React.FC<PortCallPanelProps> = ({ voyageId }) => {
     },
   });
 
+  useEffect(() => {
+    if (portCalls && portCalls.length > 0 && onSelectPortCall && !selectedPortCallId) {
+      const firstId = portCalls[0]?.id;
+      if (firstId) {
+        onSelectPortCall(firstId);
+      }
+    }
+  }, [portCalls, selectedPortCallId, onSelectPortCall]);
+
   if (isLoading) return <div>Loading port calls...</div>;
   if (isError) return <div>Error loading port calls</div>;
 
@@ -130,7 +145,18 @@ export const PortCallPanel: React.FC<PortCallPanelProps> = ({ voyageId }) => {
       ) : (
         <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
           {portCalls.map((pc) => (
-            <div key={pc.id} className="glass-panel" style={{ padding: "1.5rem" }}>
+            <div
+              key={pc.id}
+              className="glass-panel"
+              onClick={() => onSelectPortCall?.(pc.id)}
+              style={{
+                padding: "1.5rem",
+                cursor: onSelectPortCall ? "pointer" : "default",
+                border: pc.id === selectedPortCallId ? "2px solid var(--accent-primary)" : "1px solid var(--border-glass)",
+                boxShadow: pc.id === selectedPortCallId ? "var(--shadow-neon)" : "none",
+                transition: "var(--transition-smooth)",
+              }}
+            >
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "1rem" }}>
                 <div>
                   <h4 style={{ margin: 0 }}>Port: {pc.port_id}</h4>
