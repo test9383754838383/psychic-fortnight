@@ -27,9 +27,17 @@ Durable project rules and roadmap: `ORCHESTRA.md`.
 
 ## Where we are now
 
-**Date:** 2026-05-31
+**Date:** 2026-06-01
 
-**Status:** Block 7a (Forms — LLM email-to-form ingest) **complete**. All gates green, runbook committed. Block 7b (Checklists) is next.
+**Status:** Block 7b (Checklists) **complete**. Block 7 (Forms & Checklists) fully done. Block 8 (Bunker Request) is next.
+
+**Block 7b evidence:**
+- M1 (backend) merged via PR #11: `feat(checklists): implement Block 7b M1 backend`
+- M2 (frontend) merged via PR #13: `feat(checklists): Block 7b M2 frontend (checklist panel)`
+- Local + CI gates: make lint/typecheck/tach, 374 backend tests (1 skipped), 100% checklists coverage, Postgres 18 migration, frontend codegen/typecheck/lint/vitest (71)/Playwright e2e (8 specs, workers:1)/audit — all green
+- Module: Checklist + ChecklistItem (Pre-Arrival/Pre-Departure, derived completion, in-place sign-off with actor/time, idempotent re-sign); ChecklistPanel in Voyage Workspace
+- E2e fix: `TESTING=true` on CI e2e backend disables slowapi brute-force limiter; hardened stub-login click in schedule/port_call specs
+- Runbook: `docs/checklists/runbook.md`
 
 **Block 7a evidence:**
 - M1 (LLM core) merged via PR #5: `feat(forms): implement Block 7a M1 LLM core`
@@ -127,6 +135,7 @@ See `CLAUDE.md`. Highlights:
 - 2026-05-29 — Block 5 closed (M1 `5cd7914`, M2 `b9b7626`). PortCall + AgentAppointment module: 24 backend tests 96% coverage, 21 frontend tests, Playwright e2e. Runbook committed. Block 6 is next.
 - 2026-05-29 — Block 6 Prompt A `NO_FIT`. Two PARTIAL_FITs noted: windmar-nav/windmar (exact stack, Apache-2.0, covers OperationalReport/Noon reports but wrong domain focus — hydrodynamic performance not commercial port ops); SPOCP/spocp-port-call-api (perfect domain model for 21-event port call vocabulary, wrong stack — Java/Spring Boot). No open-source maritime ERP covers commercial Laytime/SOF/ActivityLog logic. Building from scratch. Prompt B drafted in `docs/operational_reporting/prompt_b.md`.
 - 2026-05-31 — Block 6 closed. M1 backend (PR #1) + M2 frontend (PR #2) + runbook (PR #3) merged to main, all CI green. Module: append-only PortActivity/ActivityLog, OperationalReport (XOR anchor, status machine, supersession). Suite parallelized with pytest-xdist (CI runtime budget set to 45s — 30s infeasible on 2-core runners with coverage). Two debt items logged in OPEN_DECISIONS §17 (e2e seed not parallel-safe; CI runs workers:1) and §18 (act()/hydrate warnings in role-aware component tests). Block 7 (Forms & Checklists) is next.
+- 2026-06-01 — Block 7b closed. M1 backend (PR #11) + M2 frontend (PR #13) merged to main, all CI green. Module: Checklist + ChecklistItem (Pre-Arrival/Pre-Departure, derived completion, in-place sign-off). E2e root-cause fix: `TESTING=true` on CI e2e backend (slowapi 429 under serial load). Block 7 (Forms & Checklists) fully complete. Block 8 (Bunker Request) is next.
 - 2026-05-31 — Block 7b (Checklists) spec drafting. Prompt A/B **deliberately skipped** — no new stack, no LLM, no domain novelty (plain ordered-CRUD + derived completion); running them would be ceremony with no payoff (CLAUDE.md §1/§4). Five-doc spec in docs/checklists/ (project_description, architecture, specifications, plan). Key decisions: derived completion only (no manual complete endpoint), in-place sign-off (not append-only), no role gate (sign-off is operator's own attestation), fixed default item sets (no template configurator), re-sign idempotent (D-ENTRY-3). Two milestones (M1 backend, M2 frontend).
 - 2026-05-31 — Block 7a closed. M1 LLM core (PR #5) + M2 persistence+API (PR #7, incl. TS2502 fix for recursive JsonValue) + M3 frontend (PR #8) merged to main, all CI green. Module: FormParserService (OpenAI structured outputs, provider-adapter, bounded retry, versioned prompts, SDK isolated to forms/llm/), Form+FormDetail+FormParseAttempt (XOR anchor, Received→Accepted/Rejected FSM, Admin/Operations gate, per-call cost capture), /forms review-queue frontend (paste-to-parse, parsed-vs-raw review, role-gated accept/reject, VoyageFormsPanel). Golden corpus 10 fixtures; CI never calls live LLM. Debt: Ollama seam only (§19), IMAP deferred (§10), maxItems sanitizer gap, provider-name sniffing. Runbook: docs/forms/runbook.md. Block 7b (Checklists) is next.
 - 2026-05-31 — Block 7a Prompt B run (stack verification). **ADR-0014 CONFIRMED** (OpenAI native Structured Outputs mature; no Instructor). Key overrides: (1) Ollama is NOT strict-mode parity → provider-adapter pattern, and founder set Ollama fallback to **seam-only, no working impl in V1a** (`OPEN_DECISIONS §19`); (2) coordinator override of Prompt B's `FormSource` entity — minimal source fields on `FormDetail` + `raw_text_hash` instead, no email-header table until IMAP is actually built (`CLAUDE.md §1` ban-future-proofing); (3) add `FormParseAttempt` audit row (don't overload `Form`); (4) three milestones (LLM core / persistence+FSM / frontend); (5) golden-corpus offline prompt tests, live evals behind `RUN_LLM_EVALS=1`. Full contract: `docs/forms/locked_decisions.md` (D-LOCK-1..21). Five-doc spec drafting begins (`project_description.md` next).
@@ -136,4 +145,4 @@ See `CLAUDE.md`. Highlights:
 
 ## Next step
 
-Block 7b (Checklists). Draft the five-doc spec set in `docs/checklists/` per `[ADR-0012]` (founder approval gate between each doc), then open the M0 coordinator. No LLM. Simple ordered sign-off CRUD (Checklist + ChecklistItem, Pre-Arrival / Pre-Departure). Straightforward block.
+Block 8 (Bunker Request). Draft the five-doc spec set in `docs/bunker_request/` per `[ADR-0012]`. No new technology. Entities: `BunkerRequest` (voyage_ref, port_call_ref optional, fuel_type, quantity, status Raised→In Progress→Stemmed→Supplied/Blocked). Two milestones (M1 backend, M2 frontend).
