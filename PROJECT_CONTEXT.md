@@ -29,7 +29,15 @@ Durable project rules and roadmap: `ORCHESTRA.md`.
 
 **Date:** 2026-05-29
 
-**Status:** Block 5 (Port Call) **complete**. All gates green, runbook committed. Block 6 is next.
+**Status:** Block 6 (Operational Reporting) **complete**. All gates green, runbook committed. Block 7 is next.
+
+**Block 6 evidence:**
+- M1 (backend) merged via PR #1: `feat(operational_reporting): implement Block 6 M1 backend module`
+- M2 (frontend) merged via PR #2: `feat(operational_reporting): EventLog + Reports panels in Voyage Workspace`
+- Runbook merged via PR #3: `docs/operational_reporting/runbook.md`
+- Local + CI gates: make check (ruff, format, mypy --strict, tach), 291 backend tests parallelized with pytest-xdist (`-n auto`, 45s CI budget), 95.51% coverage, Postgres 18 migration smoke test (XOR CHECK + self-FKs), frontend codegen/typecheck/lint/vitest (43)/Playwright e2e (5, workers:1)/audit — all green
+- Module: append-only PortActivity (self-FK correction chain) + ActivityLog; OperationalReport (voyage XOR port_call anchor, Pending→Queried→Accepted/Rejected machine, supersession for accepted-in-error); one-directional Tach boundary
+- Runbook: `docs/operational_reporting/runbook.md`
 
 **Block 5 evidence:**
 - M1 commit: `5cd7914 feat(port_call): implement Block 5 M1 Port Call API`
@@ -110,8 +118,9 @@ See `CLAUDE.md`. Highlights:
 - 2026-05-29 — Block 5 Prompt A `NO_FIT` (DCSA Port Call v2.0 kept as vocabulary blueprint only; Port Activity App + SPOCP rejected). Prompt B architecture review overrode 4 preliminary decisions; founder approved all 6 gates. Locked (D-LOCK-1..10): new port_call Tach module (one-directional deps, scalar FKs, no ORM back-import), skip-allowed state machine + privileged correction path, three added timestamp fields, IANA tz snapshot + UTC, derived active agent appointment (no FK pointer) with partial unique index, asymmetric clearance invariant, nested+member API shape, datetime-local frontend. Five-doc spec complete in `docs/port_call/`.
 - 2026-05-29 — Block 5 closed (M1 `5cd7914`, M2 `b9b7626`). PortCall + AgentAppointment module: 24 backend tests 96% coverage, 21 frontend tests, Playwright e2e. Runbook committed. Block 6 is next.
 - 2026-05-29 — Block 6 Prompt A `NO_FIT`. Two PARTIAL_FITs noted: windmar-nav/windmar (exact stack, Apache-2.0, covers OperationalReport/Noon reports but wrong domain focus — hydrodynamic performance not commercial port ops); SPOCP/spocp-port-call-api (perfect domain model for 21-event port call vocabulary, wrong stack — Java/Spring Boot). No open-source maritime ERP covers commercial Laytime/SOF/ActivityLog logic. Building from scratch. Prompt B drafted in `docs/operational_reporting/prompt_b.md`.
+- 2026-05-31 — Block 6 closed. M1 backend (PR #1) + M2 frontend (PR #2) + runbook (PR #3) merged to main, all CI green. Module: append-only PortActivity/ActivityLog, OperationalReport (XOR anchor, status machine, supersession). Suite parallelized with pytest-xdist (CI runtime budget set to 45s — 30s infeasible on 2-core runners with coverage). Two debt items logged in OPEN_DECISIONS §17 (e2e seed not parallel-safe; CI runs workers:1) and §18 (act()/hydrate warnings in role-aware component tests). Block 7 (Forms & Checklists) is next.
 - 2026-05-29 — Block 6 Prompt B run. Four must-fixes, six overrides. Founder approved all gates. Locked (D-LOCK-1..11): new operational_reporting Tach module; append-only PortActivity with self-FK correction chain; append-only ActivityLog; event_type String+CheckConstraint (21 values); voyage_id XOR port_call_id CHECK on OperationalReport; explicit-dict report status machine (Pending→Queried/Accepted/Rejected); accepted-in-error via superseding report row (no status mutation); flat nullable structured fields + bunker_rob_total_mt; mutations require Operations/Admin; API shape with port-call + voyage report routes; two frontend panels in Voyage Workspace. Five-doc spec complete in `docs/operational_reporting/`.
 
 ## Next step
 
-Block 6 — five-doc spec complete in `docs/operational_reporting/`. Open M0 coordinator with the prompt from `docs/operational_reporting/plan.md` to begin coding (M1 backend → M2 frontend).
+Block 7 (Forms & Checklists). Draft the five-doc spec set in `docs/<module>/` per `[ADR-0012]` (founder approval gate between each doc), then open the M0 coordinator. Note: OPEN_DECISIONS §10 (inbound email parser test harness) becomes blocking at Block 7 start.

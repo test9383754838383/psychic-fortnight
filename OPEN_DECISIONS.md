@@ -125,3 +125,17 @@ Never let a deferred item hide. If a deferred item's blocking condition arrives,
 - **Decision shape:** `[x] DECIDED: keep Tach per [ADR-0010] — 2026-05-28. Maintainer self-classification is Beta on PyPI (Development Status :: 4); project is active in practice (~2.7k stars, frequent 2026 releases, used in Block 2 CI without issue).`
 - **Context:** Recheck verified the Beta classifier as literally correct but flagged that import-linter is `Development Status :: 5 - Production/Stable`. The borderline call landed on "keep" because Block 2 already ships with `tach.toml` and a green CI Tach-check, and the project is mature in practice. The Beta label is the maintainer's conservative self-assessment.
 - **Becomes blocking when:** any genuine instability surfaces (false positives, false negatives, missed import violations in CI, breaking releases). At that point, switch to import-linter without further research.
+
+## 17. Playwright e2e seed is not parallel-safe
+
+- **Status:** DEFERRED
+- **Decision shape:** `[ ] TBD — make e2e seeding idempotent-under-concurrency, or keep workers:1.`
+- **Context:** Each e2e spec runs `seed_e2e_user.py` + `seed_e2e_data.py` in `beforeAll`. The seeds are get-or-create but not safe under concurrent execution: two parallel Playwright workers can both check "port exists?" → both INSERT → `UNIQUE constraint failed: ports.unlocode`. Surfaced at Block 6 when a 4th seeding spec (`operational_reporting.spec.ts`) was added. CI is unaffected because it sets `workers: 1` (serial); the failure only reproduces locally with default parallel workers. Run e2e locally with `--workers=1` (documented in the Block 6 runbook §11).
+- **Becomes blocking when:** the e2e suite grows large enough that serial execution is too slow, OR a developer is repeatedly tripped up by the local parallel failure. Fix options: a single shared seed step outside the specs, advisory locking, or per-worker unique fixtures.
+
+## 18. act()/hydrate warnings in role-aware component tests
+
+- **Status:** DEFERRED
+- **Decision shape:** `[ ] TBD — wrap AuthProvider hydration in act() / settle auth state in test setup.`
+- **Context:** Block 6 M2 wrapped the RTL render helper in `AuthProvider` so role-aware components (e.g. `ReportTransitionControl`) get a current user. `AuthProvider` hydrates the user asynchronously on mount, producing "An update to AuthProvider was not wrapped in act(...)" and "Failed to hydrate user" stderr noise. Tests pass; this is cosmetic test-output noise, not a failure.
+- **Becomes blocking when:** the noise masks a real warning, or a flaky auth-timing test appears. Fix: await auth settlement in the render helper, or mock `hydrateUser` to resolve synchronously in tests.
