@@ -36,6 +36,10 @@ from src.modules.checklists import (
     member_router as checklist_member_router,
     port_call_router as checklist_port_call_router,
 )
+from src.modules.bunker_request import (
+    voyage_router as bunker_voyage_router,
+    member_router as bunker_member_router,
+)
 from src.dependencies import AsyncSessionLocal
 
 
@@ -116,5 +120,9 @@ def create_app() -> FastAPI:
     )
     app.include_router(checklist_member_router, prefix="/api/v1", tags=["checklists"])
     app.include_router(checklist_item_router, prefix="/api/v1", tags=["checklists"])
+
+    # Bunker Request module
+    app.include_router(bunker_voyage_router, prefix="/api/v1", tags=["bunker-requests"])
+    app.include_router(bunker_member_router, prefix="/api/v1", tags=["bunker-requests"])
 
     return app
