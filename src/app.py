@@ -31,6 +31,11 @@ from src.modules.operational_reporting import (
     reports_member_router,
 )
 from src.modules.forms.api.router import router as forms_router
+from src.modules.checklists import (
+    item_router as checklist_item_router,
+    member_router as checklist_member_router,
+    port_call_router as checklist_port_call_router,
+)
 from src.dependencies import AsyncSessionLocal
 
 
@@ -104,5 +109,12 @@ def create_app() -> FastAPI:
 
     # Forms module
     app.include_router(forms_router, prefix="/api/v1")
+
+    # Checklists module
+    app.include_router(
+        checklist_port_call_router, prefix="/api/v1", tags=["checklists"]
+    )
+    app.include_router(checklist_member_router, prefix="/api/v1", tags=["checklists"])
+    app.include_router(checklist_item_router, prefix="/api/v1", tags=["checklists"])
 
     return app
