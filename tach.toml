@@ -18,6 +18,15 @@ modules = [
             "modules.auth",
         ]
     },
+    {
+        path = "modules.forms",
+        depends_on = [
+            "modules.voyage_spine",
+            "modules.port_call",
+            "modules.master_data",
+            "modules.auth",
+        ]
+    },
 ]
 
 [[interfaces]]
@@ -94,3 +103,19 @@ expose = [
 from = [
     "modules.operational_reporting",
 ]
+
+[[interfaces]]
+expose = [
+    "FORM_TYPES",
+    "FormParserService",
+    "ParseOutcome",
+    "NoonReportSchema",
+    "ArrivalReportSchema",
+    "DepartureReportSchema",
+    "BunkeringReportSchema",
+    "StatementOfFactsSchema",
+]
+from = [
+    "modules.forms",
+]
+

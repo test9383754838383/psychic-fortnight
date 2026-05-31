@@ -5,8 +5,8 @@ test:
 	uv run pytest tests
 
 lint:
-	uv run ruff check src tests
-	uv run ruff format --check src tests
+	uv run ruff check src tests --no-cache
+	uv run ruff format --check src tests --no-cache
 
 typecheck:
 	uv run mypy --strict src
