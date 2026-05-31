@@ -6,6 +6,7 @@ import { VoyageWorkspaceHeader } from "../components/VoyageWorkspaceHeader";
 import { ItineraryTable } from "../components/ItineraryTable";
 import { PortCallPanel } from "../components/PortCallPanel/PortCallPanel";
 import { EventLogPanel } from "../components/EventLogPanel/EventLogPanel";
+import { ChecklistPanel } from "../components/ChecklistPanel/ChecklistPanel";
 import { ReportsPanel } from "../components/ReportsPanel/ReportsPanel";
 import { VoyageFormsPanel } from "../components/FormsQueue/VoyageFormsPanel";
 
@@ -83,7 +84,10 @@ export function VoyageWorkspacePage() {
             onSelectPortCall={setSelectedPortCallId}
           />
           {selectedPortCallId && (
-            <EventLogPanel portCallId={selectedPortCallId} />
+            <>
+              <EventLogPanel portCallId={selectedPortCallId} />
+              <ChecklistPanel portCallId={selectedPortCallId} />
+            </>
           )}
         </div>
         <div style={{ display: "flex", flexDirection: "column", gap: "2rem" }}>
