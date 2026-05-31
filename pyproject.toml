@@ -20,6 +20,7 @@ dependencies = [
     "sqlalchemy-utils>=0.42.1",
     "tzdata>=2026.2",
     "uvicorn[standard]>=0.48.0",
+    "openai>=1.56.0",
 ]
 
 [tool.pytest.ini_options]
@@ -45,6 +46,7 @@ python_version = "3.12"
 strict = true
 explicit_package_bases = true
 mypy_path = "."
+exclude = ["^openai/"]
 
 [[tool.mypy.overrides]]
 module = [
