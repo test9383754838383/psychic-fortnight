@@ -69,14 +69,17 @@ The Port Call Panel manages the lifecycle of a port visit, from planning through
 - **Agent Management:** Integrated `downshift` combobox for selecting agents, with a clear display of the current active appointment and nomination history.
 - **State Machine:** Integrated `StatusTransitionControl` to guide operators through legal status transitions per the port-call state machine.
 
----
+### Event Log Panel
+Manages chronological log records for events and activities occurring during a port call.
+- **Append-Only UI Pattern:** Enforces strict audit-log compliance. There are absolutely no edit or delete controls.
+- **Correction Mode:** Users can flag errors by toggling correction mode, which requires specifying the UUID of the corrected activity along with a correction reason, appending the correction as a new record.
+- **Activity Log Section:** Includes a narrative subsection allowing users to write and submit text notes logged to the timeline.
 
-## ❄️ Feature Page Freeze Contract
-
-> [!WARNING]
-> **Hard Scope Boundary**: Zero feature pages.
-> The current milestone is strictly a project shell and foundation scaffold. **No real feature screens or voyage modules may be introduced in this milestone.**
-> Block 4 holds the mandate for building the first real UI pages (Vessel Schedule & Gantt chart).
+### Reports Panel
+Manages operational voyage and port-call reports (Noon, Arrival, Departure, Statement of Facts, Bunkering).
+- **Report Lifecycle:** Allows creation of reports starting in a `Pending` state.
+- **Role-Based Gating:** Only authorized roles (`Operations` or `Admin`) are allowed to create/edit reports or execute state transitions (`Pending` -> `Queried`/`Accepted`/`Rejected` -> terminal). Viewers see a read-only locked view.
+- **Immutability constraint:** Reports in terminal statuses (`Accepted` or `Rejected`) cannot be modified. They can only be superseded by submitting a new report that reference the prior report's UUID.
 
 ---
 
