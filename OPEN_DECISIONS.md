@@ -73,10 +73,11 @@ Never let a deferred item hide. If a deferred item's blocking condition arrives,
 
 ## 10. Inbound email parser test harness (GreenMail vs pure-Python stub)
 
-- **Status:** DEFERRED
+- **Status:** DEFERRED (re-deferred 2026-05-31)
 - **Decision shape:** `[ ] TBD — GreenMail (JVM in Docker) vs pure-Python IMAP stub.`
-- **Context:** Block 7 ingest channel. GreenMail is mature but brings a JVM dependency into the test environment. A pure-Python stub avoids that but is custom.
-- **Becomes blocking when:** start of Block 7 (Forms & Checklists).
+- **Context:** Block 7a ingest channel. GreenMail is mature but brings a JVM dependency into the test environment. A pure-Python stub avoids that but is custom.
+- **Re-deferred 2026-05-31:** Block 7a ingest mode set to **phased** — V1a builds the LLM `parse()` core + a paste/submit endpoint and leaves a seam for IMAP. No live mail server is built in V1a, so no email-fetch test harness is needed. This decision binds only when the IMAP poller is actually built, not at Block 7a start.
+- **Becomes blocking when:** the live IMAP polling subsystem is built (post-V1a, or whenever phased mode is reversed).
 
 ## 11. Structured logging library
 
@@ -139,3 +140,11 @@ Never let a deferred item hide. If a deferred item's blocking condition arrives,
 - **Decision shape:** `[ ] TBD — wrap AuthProvider hydration in act() / settle auth state in test setup.`
 - **Context:** Block 6 M2 wrapped the RTL render helper in `AuthProvider` so role-aware components (e.g. `ReportTransitionControl`) get a current user. `AuthProvider` hydrates the user asynchronously on mount, producing "An update to AuthProvider was not wrapped in act(...)" and "Failed to hydrate user" stderr noise. Tests pass; this is cosmetic test-output noise, not a failure.
 - **Becomes blocking when:** the noise masks a real warning, or a flaky auth-timing test appears. Fix: await auth settlement in the render helper, or mock `hydrateUser` to resolve synchronously in tests.
+
+## 19. LLM local fallback (Ollama) — deferred, seam only
+
+- **Status:** DEFERRED — 2026-05-31 (founder decision at Block 7a Prompt B)
+- **Decision shape:** `[x] DECIDED for V1a: ship the provider-adapter SEAM + OpenAI adapter only. NO working Ollama local fallback in Block 7a.`
+- **Context:** [ADR-0014] names Ollama as the local/offline fallback "pointed at `http://localhost:11434/v1` via env var." Block 7a Prompt B (2026-05-31) found this is **not** true strict-mode parity — Ollama exposes JSON-schema-shaped output via `format` but gives no equivalent to OpenAI's `strict:true` schema-subset contract. A real fallback therefore needs its own `OllamaStructuredClient` adapter plus a best-effort-JSON + Pydantic-validation path and manual (non-CI) Ollama test runs. Per `CLAUDE.md §1` (ban future-proofing), we do not build offline capability no customer has yet asked for. CI fakes the LLM client regardless ([D-F]), so dev/CI never need a live Ollama. The provider-adapter **interface** is still built so the second adapter is a drop-in later.
+- **Becomes blocking when:** an air-gapped / offline on-prem deployment is actually required, OR OpenAI availability/cost/data-residency forces a local model. Fix: implement `OllamaStructuredClient` against the existing adapter interface; add manual eval runs.
+- **Note:** [ADR-0014]'s Ollama-parity claim is corrected by this entry. Promote to an ADR amendment if/when the fallback is built.
