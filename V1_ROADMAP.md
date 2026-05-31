@@ -108,16 +108,25 @@ Read-only Gantt only. No drag-to-reschedule. Timing edits stay inside `Voyage Wo
 
 ## Block 7 — Forms And Checklists
 
+**Split into two blocks (2026-05-31).** Forms + LLM ingest and Checklists share no entities, no risk profile, and one carries the project's first LLM boundary while the other is plain ordered-CRUD. Splitting keeps each within the 1–3 milestone cap and isolates LLM risk. Block 7a ships first.
+
+### Block 7a — Forms (LLM email-to-form ingest)
+
 - **`Form`**: form_id, form_type, linked_entity *(Voyage or PortCall ref)*, submitted_by, submitted_at, received_at; status (`Received / Under Review / Queried / Accepted / Rejected`); assigned_to *(User ref)*, reviewed_by, reviewed_at, notes.
 - **`FormDetail`**: form_ref; raw_fields *(JSON blob for secondary/compliance data)*, raw_source_ref *(original file)*.
-- **`Checklist`**: port_call_ref, checklist_type (`Pre-Arrival / Pre-Departure`), created_at, status (`Open / Completed`).
-- **`ChecklistItem`**: checklist_ref, sequence_no, item_name, status (`Pending / Signed Off`), signed_off_at, signed_off_by *(User ref)*.
 
 Primary ingest channel is **email-to-form parsing**. UI manual entry is fallback.
 
+**Ingest mode (2026-05-31): phased.** V1a builds the LLM `parse()` core plus a paste/submit endpoint (`raw_text -> FormParserService.parse() -> Form(status=Received)`). No live IMAP/mail server in V1a; a clean seam is left so an IMAP poller can call the same `parse()` core later. Parsed forms land as `Received` and require operator approval — no LLM output mutates downstream state automatically. LLM stack per [ADR-0014] (OpenAI SDK + Pydantic strict JSON-schema, Ollama local fallback, SDK isolated to `src/modules/forms/llm/`, per-call cost captured on the form). `OPEN_DECISIONS §10` (email parser test harness) stays deferred under phased ingest — it binds only if/when live IMAP is built.
+
 Structured typed fields live on `OperationalReport` only. They are not duplicated into `FormDetail`.
 
-`Checklist` stays separate from `Form` because it needs ordered sign-off item by item.
+### Block 7b — Checklists
+
+- **`Checklist`**: port_call_ref, checklist_type (`Pre-Arrival / Pre-Departure`), created_at, status (`Open / Completed`).
+- **`ChecklistItem`**: checklist_ref, sequence_no, item_name, status (`Pending / Signed Off`), signed_off_at, signed_off_by *(User ref)*.
+
+`Checklist` stays separate from `Form` because it needs ordered sign-off item by item. No LLM.
 
 ## Block 8 — Bunker Request
 
@@ -182,3 +191,4 @@ Recommended resolution: Block 10 plan includes a deployment milestone as its fin
 - 2026-05-26 — Vessel Schedule accepted as read-only Gantt with voyage/reference search and dormant exception dot.
 - 2026-05-26 — Port Call through Alerts accepted with the final V1 shape now recorded in Blocks 5-10, including `ActivityLog`, checklist entities, trimmed bunker request, structured delay tracking, and manual alert-to-task escalation only.
 - 2026-05-28 — Roadmap gaps resolved: frontend scaffold folded into Block 3 as final milestone; Block 3.5 inserted for real session-based auth + RBAC. Deployment gap still open — to be resolved at Block 10 spec time.
+- 2026-05-31 — Block 7 split into 7a (Forms + LLM email-to-form ingest) and 7b (Checklists). Founder confirmed LLM parsing stays as the primary forms channel. Ingest mode set to phased: paste/submit endpoint + `FormParserService.parse()` core now, IMAP poller seam left for later, `OPEN_DECISIONS §10` stays deferred. Block 7a spec drafting begins.
