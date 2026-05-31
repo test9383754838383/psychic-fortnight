@@ -126,6 +126,10 @@ jobs:
           export PATH="$HOME/.local/bin:$PATH"
           uv sync --all-extras --dev
           export DATABASE_URL="sqlite+aiosqlite:///${{ github.workspace }}/dev.db"
+          # Disable the slowapi login brute-force limiter (5/minute) for e2e: the
+          # serial Playwright suite logs in many times from one IP and would
+          # otherwise hit 429 on later specs. TESTING gates only the limiter.
+          export TESTING=true
           uv run alembic upgrade head
           uv run uvicorn src.app:create_app --factory --host 127.0.0.1 --port 8000 &
           for i in {1..30}; do

@@ -14,12 +14,15 @@ test("Schedule to Workspace flow", async ({ page }) => {
   // Wait for loading to finish
   await expect(page.locator("text=Loading session...")).not.toBeVisible();
 
-  // If not logged in, we should see the Authentication Required message
+  // Each test runs in a fresh browser context (no session), so the stub login
+  // button is always present on a protected route. click() auto-waits for it to
+  // be actionable, avoiding the race where isVisible() is checked before the
+  // auth screen finishes rendering (which left tests on "Authentication
+  // Required" under serial load).
   const loginButton = page.locator('button:has-text("Sign In as Operator (Stub)")');
-  if (await loginButton.isVisible()) {
-      await loginButton.click();
-  }
-  
+  await loginButton.click();
+  await expect(loginButton).toBeHidden();
+
   // 2. Verify Schedule Page
   await expect(page.locator("h1")).toHaveText("Vessel Schedule", { timeout: 10000 });
   await expect(page.getByTestId("vessel-schedule-canvas")).toBeVisible();
