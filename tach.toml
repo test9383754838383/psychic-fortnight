@@ -27,6 +27,13 @@ modules = [
             "modules.auth",
         ]
     },
+    {
+        path = "modules.checklists",
+        depends_on = [
+            "modules.port_call",
+            "modules.auth",
+        ]
+    },
 ]
 
 [[interfaces]]
@@ -120,3 +127,16 @@ from = [
     "modules.forms",
 ]
 
+[[interfaces]]
+expose = [
+    "CHECKLIST_TYPES",
+    "ChecklistCreateDTO",
+    "ChecklistReadDTO",
+    "ChecklistItemReadDTO",
+    "port_call_router",
+    "member_router",
+    "item_router",
+]
+from = [
+    "modules.checklists",
+]

@@ -27,6 +27,7 @@ from src.modules.auth.models import User, Role, Permission, UserRole, Session
 from src.modules.port_call.models import PortCall, AgentAppointment
 from src.modules.operational_reporting.models import PortActivity, ActivityLog, OperationalReport
 from src.modules.forms.models import Form, FormDetail, FormParseAttempt
+from src.modules.checklists.models import Checklist, ChecklistItem
 target_metadata = Base.metadata
 
 # other values from the config, defined by the needs of env.py,

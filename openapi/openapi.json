@@ -3050,6 +3050,190 @@
           }
         }
       }
+    },
+    "/api/v1/port-calls/{port_call_id}/checklists": {
+      "post": {
+        "tags": [
+          "checklists"
+        ],
+        "summary": "Create Checklist",
+        "operationId": "create_checklist_api_v1_port_calls__port_call_id__checklists_post",
+        "parameters": [
+          {
+            "name": "port_call_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Port Call Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChecklistCreateDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ChecklistReadDTO"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "checklists"
+        ],
+        "summary": "List Checklists",
+        "operationId": "list_checklists_api_v1_port_calls__port_call_id__checklists_get",
+        "parameters": [
+          {
+            "name": "port_call_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Port Call Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ChecklistReadDTO"
+                  },
+                  "title": "Response List Checklists Api V1 Port Calls  Port Call Id  Checklists Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/checklists/{checklist_id}": {
+      "get": {
+        "tags": [
+          "checklists"
+        ],
+        "summary": "Get Checklist",
+        "operationId": "get_checklist_api_v1_checklists__checklist_id__get",
+        "parameters": [
+          {
+            "name": "checklist_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Checklist Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ChecklistReadDTO"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/checklist-items/{item_id}/sign-off": {
+      "post": {
+        "tags": [
+          "checklists"
+        ],
+        "summary": "Sign Off Checklist Item",
+        "operationId": "sign_off_checklist_item_api_v1_checklist_items__item_id__sign_off_post",
+        "parameters": [
+          {
+            "name": "item_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Item Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ChecklistItemReadDTO"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -3206,6 +3390,126 @@
           "updated_at"
         ],
         "title": "AgentAppointmentResponseDTO"
+      },
+      "ChecklistCreateDTO": {
+        "properties": {
+          "checklist_type": {
+            "type": "string",
+            "enum": [
+              "Pre-Arrival",
+              "Pre-Departure"
+            ],
+            "title": "Checklist Type"
+          }
+        },
+        "type": "object",
+        "required": [
+          "checklist_type"
+        ],
+        "title": "ChecklistCreateDTO"
+      },
+      "ChecklistItemReadDTO": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "checklist_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Checklist Id"
+          },
+          "sequence_no": {
+            "type": "integer",
+            "title": "Sequence No"
+          },
+          "item_name": {
+            "type": "string",
+            "title": "Item Name"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "signed_off_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Signed Off At"
+          },
+          "signed_off_by": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Signed Off By"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "checklist_id",
+          "sequence_no",
+          "item_name",
+          "status"
+        ],
+        "title": "ChecklistItemReadDTO"
+      },
+      "ChecklistReadDTO": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "port_call_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Port Call Id"
+          },
+          "checklist_type": {
+            "type": "string",
+            "title": "Checklist Type"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/ChecklistItemReadDTO"
+            },
+            "type": "array",
+            "title": "Items"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "port_call_id",
+          "checklist_type",
+          "status",
+          "created_at",
+          "items"
+        ],
+        "title": "ChecklistReadDTO"
       },
       "ContactDTO": {
         "properties": {
