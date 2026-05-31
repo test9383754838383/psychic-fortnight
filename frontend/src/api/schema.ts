@@ -521,7 +521,10 @@ export interface paths {
         /** List Port Activity Events */
         get: operations["list_port_activity_events_api_v1_port_calls__port_call_id__events_get"];
         put?: never;
-        /** Create Port Activity Event */
+        /**
+         * Create Port Activity Event
+         * @description Create a port activity event. Requires Operations or Admin role.
+         */
         post: operations["create_port_activity_event_api_v1_port_calls__port_call_id__events_post"];
         delete?: never;
         options?: never;
@@ -557,7 +560,10 @@ export interface paths {
         /** List Voyage Reports */
         get: operations["list_voyage_reports_api_v1_voyages__voyage_id__reports_get"];
         put?: never;
-        /** Create Voyage Report */
+        /**
+         * Create Voyage Report
+         * @description Create a voyage-level report (Noon). Requires Operations or Admin role.
+         */
         post: operations["create_voyage_report_api_v1_voyages__voyage_id__reports_post"];
         delete?: never;
         options?: never;
@@ -575,7 +581,10 @@ export interface paths {
         /** List Port Call Reports */
         get: operations["list_port_call_reports_api_v1_port_calls__port_call_id__reports_get"];
         put?: never;
-        /** Create Port Call Report */
+        /**
+         * Create Port Call Report
+         * @description Create a port-call-level report. Requires Operations or Admin role.
+         */
         post: operations["create_port_call_report_api_v1_port_calls__port_call_id__reports_post"];
         delete?: never;
         options?: never;
@@ -597,7 +606,10 @@ export interface paths {
         delete?: never;
         options?: never;
         head?: never;
-        /** Update Report */
+        /**
+         * Update Report
+         * @description Update a Pending report. Requires Operations or Admin role.
+         */
         patch: operations["update_report_api_v1_reports__report_id__patch"];
         trace?: never;
     };
@@ -610,8 +622,81 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Transition Report Status */
-        post: operations["transition_report_status_api_v1_reports__report_id__transition_post"];
+        /**
+         * Transition Report
+         * @description Transition report status. Requires Operations or Admin role.
+         */
+        post: operations["transition_report_api_v1_reports__report_id__transition_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/forms/parse": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Parse Form */
+        post: operations["parse_form_api_v1_forms_parse_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/forms": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Forms */
+        get: operations["list_forms_api_v1_forms_get"];
+        put?: never;
+        /** Create Manual */
+        post: operations["create_manual_api_v1_forms_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/forms/{form_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Form */
+        get: operations["get_form_api_v1_forms__form_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Update Form */
+        patch: operations["update_form_api_v1_forms__form_id__patch"];
+        trace?: never;
+    };
+    "/api/v1/forms/{form_id}/transition": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Transition Form */
+        post: operations["transition_form_api_v1_forms__form_id__transition_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -622,6 +707,38 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        /** ActivityLogCreateDTO */
+        ActivityLogCreateDTO: {
+            /** Narrative */
+            narrative: string;
+            /** Logged At */
+            logged_at?: string | null;
+        };
+        /** ActivityLogResponseDTO */
+        ActivityLogResponseDTO: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Port Call Id
+             * Format: uuid
+             */
+            port_call_id: string;
+            /**
+             * Logged By User Id
+             * Format: uuid
+             */
+            logged_by_user_id: string;
+            /** Narrative */
+            narrative: string;
+            /**
+             * Logged At
+             * Format: date-time
+             */
+            logged_at: string;
+        };
         /** AgentAppointmentCreateDTO */
         AgentAppointmentCreateDTO: {
             /**
@@ -758,6 +875,127 @@ export interface components {
             /** Contacts */
             contacts?: components["schemas"]["ContactDTO"][] | null;
         };
+        /** FormCreateDTO */
+        FormCreateDTO: {
+            /**
+             * Form Type
+             * @enum {string}
+             */
+            form_type: "Noon" | "Arrival" | "Departure" | "Bunkering" | "Statement of Facts";
+            /** Voyage Id */
+            voyage_id?: string | null;
+            /** Port Call Id */
+            port_call_id?: string | null;
+            raw_fields: components["schemas"]["JsonObject"];
+            /** Raw Source Ref */
+            raw_source_ref?: string | null;
+            /** Notes */
+            notes?: string | null;
+        };
+        /** FormParseAttemptReadDTO */
+        FormParseAttemptReadDTO: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Provider */
+            provider: string;
+            /** Model */
+            model: string;
+            /** Prompt Version */
+            prompt_version: string;
+            /** Schema Version */
+            schema_version: string;
+            /** Retry No */
+            retry_no: number;
+            /** Input Tokens */
+            input_tokens: number;
+            /** Output Tokens */
+            output_tokens: number;
+            /** Cost Estimate */
+            cost_estimate: number;
+            /** Latency Ms */
+            latency_ms: number;
+            /** Status */
+            status: string;
+            /** Error Message */
+            error_message?: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+        };
+        /** FormReadDTO */
+        FormReadDTO: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Form Type */
+            form_type: string;
+            /** Status */
+            status: string;
+            /** Voyage Id */
+            voyage_id?: string | null;
+            /** Port Call Id */
+            port_call_id?: string | null;
+            /**
+             * Submitted By
+             * Format: uuid
+             */
+            submitted_by: string;
+            /**
+             * Submitted At
+             * Format: date-time
+             */
+            submitted_at: string;
+            /**
+             * Received At
+             * Format: date-time
+             */
+            received_at: string;
+            /** Assigned To */
+            assigned_to?: string | null;
+            /** Reviewed By */
+            reviewed_by?: string | null;
+            /** Reviewed At */
+            reviewed_at?: string | null;
+            /** Notes */
+            notes?: string | null;
+            /** Accepted Parse Attempt Id */
+            accepted_parse_attempt_id?: string | null;
+            raw_fields?: components["schemas"]["JsonObject"] | null;
+            /** Raw Source Ref */
+            raw_source_ref?: string | null;
+            /**
+             * Parse Failed
+             * @default false
+             */
+            parse_failed: boolean;
+            latest_attempt?: components["schemas"]["FormParseAttemptReadDTO"] | null;
+            /** Parse Attempts */
+            parse_attempts?: components["schemas"]["FormParseAttemptReadDTO"][];
+        };
+        /** FormTransitionDTO */
+        FormTransitionDTO: {
+            /** Status */
+            status: string;
+        };
+        /** FormUpdateDTO */
+        FormUpdateDTO: {
+            raw_fields?: components["schemas"]["JsonObject"] | null;
+            /** Voyage Id */
+            voyage_id?: string | null;
+            /** Port Call Id */
+            port_call_id?: string | null;
+            /** Assigned To */
+            assigned_to?: string | null;
+            /** Notes */
+            notes?: string | null;
+        };
         /** HTTPValidationError */
         HTTPValidationError: {
             /** Detail */
@@ -840,12 +1078,132 @@ export interface components {
             /** Sequence No */
             sequence_no?: number | null;
         };
+        JsonObject: {
+            [key: string]: unknown;
+        };
         /** LoginDTO */
         LoginDTO: {
             /** Username */
             username: string;
             /** Password */
             password: string;
+        };
+        /** OperationalReportResponseDTO */
+        OperationalReportResponseDTO: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Voyage Id */
+            voyage_id?: string | null;
+            /** Port Call Id */
+            port_call_id?: string | null;
+            /** Report Type */
+            report_type: string;
+            /** Status */
+            status: string;
+            /**
+             * Submitted By User Id
+             * Format: uuid
+             */
+            submitted_by_user_id: string;
+            /** Submitted At */
+            submitted_at?: string | null;
+            /** Received At */
+            received_at?: string | null;
+            /** Position Lat */
+            position_lat?: string | null;
+            /** Position Lon */
+            position_lon?: string | null;
+            /** Speed 24H */
+            speed_24h?: string | null;
+            /** Distance To Go */
+            distance_to_go?: string | null;
+            /** Eta Next Port */
+            eta_next_port?: string | null;
+            /** Bunker Rob Total Mt */
+            bunker_rob_total_mt?: string | null;
+            /** Raw Content Ref */
+            raw_content_ref?: string | null;
+            /** Supersedes Report Id */
+            supersedes_report_id?: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+        };
+        /** ParseRequestDTO */
+        ParseRequestDTO: {
+            /** Raw Text */
+            raw_text: string;
+            /**
+             * Form Type
+             * @enum {string}
+             */
+            form_type: "Noon" | "Arrival" | "Departure" | "Bunkering" | "Statement of Facts";
+            /** Voyage Id */
+            voyage_id?: string | null;
+            /** Port Call Id */
+            port_call_id?: string | null;
+        };
+        /** PortActivityCreateDTO */
+        PortActivityCreateDTO: {
+            /** Event Type */
+            event_type: string;
+            /**
+             * Event Timestamp
+             * Format: date-time
+             */
+            event_timestamp: string;
+            /** Notes */
+            notes?: string | null;
+            /** Corrects Activity Id */
+            corrects_activity_id?: string | null;
+            /** Correction Reason */
+            correction_reason?: string | null;
+        };
+        /** PortActivityResponseDTO */
+        PortActivityResponseDTO: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Port Call Id
+             * Format: uuid
+             */
+            port_call_id: string;
+            /** Event Type */
+            event_type: string;
+            /**
+             * Event Timestamp
+             * Format: date-time
+             */
+            event_timestamp: string;
+            /**
+             * Recorded By User Id
+             * Format: uuid
+             */
+            recorded_by_user_id: string;
+            /** Notes */
+            notes?: string | null;
+            /** Corrects Activity Id */
+            corrects_activity_id?: string | null;
+            /** Correction Reason */
+            correction_reason?: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
         };
         /** PortCallCreateDTO */
         PortCallCreateDTO: {
@@ -1041,6 +1399,57 @@ export interface components {
             longitude?: number | null;
             /** Distance Table Ref */
             distance_table_ref?: string | null;
+        };
+        /** ReportCreateDTO */
+        ReportCreateDTO: {
+            /** Report Type */
+            report_type: string;
+            /** Submitted At */
+            submitted_at?: string | null;
+            /** Received At */
+            received_at?: string | null;
+            /** Position Lat */
+            position_lat?: number | string | null;
+            /** Position Lon */
+            position_lon?: number | string | null;
+            /** Speed 24H */
+            speed_24h?: number | string | null;
+            /** Distance To Go */
+            distance_to_go?: number | string | null;
+            /** Eta Next Port */
+            eta_next_port?: string | null;
+            /** Bunker Rob Total Mt */
+            bunker_rob_total_mt?: number | string | null;
+            /** Raw Content Ref */
+            raw_content_ref?: string | null;
+            /** Supersedes Report Id */
+            supersedes_report_id?: string | null;
+        };
+        /** ReportTransitionDTO */
+        ReportTransitionDTO: {
+            /** Status */
+            status: string;
+        };
+        /** ReportUpdateDTO */
+        ReportUpdateDTO: {
+            /** Submitted At */
+            submitted_at?: string | null;
+            /** Received At */
+            received_at?: string | null;
+            /** Position Lat */
+            position_lat?: number | string | null;
+            /** Position Lon */
+            position_lon?: number | string | null;
+            /** Speed 24H */
+            speed_24h?: number | string | null;
+            /** Distance To Go */
+            distance_to_go?: number | string | null;
+            /** Eta Next Port */
+            eta_next_port?: string | null;
+            /** Bunker Rob Total Mt */
+            bunker_rob_total_mt?: number | string | null;
+            /** Raw Content Ref */
+            raw_content_ref?: string | null;
         };
         /** UserCreateDTO */
         UserCreateDTO: {
@@ -1364,195 +1773,6 @@ export interface components {
              * Format: date-time
              */
             planned_etd: string;
-        };
-        /** ActivityLogCreateDTO */
-        ActivityLogCreateDTO: {
-            /** Narrative */
-            narrative: string;
-            /** Logged At */
-            logged_at?: string | null;
-        };
-        /** ActivityLogResponseDTO */
-        ActivityLogResponseDTO: {
-            /**
-             * Id
-             * Format: uuid
-             */
-            id: string;
-            /**
-             * Port Call Id
-             * Format: uuid
-             */
-            port_call_id: string;
-            /**
-             * Logged By User Id
-             * Format: uuid
-             */
-            logged_by_user_id: string;
-            /** Narrative */
-            narrative: string;
-            /**
-             * Logged At
-             * Format: date-time
-             */
-            logged_at: string;
-        };
-        /** PortActivityCreateDTO */
-        PortActivityCreateDTO: {
-            /** Event Type */
-            event_type: string;
-            /**
-             * Event Timestamp
-             * Format: date-time
-             */
-            event_timestamp: string;
-            /** Notes */
-            notes?: string | null;
-            /** Corrects Activity Id */
-            corrects_activity_id?: string | null;
-            /** Correction Reason */
-            correction_reason?: string | null;
-        };
-        /** PortActivityResponseDTO */
-        PortActivityResponseDTO: {
-            /**
-             * Id
-             * Format: uuid
-             */
-            id: string;
-            /**
-             * Port Call Id
-             * Format: uuid
-             */
-            port_call_id: string;
-            /** Event Type */
-            event_type: string;
-            /**
-             * Event Timestamp
-             * Format: date-time
-             */
-            event_timestamp: string;
-            /**
-             * Recorded By User Id
-             * Format: uuid
-             */
-            recorded_by_user_id: string;
-            /** Notes */
-            notes?: string | null;
-            /** Corrects Activity Id */
-            corrects_activity_id?: string | null;
-            /** Correction Reason */
-            correction_reason?: string | null;
-            /**
-             * Created At
-             * Format: date-time
-             */
-            created_at: string;
-        };
-        /** OperationalReportResponseDTO */
-        OperationalReportResponseDTO: {
-            /**
-             * Id
-             * Format: uuid
-             */
-            id: string;
-            /** Voyage Id */
-            voyage_id?: string | null;
-            /** Port Call Id */
-            port_call_id?: string | null;
-            /** Report Type */
-            report_type: string;
-            /** Status */
-            status: string;
-            /**
-             * Submitted By User Id
-             * Format: uuid
-             */
-            submitted_by_user_id: string;
-            /** Submitted At */
-            submitted_at?: string | null;
-            /** Received At */
-            received_at?: string | null;
-            /** Position Lat */
-            position_lat?: string | null;
-            /** Position Lon */
-            position_lon?: string | null;
-            /** Speed 24h */
-            speed_24h?: string | null;
-            /** Distance To Go */
-            distance_to_go?: string | null;
-            /** Eta Next Port */
-            eta_next_port?: string | null;
-            /** Bunker Rob Total Mt */
-            bunker_rob_total_mt?: string | null;
-            /** Raw Content Ref */
-            raw_content_ref?: string | null;
-            /** Supersedes Report Id */
-            supersedes_report_id?: string | null;
-            /**
-             * Created At
-             * Format: date-time
-             */
-            created_at: string;
-            /**
-             * Updated At
-             * Format: date-time
-             */
-            updated_at: string;
-        };
-        /** ReportCreateDTO */
-        ReportCreateDTO: {
-            /** Report Type */
-            report_type: string;
-            /** Submitted At */
-            submitted_at?: string | null;
-            /** Received At */
-            received_at?: string | null;
-            /** Position Lat */
-            position_lat?: number | string | null;
-            /** Position Lon */
-            position_lon?: number | string | null;
-            /** Speed 24h */
-            speed_24h?: number | string | null;
-            /** Distance To Go */
-            distance_to_go?: number | string | null;
-            /** Eta Next Port */
-            eta_next_port?: string | null;
-            /** Bunker Rob Total Mt */
-            bunker_rob_total_mt?: number | string | null;
-            /** Raw Content Ref */
-            raw_content_ref?: string | null;
-            /**
-             * Supersedes Report Id
-             * Format: uuid
-             */
-            supersedes_report_id?: string | null;
-        };
-        /** ReportUpdateDTO */
-        ReportUpdateDTO: {
-            /** Submitted At */
-            submitted_at?: string | null;
-            /** Received At */
-            received_at?: string | null;
-            /** Position Lat */
-            position_lat?: number | string | null;
-            /** Position Lon */
-            position_lon?: number | string | null;
-            /** Speed 24h */
-            speed_24h?: number | string | null;
-            /** Distance To Go */
-            distance_to_go?: number | string | null;
-            /** Eta Next Port */
-            eta_next_port?: string | null;
-            /** Bunker Rob Total Mt */
-            bunker_rob_total_mt?: number | string | null;
-            /** Raw Content Ref */
-            raw_content_ref?: string | null;
-        };
-        /** ReportTransitionDTO */
-        ReportTransitionDTO: {
-            /** Status */
-            status: string;
         };
     };
     responses: never;
@@ -2957,13 +3177,18 @@ export interface operations {
         responses: {
             /** @description Successful Response */
             200: {
-                headers: { [name: string]: unknown };
+                headers: {
+                    [name: string]: unknown;
+                };
                 content: {
                     "application/json": components["schemas"]["PortActivityResponseDTO"][];
                 };
             };
+            /** @description Validation Error */
             422: {
-                headers: { [name: string]: unknown };
+                headers: {
+                    [name: string]: unknown;
+                };
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
                 };
@@ -2987,13 +3212,18 @@ export interface operations {
         responses: {
             /** @description Successful Response */
             201: {
-                headers: { [name: string]: unknown };
+                headers: {
+                    [name: string]: unknown;
+                };
                 content: {
                     "application/json": components["schemas"]["PortActivityResponseDTO"];
                 };
             };
+            /** @description Validation Error */
             422: {
-                headers: { [name: string]: unknown };
+                headers: {
+                    [name: string]: unknown;
+                };
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
                 };
@@ -3011,14 +3241,20 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
+            /** @description Successful Response */
             200: {
-                headers: { [name: string]: unknown };
+                headers: {
+                    [name: string]: unknown;
+                };
                 content: {
                     "application/json": components["schemas"]["ActivityLogResponseDTO"][];
                 };
             };
+            /** @description Validation Error */
             422: {
-                headers: { [name: string]: unknown };
+                headers: {
+                    [name: string]: unknown;
+                };
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
                 };
@@ -3040,14 +3276,20 @@ export interface operations {
             };
         };
         responses: {
+            /** @description Successful Response */
             201: {
-                headers: { [name: string]: unknown };
+                headers: {
+                    [name: string]: unknown;
+                };
                 content: {
                     "application/json": components["schemas"]["ActivityLogResponseDTO"];
                 };
             };
+            /** @description Validation Error */
             422: {
-                headers: { [name: string]: unknown };
+                headers: {
+                    [name: string]: unknown;
+                };
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
                 };
@@ -3065,14 +3307,20 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
+            /** @description Successful Response */
             200: {
-                headers: { [name: string]: unknown };
+                headers: {
+                    [name: string]: unknown;
+                };
                 content: {
                     "application/json": components["schemas"]["OperationalReportResponseDTO"][];
                 };
             };
+            /** @description Validation Error */
             422: {
-                headers: { [name: string]: unknown };
+                headers: {
+                    [name: string]: unknown;
+                };
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
                 };
@@ -3094,14 +3342,20 @@ export interface operations {
             };
         };
         responses: {
+            /** @description Successful Response */
             201: {
-                headers: { [name: string]: unknown };
+                headers: {
+                    [name: string]: unknown;
+                };
                 content: {
                     "application/json": components["schemas"]["OperationalReportResponseDTO"];
                 };
             };
+            /** @description Validation Error */
             422: {
-                headers: { [name: string]: unknown };
+                headers: {
+                    [name: string]: unknown;
+                };
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
                 };
@@ -3119,14 +3373,20 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
+            /** @description Successful Response */
             200: {
-                headers: { [name: string]: unknown };
+                headers: {
+                    [name: string]: unknown;
+                };
                 content: {
                     "application/json": components["schemas"]["OperationalReportResponseDTO"][];
                 };
             };
+            /** @description Validation Error */
             422: {
-                headers: { [name: string]: unknown };
+                headers: {
+                    [name: string]: unknown;
+                };
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
                 };
@@ -3148,14 +3408,20 @@ export interface operations {
             };
         };
         responses: {
+            /** @description Successful Response */
             201: {
-                headers: { [name: string]: unknown };
+                headers: {
+                    [name: string]: unknown;
+                };
                 content: {
                     "application/json": components["schemas"]["OperationalReportResponseDTO"];
                 };
             };
+            /** @description Validation Error */
             422: {
-                headers: { [name: string]: unknown };
+                headers: {
+                    [name: string]: unknown;
+                };
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
                 };
@@ -3173,14 +3439,20 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
+            /** @description Successful Response */
             200: {
-                headers: { [name: string]: unknown };
+                headers: {
+                    [name: string]: unknown;
+                };
                 content: {
                     "application/json": components["schemas"]["OperationalReportResponseDTO"];
                 };
             };
+            /** @description Validation Error */
             422: {
-                headers: { [name: string]: unknown };
+                headers: {
+                    [name: string]: unknown;
+                };
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
                 };
@@ -3202,21 +3474,27 @@ export interface operations {
             };
         };
         responses: {
+            /** @description Successful Response */
             200: {
-                headers: { [name: string]: unknown };
+                headers: {
+                    [name: string]: unknown;
+                };
                 content: {
                     "application/json": components["schemas"]["OperationalReportResponseDTO"];
                 };
             };
+            /** @description Validation Error */
             422: {
-                headers: { [name: string]: unknown };
+                headers: {
+                    [name: string]: unknown;
+                };
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };
     };
-    transition_report_status_api_v1_reports__report_id__transition_post: {
+    transition_report_api_v1_reports__report_id__transition_post: {
         parameters: {
             query?: never;
             header?: never;
@@ -3231,14 +3509,221 @@ export interface operations {
             };
         };
         responses: {
+            /** @description Successful Response */
             200: {
-                headers: { [name: string]: unknown };
+                headers: {
+                    [name: string]: unknown;
+                };
                 content: {
                     "application/json": components["schemas"]["OperationalReportResponseDTO"];
                 };
             };
+            /** @description Validation Error */
             422: {
-                headers: { [name: string]: unknown };
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    parse_form_api_v1_forms_parse_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ParseRequestDTO"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FormReadDTO"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_forms_api_v1_forms_get: {
+        parameters: {
+            query?: {
+                status?: string | null;
+                form_type?: string | null;
+                voyage_id?: string | null;
+                port_call_id?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FormReadDTO"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_manual_api_v1_forms_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["FormCreateDTO"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FormReadDTO"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_form_api_v1_forms__form_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                form_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FormReadDTO"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_form_api_v1_forms__form_id__patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                form_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["FormUpdateDTO"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FormReadDTO"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    transition_form_api_v1_forms__form_id__transition_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                form_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["FormTransitionDTO"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FormReadDTO"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
                 };

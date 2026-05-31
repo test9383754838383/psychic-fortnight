@@ -3483,7 +3483,7 @@
             "title": "Port Call Id"
           },
           "raw_fields": {
-            "$ref": "#/components/schemas/JsonObject-Input"
+            "$ref": "#/components/schemas/JsonObject"
           },
           "raw_source_ref": {
             "anyOf": [
@@ -3712,7 +3712,7 @@
           "raw_fields": {
             "anyOf": [
               {
-                "$ref": "#/components/schemas/JsonObject-Output"
+                "$ref": "#/components/schemas/JsonObject"
               },
               {
                 "type": "null"
@@ -3782,7 +3782,7 @@
           "raw_fields": {
             "anyOf": [
               {
-                "$ref": "#/components/schemas/JsonObject-Input"
+                "$ref": "#/components/schemas/JsonObject"
               },
               {
                 "type": "null"
@@ -4019,74 +4019,9 @@
         "type": "object",
         "title": "ItineraryLineUpdateDTO"
       },
-      "JsonObject-Input": {
-        "additionalProperties": {
-          "$ref": "#/components/schemas/JsonValue-Input"
-        },
+      "JsonObject": {
+        "additionalProperties": true,
         "type": "object"
-      },
-      "JsonObject-Output": {
-        "additionalProperties": {
-          "$ref": "#/components/schemas/JsonValue-Output"
-        },
-        "type": "object"
-      },
-      "JsonPrimitive": {
-        "anyOf": [
-          {
-            "type": "string"
-          },
-          {
-            "type": "integer"
-          },
-          {
-            "type": "number"
-          },
-          {
-            "type": "boolean"
-          },
-          {
-            "type": "null"
-          }
-        ]
-      },
-      "JsonValue-Input": {
-        "anyOf": [
-          {
-            "$ref": "#/components/schemas/JsonPrimitive"
-          },
-          {
-            "items": {
-              "$ref": "#/components/schemas/JsonValue-Input"
-            },
-            "type": "array"
-          },
-          {
-            "additionalProperties": {
-              "$ref": "#/components/schemas/JsonValue-Input"
-            },
-            "type": "object"
-          }
-        ]
-      },
-      "JsonValue-Output": {
-        "anyOf": [
-          {
-            "$ref": "#/components/schemas/JsonPrimitive"
-          },
-          {
-            "items": {
-              "$ref": "#/components/schemas/JsonValue-Output"
-            },
-            "type": "array"
-          },
-          {
-            "additionalProperties": {
-              "$ref": "#/components/schemas/JsonValue-Output"
-            },
-            "type": "object"
-          }
-        ]
       },
       "LoginDTO": {
         "properties": {
