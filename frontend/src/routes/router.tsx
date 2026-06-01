@@ -1,10 +1,11 @@
-/* eslint-disable react-refresh/only-export-components */
 import { createRootRoute, createRoute, createRouter, Outlet } from "@tanstack/react-router";
 import { useCurrentUser } from "../auth/AuthContext";
 import { RequireAuth } from "../auth/RequireAuth";
 import { scheduleRoute } from "./schedule";
 import { voyageWorkspaceRoute } from "./voyages.$voyageId.workspace";
 import { formsRoute } from "./forms";
+import { alertsRoute } from "./alerts";
+import { tasksRoute } from "./tasks";
 
 // Root Route - Layout wrapper
 export const rootRoute = createRootRoute({
@@ -54,7 +55,7 @@ export const authenticatedRoute = createRoute({
 // Build Route Tree
 const routeTree = rootRoute.addChildren([
   indexRoute,
-  authenticatedRoute.addChildren([scheduleRoute, voyageWorkspaceRoute, formsRoute]),
+  authenticatedRoute.addChildren([scheduleRoute, voyageWorkspaceRoute, formsRoute, alertsRoute, tasksRoute]),
 ]);
 
 // Create Router instance

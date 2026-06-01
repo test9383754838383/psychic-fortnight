@@ -172,6 +172,84 @@ export const handlers = [
     };
     return HttpResponse.json(report);
   }),
+
+  // Alerts
+  http.get('http://localhost/api/v1/alerts', () => {
+    return HttpResponse.json([]);
+  }),
+  http.post('http://localhost/api/v1/alerts', async ({ request }) => {
+    const body = await request.json() as components['schemas']['AlertCreateBody'];
+    const alert: components['schemas']['AlertReadDTO'] = {
+      id: 'new-alert-id',
+      linked_entity_type: body.linked_entity_type,
+      linked_entity_id: body.linked_entity_id,
+      alert_type: body.alert_type,
+      message: body.message,
+      severity: body.severity,
+      triggered_at: new Date().toISOString(),
+      resolved_at: null,
+      resolved_by: null,
+      resolution_note: null,
+    };
+    return HttpResponse.json(alert, { status: 201 });
+  }),
+  http.post('http://localhost/api/v1/alerts/:alertId/resolve', async ({ request, params }) => {
+    const body = await request.json() as components['schemas']['AlertResolveBody'];
+    const alert: components['schemas']['AlertReadDTO'] = {
+      id: params.alertId as string,
+      linked_entity_type: 'Voyage',
+      linked_entity_id: 'test-voyage-id',
+      alert_type: 'ETA Overdue',
+      message: 'Test alert',
+      severity: 'Info',
+      triggered_at: new Date().toISOString(),
+      resolved_at: new Date().toISOString(),
+      resolved_by: 'test-user-id',
+      resolution_note: body.resolution_note ?? null,
+    };
+    return HttpResponse.json(alert);
+  }),
+
+  // Tasks
+  http.get('http://localhost/api/v1/tasks', () => {
+    return HttpResponse.json([]);
+  }),
+  http.post('http://localhost/api/v1/tasks', async ({ request }) => {
+    const body = await request.json() as components['schemas']['TaskCreateBody'];
+    const task: components['schemas']['TaskReadDTO'] = {
+      id: 'new-task-id',
+      linked_entity_type: body.linked_entity_type,
+      linked_entity_id: body.linked_entity_id,
+      title: body.title,
+      description: body.description ?? null,
+      assigned_to: body.assigned_to ?? null,
+      due_datetime: body.due_datetime ?? null,
+      status: 'Open',
+      originating_alert_id: body.originating_alert_id ?? null,
+      created_by: 'test-user-id',
+      created_at: new Date().toISOString(),
+      completed_at: null,
+    };
+    return HttpResponse.json(task, { status: 201 });
+  }),
+  http.patch('http://localhost/api/v1/tasks/:taskId', async ({ request, params }) => {
+    const body = await request.json() as components['schemas']['TaskUpdateBody'];
+    const task: components['schemas']['TaskReadDTO'] = {
+      id: params.taskId as string,
+      linked_entity_type: 'Voyage',
+      linked_entity_id: 'test-voyage-id',
+      title: 'Updated Task',
+      description: null,
+      assigned_to: null,
+      due_datetime: null,
+      status: body.status ?? 'Open',
+      originating_alert_id: null,
+      created_by: 'test-user-id',
+      created_at: new Date().toISOString(),
+      completed_at: body.status === 'Done' ? new Date().toISOString() : null,
+    };
+    return HttpResponse.json(task);
+  }),
 ];
 
 // Re-export named fixtures for use in individual test overrides

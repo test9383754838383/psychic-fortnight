@@ -41,6 +41,7 @@ describe("VesselScheduleChart", () => {
             commencing_datetime: "2026-05-01T00:00:00Z",
             expected_completing_datetime: "2026-05-10T00:00:00Z",
             port_sequence: [],
+            has_exception: true,
           },
         ],
       },
@@ -66,6 +67,13 @@ describe("VesselScheduleChart", () => {
     render(<VesselScheduleChart data={mockData} onBarClick={onBarClick} />);
 
     expect(screen.getByTestId("voyage-bar-voy-1")).toBeInTheDocument();
+  });
+
+  it("renders exception dot for voyages with exceptions", () => {
+    const onBarClick = vi.fn();
+    render(<VesselScheduleChart data={mockData} onBarClick={onBarClick} />);
+
+    expect(screen.getByTestId("exception-dot-voy-1")).toBeInTheDocument();
   });
 
   it("disposes chart on unmount", () => {

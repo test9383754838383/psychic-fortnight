@@ -110,6 +110,7 @@ export function ChecklistPanel({ portCallId }: ChecklistPanelProps) {
                 className={`checklist-card ${
                   isCompleted ? "checklist-card--completed" : "checklist-card--open"
                 }`}
+                data-testid={`checklist-card-${checklist.id}`}
                 style={{ marginTop: "1rem" }}
               >
                 <div className="checklist-card-header">
