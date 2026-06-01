@@ -47,8 +47,9 @@ test("Operational Reporting Panels E2E flow", async ({ page }) => {
   await expect(page.locator('text=All Fast')).toBeVisible();
   await expect(page.locator('text=E2E Port Event Notes')).toBeVisible();
 
-  // Verify append-only: no Edit or Delete buttons inside the event-log-panel
-  const eventLogPanel = page.locator('.event-log-panel');
+  // Scope to EventLogPanel's testid — DelayTrackingPanel shares the same CSS
+  // class but has data-testid="delay-tracking-panel".
+  const eventLogPanel = page.locator('[data-testid="event-log-panel"]');
   await expect(eventLogPanel.locator('button:has-text("Edit")')).not.toBeVisible();
   await expect(eventLogPanel.locator('button:has-text("Delete")')).not.toBeVisible();
 

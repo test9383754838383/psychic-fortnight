@@ -148,6 +148,7 @@ export function DelayTrackingPanel({ voyageId }: DelayTrackingPanelProps) {
   return (
     <section
       className="event-log-panel glass-panel"
+      data-testid="delay-tracking-panel"
       style={{ maxWidth: "none", textAlign: "left", padding: "1.5rem", marginTop: "2rem" }}
     >
       <div

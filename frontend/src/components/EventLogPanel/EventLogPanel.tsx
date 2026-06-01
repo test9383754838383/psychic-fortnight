@@ -24,7 +24,7 @@ export function EventLogPanel({ portCallId }: EventLogPanelProps) {
   });
 
   return (
-    <section className="event-log-panel glass-panel" style={{ maxWidth: "none", textAlign: "left", padding: "1.5rem" }}>
+    <section className="event-log-panel glass-panel" data-testid="event-log-panel" style={{ maxWidth: "none", textAlign: "left", padding: "1.5rem" }}>
       <div className="panel-header">
         <h3 className="panel-heading">Port Events</h3>
         <button

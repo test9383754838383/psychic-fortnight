@@ -43,11 +43,12 @@ test("Delay tracking full creation, editing, and approval/locking lifecycle flow
   // Save delay
   await page.locator('button:has-text("Save Delay")').click();
 
-  // 6. Verify it is created in the list
-  const delayCard = page.locator(".checklist-panel .checklist-card").first();
+  // 6. Verify it is created in the list — scope by data-testid to avoid
+  // ambiguity with ChecklistPanel which uses the same CSS classes.
+  const delayCard = page.locator('[data-testid^="delay-card-"]').first();
   await expect(delayCard).toBeVisible();
   await expect(delayCard.locator(".checklist-card-title")).toContainText("Weather");
-  await expect(delayCard.locator(".status-chip")).toContainText("Pending");
+  await expect(delayCard.locator(".status-chip")).toContainText("Open");
   await expect(delayCard.locator("text=Stormy delay at sea")).toBeVisible();
 
   // 7. Click Edit on the open delay card
