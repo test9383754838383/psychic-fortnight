@@ -43,13 +43,13 @@ test("Operational Reporting Panels E2E flow", async ({ page }) => {
   // Submit
   await page.click('button[type="submit"]:has-text("Save Event")');
 
-  // Verify event is listed
-  await expect(page.locator('text=All Fast')).toBeVisible();
-  await expect(page.locator('text=E2E Port Event Notes')).toBeVisible();
-
-  // Scope to EventLogPanel's testid — DelayTrackingPanel shares the same CSS
-  // class but has data-testid="delay-tracking-panel".
+  // Scope to EventLogPanel immediately — the form's <select> options and chips
+  // from prior runs cause strict-mode violations when matching on the full page.
   const eventLogPanel = page.locator('[data-testid="event-log-panel"]');
+
+  // Verify event is listed (use .first() — prior runs may have left duplicate chips)
+  await expect(eventLogPanel.locator('span.event-chip:has-text("All Fast")').first()).toBeVisible();
+  await expect(eventLogPanel.locator('text=E2E Port Event Notes').first()).toBeVisible();
   await expect(eventLogPanel.locator('button:has-text("Edit")')).not.toBeVisible();
   await expect(eventLogPanel.locator('button:has-text("Delete")')).not.toBeVisible();
 
@@ -65,8 +65,8 @@ test("Operational Reporting Panels E2E flow", async ({ page }) => {
   const logEntryBtn = activityLogSection.locator('button:has-text("Log Entry")');
   await logEntryBtn.click();
 
-  // Verify narrative is listed
-  await expect(activityLogSection.locator('text=E2E Narrative Entry')).toBeVisible();
+  // Verify narrative is listed (.first() — prior runs accumulate entries)
+  await expect(activityLogSection.locator('text=E2E Narrative Entry').first()).toBeVisible();
 
   // Verify append-only: no Edit or Delete buttons inside activity-log-section
   await expect(activityLogSection.locator('button:has-text("Edit")')).not.toBeVisible();
@@ -92,24 +92,30 @@ test("Operational Reporting Panels E2E flow", async ({ page }) => {
   // Submit Arrival report
   await page.click('button[type="submit"]:has-text("Save Report")');
 
-  // Verify report appears as Pending
+  // Find the newly created Pending card — prior runs accumulate Accepted cards,
+  // so filter to Pending status and take the first match.
   const reportsPanel = page.locator('.reports-panel');
-  await expect(reportsPanel.locator('text=Arrival')).toBeVisible();
-  const pendingChip = reportsPanel.locator('span.status-chip:has-text("Pending")').first();
-  await expect(pendingChip).toBeVisible();
+  const pendingCard = reportsPanel
+    .locator('.report-card[data-testid^="report-card-"]')
+    .filter({ has: page.locator('span.status-chip:has-text("Pending")') })
+    .first();
+  await expect(pendingCard).toBeVisible();
+  await expect(pendingCard.locator('text=Arrival').first()).toBeVisible();
 
-  // Get the Report ID from the report card testid to use in supersedes
-  const reportCard = reportsPanel.locator('.report-card[data-testid^="report-card-"]').first();
-  const testIdAttribute = await reportCard.getAttribute('data-testid');
+  // Save report ID before transitioning (locator filter becomes invalid after
+  // the chip changes from Pending → Accepted).
+  const testIdAttribute = await pendingCard.getAttribute('data-testid');
   expect(testIdAttribute).not.toBeNull();
   const reportId = testIdAttribute!.replace('report-card-', '');
 
   // 5. Transition Pending -> Accepted
-  const acceptBtn = reportCard.locator('button:has-text("Accepted")');
+  const acceptBtn = pendingCard.locator('button:has-text("Accepted")');
   await expect(acceptBtn).toBeVisible();
   await acceptBtn.click();
 
-  // Verify status chip updates to Accepted
+  // Re-locate by specific testid so the locator still resolves after the
+  // Pending chip is replaced by Accepted.
+  const reportCard = reportsPanel.locator(`[data-testid="report-card-${reportId}"]`);
   const acceptedChip = reportCard.locator('span.status-chip:has-text("Accepted")');
   await expect(acceptedChip).toBeVisible();
 

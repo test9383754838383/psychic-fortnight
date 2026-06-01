@@ -1,7 +1,8 @@
 import uuid
+from datetime import datetime, timezone
 
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
+from sqlalchemy import select, exists, union_all, literal
 from sqlalchemy.orm import selectinload
 
 from src.modules.voyage_spine.models.voyage import Voyage
@@ -24,6 +25,32 @@ class WorkspaceQueryService:
         self.vessel_service = VesselService(session=session)
         self.port_service = PortService(session=session)
         self.counterparty_service = CounterpartyService(session=session)
+
+    async def _has_exception(self, voyage_id: uuid.UUID) -> bool:
+        """Execute the exception dot query per architecture §6."""
+        from src.modules.alerts.models.alert import Alert
+        from src.modules.tasks.models.task import Task
+
+        now = datetime.now(timezone.utc)
+
+        alert_q = (
+            select(literal(1))
+            .where(Alert.linked_entity_type == "Voyage")
+            .where(Alert.linked_entity_id == voyage_id)
+            .where(Alert.resolved_at.is_(None))
+            .where(Alert.severity.in_(["Warning", "Critical"]))
+        )
+        task_q = (
+            select(literal(1))
+            .where(Task.linked_entity_type == "Voyage")
+            .where(Task.linked_entity_id == voyage_id)
+            .where(Task.status != "Done")
+            .where(Task.due_datetime < now)
+        )
+        combined = union_all(alert_q, task_q).subquery()
+        stmt = select(exists(select(literal(1)).select_from(combined)))
+        result = await self.session.execute(stmt)
+        return bool(result.scalar())
 
     async def get_workspace(self, voyage_id: uuid.UUID) -> VoyageWorkspaceResponse:
         stmt = (
@@ -58,8 +85,7 @@ class WorkspaceQueryService:
                 )
             )
 
-        # Itinerary is already ordered by sequence_no due to the relationship definition
-        # order_by="ItineraryLine.sequence_no" in Voyage model.
+        has_exception = await self._has_exception(voyage_id)
 
         return VoyageWorkspaceResponse(
             voyage_id=voyage.id,
@@ -77,4 +103,5 @@ class WorkspaceQueryService:
             itinerary=itinerary,
             voyage_instructions=voyage.voyage_instructions,
             ops_notes=voyage.ops_notes,
+            has_exception=has_exception,
         )

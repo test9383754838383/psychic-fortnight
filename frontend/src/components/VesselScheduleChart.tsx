@@ -17,6 +17,7 @@ interface OverlayBar {
   y: number;
   width: number;
   height: number;
+  has_exception: boolean;
 }
 
 export const VesselScheduleChart: React.FC<VesselScheduleChartProps> = ({
@@ -81,6 +82,7 @@ export const VesselScheduleChart: React.FC<VesselScheduleChartProps> = ({
               y: startPixel[1] - height / 2,
               width: endPixel[0] - startPixel[0],
               height: height,
+              has_exception: voyage.has_exception === true,
             });
           }
         });
@@ -108,24 +110,41 @@ export const VesselScheduleChart: React.FC<VesselScheduleChartProps> = ({
         }}
       >
         {overlayBars.map((bar) => (
-          <button
-            key={bar.voyage_id}
-            data-testid={`voyage-bar-${bar.voyage_id}`}
-            onClick={() => onBarClick(bar.voyage_id)}
-            style={{
-              position: "absolute",
-              left: `${bar.x}px`,
-              top: `${bar.y}px`,
-              width: `${Math.max(bar.width, 1)}px`,
-              height: `${bar.height}px`,
-              background: "transparent",
-              border: "none",
-              cursor: "pointer",
-              pointerEvents: "auto",
-              padding: 0,
-              margin: 0,
-            }}
-          />
+          <React.Fragment key={bar.voyage_id}>
+            <button
+              data-testid={`voyage-bar-${bar.voyage_id}`}
+              onClick={() => onBarClick(bar.voyage_id)}
+              style={{
+                position: "absolute",
+                left: `${bar.x}px`,
+                top: `${bar.y}px`,
+                width: `${Math.max(bar.width, 1)}px`,
+                height: `${bar.height}px`,
+                background: "transparent",
+                border: "none",
+                cursor: "pointer",
+                pointerEvents: "auto",
+                padding: 0,
+                margin: 0,
+              }}
+            />
+            {bar.has_exception && (
+              <span
+                data-testid={`exception-dot-${bar.voyage_id}`}
+                style={{
+                  position: "absolute",
+                  left: `${bar.x + bar.width - 10}px`,
+                  top: `${bar.y + 2}px`,
+                  width: "8px",
+                  height: "8px",
+                  borderRadius: "50%",
+                  background: "#f97316",
+                  pointerEvents: "none",
+                  boxShadow: "0 0 4px rgba(249,115,22,0.8)",
+                }}
+              />
+            )}
+          </React.Fragment>
         ))}
       </div>
     </div>

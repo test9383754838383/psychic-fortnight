@@ -3,7 +3,7 @@ from datetime import date, datetime, time, timezone
 from typing import List, Optional, Dict
 
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
+from sqlalchemy import select, union_all
 from sqlalchemy.orm import selectinload
 
 from src.modules.voyage_spine.models.voyage import Voyage, VoyageStatus
@@ -20,6 +20,8 @@ from src.modules.voyage_spine.schemas.schedule import (
     VoyageBarDTO,
     PortSequenceItemDTO,
 )
+from src.modules.alerts.models.alert import Alert
+from src.modules.tasks.models.task import Task
 
 
 class ScheduleQueryService:
@@ -72,6 +74,30 @@ class ScheduleQueryService:
 
         result = await self.session.execute(stmt)
         voyages = result.scalars().all()
+        voyage_ids = [voyage.id for voyage in voyages]
+        exception_voyage_ids: set[uuid.UUID] = set()
+
+        if voyage_ids:
+            alert_q = (
+                select(Alert.linked_entity_id)
+                .where(Alert.linked_entity_type == "Voyage")
+                .where(Alert.linked_entity_id.in_(voyage_ids))
+                .where(Alert.resolved_at.is_(None))
+                .where(Alert.severity.in_(["Warning", "Critical"]))
+            )
+            task_q = (
+                select(Task.linked_entity_id)
+                .where(Task.linked_entity_type == "Voyage")
+                .where(Task.linked_entity_id.in_(voyage_ids))
+                .where(Task.status != "Done")
+                .where(Task.due_datetime < datetime.now(timezone.utc))
+            )
+            exception_result = await self.session.execute(union_all(alert_q, task_q))
+            exception_voyage_ids = {
+                row[0]
+                for row in exception_result.all()
+                if isinstance(row[0], uuid.UUID)
+            }
 
         ports = await self.port_service.list()
         port_map = {p.id: p.unlocode for p in ports}
@@ -131,6 +157,7 @@ class ScheduleQueryService:
                     if voyage.charterer_ref
                     else None,
                     port_sequence=port_sequence,
+                    has_exception=voyage.id in exception_voyage_ids,
                 )
             )
 

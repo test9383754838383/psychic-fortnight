@@ -21,6 +21,7 @@ class VoyageBarDTO(BaseModel):
     current_next_port_code: Optional[str] = None
     charterer: Optional[str] = None
     port_sequence: List[PortSequenceItemDTO]
+    has_exception: bool = False
 
     model_config = ConfigDict(from_attributes=True)
 

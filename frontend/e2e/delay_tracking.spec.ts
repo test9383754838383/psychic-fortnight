@@ -43,10 +43,21 @@ test("Delay tracking full creation, editing, and approval/locking lifecycle flow
   // Save delay
   await page.locator('button:has-text("Save Delay")').click();
 
-  // 6. Verify it is created in the list — scope by data-testid to avoid
-  // ambiguity with ChecklistPanel which uses the same CSS classes.
-  const delayCard = page.locator('[data-testid^="delay-card-"]').first();
-  await expect(delayCard).toBeVisible();
+  // 6. Verify it is created in the list — filter by description AND "Open"
+  // status text to exclude stale approved cards; capture testid immediately for
+  // a stable reference that survives the Approve transition (the Open filter
+  // breaks once the chip changes to Approved).
+  const openCardLocator = page
+    .locator('[data-testid^="delay-card-"]')
+    .filter({ hasText: "Stormy delay at sea" })
+    .filter({ hasText: "Open" })
+    .first();
+  await expect(openCardLocator).toBeVisible();
+  const delayCardTestId = await openCardLocator.getAttribute('data-testid');
+  expect(delayCardTestId).not.toBeNull();
+
+  // Stable locator for all interactions — survives the Pending→Approved chip swap.
+  const delayCard = page.locator(`[data-testid="${delayCardTestId}"]`);
   await expect(delayCard.locator(".checklist-card-title")).toContainText("Weather");
   await expect(delayCard.locator(".status-chip")).toContainText("Open");
   await expect(delayCard.locator("text=Stormy delay at sea")).toBeVisible();

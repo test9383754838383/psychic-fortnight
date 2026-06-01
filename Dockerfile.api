@@ -1,0 +1,38 @@
+# Dockerfile.api — Multi-stage build for the FastAPI backend
+# Stage 1 (builder): installs Python deps into a virtualenv via uv
+# Stage 2 (runtime): copies only the venv + src — no build tools in final image
+
+# ── Stage 1: builder ──────────────────────────────────────────────────────────
+FROM python:3.12-slim AS builder
+
+WORKDIR /build
+
+# Install uv (fast Python package manager)
+RUN pip install --no-cache-dir uv
+
+# Copy dependency manifests only — layer-cached unless deps change
+COPY pyproject.toml uv.lock ./
+
+# Sync production deps into .venv (exclude dev extras)
+RUN uv sync --no-dev
+
+# ── Stage 2: runtime ──────────────────────────────────────────────────────────
+FROM python:3.12-slim AS runtime
+
+WORKDIR /app
+
+# Copy the virtualenv from builder
+COPY --from=builder /build/.venv /app/.venv
+
+# Copy application source and migration assets used by first-boot deployments
+COPY src/ ./src/
+COPY alembic.ini ./
+COPY alembic/ ./alembic/
+
+EXPOSE 8000
+
+# Use the venv Python directly
+ENV PATH="/app/.venv/bin:$PATH"
+
+# The app is created via factory pattern (create_app returns the FastAPI instance)
+CMD ["uvicorn", "src.app:create_app", "--factory", "--host", "0.0.0.0", "--port", "8000"]

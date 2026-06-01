@@ -861,6 +861,114 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/alerts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Alerts */
+        get: operations["list_alerts_api_v1_alerts_get"];
+        put?: never;
+        /** Create Alert */
+        post: operations["create_alert_api_v1_alerts_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/alerts/{alert_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Alert */
+        get: operations["get_alert_api_v1_alerts__alert_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/alerts/{alert_id}/resolve": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Resolve Alert */
+        post: operations["resolve_alert_api_v1_alerts__alert_id__resolve_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tasks": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Tasks */
+        get: operations["list_tasks_api_v1_tasks_get"];
+        put?: never;
+        /** Create Task */
+        post: operations["create_task_api_v1_tasks_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tasks/{task_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Task */
+        get: operations["get_task_api_v1_tasks__task_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Update Task */
+        patch: operations["update_task_api_v1_tasks__task_id__patch"];
+        trace?: never;
+    };
+    "/health": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Health
+         * @description DB ping. Unauthenticated. Used by Caddy health_checks and CI.
+         */
+        get: operations["get_health_health_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -948,6 +1056,68 @@ export interface components {
              * Format: date-time
              */
             updated_at: string;
+        };
+        /** AlertCreateBody */
+        AlertCreateBody: {
+            /**
+             * Linked Entity Type
+             * @enum {string}
+             */
+            linked_entity_type: "Voyage" | "PortCall" | "Vessel";
+            /**
+             * Linked Entity Id
+             * Format: uuid
+             */
+            linked_entity_id: string;
+            /**
+             * Alert Type
+             * @enum {string}
+             */
+            alert_type: "ETA Overdue" | "Departure Overdue" | "NOR Not Tendered" | "Agent Not Confirmed" | "Form Not Received" | "Bunker Request Blocked" | "Voyage Not Commenced" | "Performance Deviation" | "Consumption Deviation" | "Noon Report Missing";
+            /** Message */
+            message: string;
+            /**
+             * Severity
+             * @enum {string}
+             */
+            severity: "Info" | "Warning" | "Critical";
+        };
+        /** AlertReadDTO */
+        AlertReadDTO: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Linked Entity Type */
+            linked_entity_type: string;
+            /**
+             * Linked Entity Id
+             * Format: uuid
+             */
+            linked_entity_id: string;
+            /** Alert Type */
+            alert_type: string;
+            /**
+             * Triggered At
+             * Format: date-time
+             */
+            triggered_at: string;
+            /** Message */
+            message: string;
+            /** Severity */
+            severity: string;
+            /** Resolved At */
+            resolved_at?: string | null;
+            /** Resolved By */
+            resolved_by?: string | null;
+            /** Resolution Note */
+            resolution_note?: string | null;
+        };
+        /** AlertResolveBody */
+        AlertResolveBody: {
+            /** Resolution Note */
+            resolution_note?: string | null;
         };
         /** BunkerRequestCreateBody */
         BunkerRequestCreateBody: {
@@ -1833,6 +2003,83 @@ export interface components {
             /** Raw Content Ref */
             raw_content_ref?: string | null;
         };
+        /** TaskCreateBody */
+        TaskCreateBody: {
+            /**
+             * Linked Entity Type
+             * @enum {string}
+             */
+            linked_entity_type: "Voyage" | "PortCall" | "Vessel";
+            /**
+             * Linked Entity Id
+             * Format: uuid
+             */
+            linked_entity_id: string;
+            /** Title */
+            title: string;
+            /** Description */
+            description?: string | null;
+            /** Assigned To */
+            assigned_to?: string | null;
+            /** Due Datetime */
+            due_datetime?: string | null;
+            /** Originating Alert Id */
+            originating_alert_id?: string | null;
+        };
+        /** TaskReadDTO */
+        TaskReadDTO: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Linked Entity Type */
+            linked_entity_type: string;
+            /**
+             * Linked Entity Id
+             * Format: uuid
+             */
+            linked_entity_id: string;
+            /** Title */
+            title: string;
+            /** Description */
+            description?: string | null;
+            /** Assigned To */
+            assigned_to?: string | null;
+            /** Due Datetime */
+            due_datetime?: string | null;
+            /** Status */
+            status: string;
+            /** Originating Alert Id */
+            originating_alert_id?: string | null;
+            /**
+             * Created By
+             * Format: uuid
+             */
+            created_by: string;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Completed At */
+            completed_at?: string | null;
+        };
+        /** TaskUpdateBody */
+        TaskUpdateBody: {
+            /** Title */
+            title?: string | null;
+            /** Description */
+            description?: string | null;
+            /** Assigned To */
+            assigned_to?: string | null;
+            /** Due Datetime */
+            due_datetime?: string | null;
+            /** Status */
+            status?: ("Open" | "In Progress" | "Blocked" | "Done") | null;
+            /** Originating Alert Id */
+            originating_alert_id?: string | null;
+        };
         /** UserCreateDTO */
         UserCreateDTO: {
             /** Username */
@@ -1987,6 +2234,11 @@ export interface components {
             charterer?: string | null;
             /** Port Sequence */
             port_sequence: components["schemas"]["PortSequenceItemDTO"][];
+            /**
+             * Has Exception
+             * @default false
+             */
+            has_exception: boolean;
         };
         /** VoyageCreateDTO */
         VoyageCreateDTO: {
@@ -2138,6 +2390,11 @@ export interface components {
             voyage_instructions?: string | null;
             /** Ops Notes */
             ops_notes?: string | null;
+            /**
+             * Has Exception
+             * @default false
+             */
+            has_exception: boolean;
         };
         /** WorkspaceItineraryItemDTO */
         WorkspaceItineraryItemDTO: {
@@ -4566,6 +4823,296 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_alerts_api_v1_alerts_get: {
+        parameters: {
+            query?: {
+                severity?: ("Info" | "Warning" | "Critical") | null;
+                resolved?: boolean | null;
+                entity_type?: ("Voyage" | "PortCall" | "Vessel") | null;
+                limit?: number;
+                offset?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AlertReadDTO"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_alert_api_v1_alerts_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AlertCreateBody"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AlertReadDTO"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_alert_api_v1_alerts__alert_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                alert_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AlertReadDTO"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    resolve_alert_api_v1_alerts__alert_id__resolve_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                alert_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AlertResolveBody"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AlertReadDTO"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_tasks_api_v1_tasks_get: {
+        parameters: {
+            query?: {
+                status?: ("Open" | "In Progress" | "Blocked" | "Done") | null;
+                assigned_to?: string | null;
+                entity_type?: ("Voyage" | "PortCall" | "Vessel") | null;
+                limit?: number;
+                offset?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TaskReadDTO"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_task_api_v1_tasks_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TaskCreateBody"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TaskReadDTO"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_task_api_v1_tasks__task_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                task_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TaskReadDTO"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_task_api_v1_tasks__task_id__patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                task_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TaskUpdateBody"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TaskReadDTO"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_health_health_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: string;
+                    };
                 };
             };
         };

@@ -51,6 +51,25 @@ modules = [
             "modules.auth",
         ]
     },
+    {
+        path = "modules.alerts",
+        depends_on = [
+            "modules.voyage_spine",
+            "modules.port_call",
+            "modules.master_data",
+            "modules.auth",
+        ]
+    },
+    {
+        path = "modules.tasks",
+        depends_on = [
+            "modules.voyage_spine",
+            "modules.port_call",
+            "modules.master_data",
+            "modules.alerts",
+            "modules.auth",
+        ]
+    },
 ]
 
 [[interfaces]]
@@ -176,4 +195,22 @@ expose = [
 ]
 from = [
     "modules.delay_tracking",
+]
+
+[[interfaces]]
+expose = [
+    "alerts_router",
+    "AlertReadDTO",
+]
+from = [
+    "modules.alerts",
+]
+
+[[interfaces]]
+expose = [
+    "tasks_router",
+    "TaskReadDTO",
+]
+from = [
+    "modules.tasks",
 ]
