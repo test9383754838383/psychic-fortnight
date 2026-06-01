@@ -10,6 +10,7 @@ import { ChecklistPanel } from "../components/ChecklistPanel/ChecklistPanel";
 import { ReportsPanel } from "../components/ReportsPanel/ReportsPanel";
 import { VoyageFormsPanel } from "../components/FormsQueue/VoyageFormsPanel";
 import { DelayTrackingPanel } from "../components/DelayTrackingPanel/DelayTrackingPanel";
+import { BunkerRequestPanel } from "../components/BunkerRequestPanel/BunkerRequestPanel";
 
 import type { ScheduleFilters } from "../components/ScheduleFilterBar";
 import { voyageWorkspaceRoute } from "./voyages.$voyageId.workspace";
@@ -91,6 +92,7 @@ export function VoyageWorkspacePage() {
             </>
           )}
           <DelayTrackingPanel voyageId={voyageId} />
+          <BunkerRequestPanel voyageId={voyageId} />
         </div>
         <div style={{ display: "flex", flexDirection: "column", gap: "2rem" }}>
           <div className="tab-switcher" style={{ marginTop: "2rem" }}>
