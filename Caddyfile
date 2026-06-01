@@ -1,0 +1,27 @@
+# Caddyfile — Production reverse proxy (ADR-0015)
+#
+# Caddy handles ACME (Let's Encrypt) certificate provisioning automatically.
+#
+# Air-gapped / offline installs without Let's Encrypt:
+#   Replace the `{$DOMAIN}` block opening with:
+#     {$DOMAIN} {
+#         tls /path/to/cert.pem /path/to/key.pem
+#   and remove the automatic HTTPS lines, per ADR-0015.
+
+{$DOMAIN} {
+    encode gzip
+
+    # API — all /api/* and /health requests go to the backend
+    handle /api/* {
+        reverse_proxy api:8000
+    }
+
+    handle /health {
+        reverse_proxy api:8000
+    }
+
+    # Frontend — everything else goes to the Nginx-served static build
+    handle {
+        reverse_proxy frontend:80
+    }
+}
