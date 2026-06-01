@@ -808,6 +808,59 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/voyages/{voyage_id}/delays": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Delays */
+        get: operations["list_delays_api_v1_voyages__voyage_id__delays_get"];
+        put?: never;
+        /** Create Delay */
+        post: operations["create_delay_api_v1_voyages__voyage_id__delays_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/delays/{delay_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Delay */
+        get: operations["get_delay_api_v1_delays__delay_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Update Delay */
+        patch: operations["update_delay_api_v1_delays__delay_id__patch"];
+        trace?: never;
+    };
+    "/api/v1/delays/{delay_id}/approve": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Approve Delay */
+        post: operations["approve_delay_api_v1_delays__delay_id__approve_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -1115,6 +1168,94 @@ export interface components {
             name?: string | null;
             /** Contacts */
             contacts?: components["schemas"]["ContactDTO"][] | null;
+        };
+        /** DelayCreateBody */
+        DelayCreateBody: {
+            /**
+             * Delay Type
+             * @enum {string}
+             */
+            delay_type: "Weather" | "Mechanical" | "Port Congestion" | "Awaiting Berth" | "Awaiting Orders" | "Cargo Operations" | "Bunkering Delay" | "Strike" | "Deviation" | "Piracy/Security" | "Quarantine/Disease" | "Other";
+            /**
+             * Fault Attribution
+             * @enum {string}
+             */
+            fault_attribution: "Vessel" | "Charterer" | "Port" | "Weather" | "Force Majeure";
+            /**
+             * Start Datetime
+             * Format: date-time
+             */
+            start_datetime: string;
+            /** Description */
+            description: string;
+            /** End Datetime */
+            end_datetime?: string | null;
+            /** Claimed Duration */
+            claimed_duration?: number | null;
+            /** Port Call Id */
+            port_call_id?: string | null;
+            /** Leg Ref */
+            leg_ref?: string | null;
+        };
+        /** DelayReadDTO */
+        DelayReadDTO: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Voyage Id
+             * Format: uuid
+             */
+            voyage_id: string;
+            /** Port Call Id */
+            port_call_id?: string | null;
+            /** Leg Ref */
+            leg_ref?: string | null;
+            /** Delay Type */
+            delay_type: string;
+            /** Fault Attribution */
+            fault_attribution: string;
+            /**
+             * Start Datetime
+             * Format: date-time
+             */
+            start_datetime: string;
+            /** End Datetime */
+            end_datetime?: string | null;
+            /** Actual Duration */
+            actual_duration?: number | null;
+            /** Claimed Duration */
+            claimed_duration?: number | null;
+            /** Description */
+            description: string;
+            /**
+             * Recorded By
+             * Format: uuid
+             */
+            recorded_by: string;
+            /** Approved By */
+            approved_by?: string | null;
+        };
+        /** DelayUpdateBody */
+        DelayUpdateBody: {
+            /** Delay Type */
+            delay_type?: ("Weather" | "Mechanical" | "Port Congestion" | "Awaiting Berth" | "Awaiting Orders" | "Cargo Operations" | "Bunkering Delay" | "Strike" | "Deviation" | "Piracy/Security" | "Quarantine/Disease" | "Other") | null;
+            /** Fault Attribution */
+            fault_attribution?: ("Vessel" | "Charterer" | "Port" | "Weather" | "Force Majeure") | null;
+            /** Start Datetime */
+            start_datetime?: string | null;
+            /** End Datetime */
+            end_datetime?: string | null;
+            /** Claimed Duration */
+            claimed_duration?: number | null;
+            /** Description */
+            description?: string | null;
+            /** Port Call Id */
+            port_call_id?: string | null;
+            /** Leg Ref */
+            leg_ref?: string | null;
         };
         /** FormCreateDTO */
         FormCreateDTO: {
@@ -4253,6 +4394,169 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["BunkerRequestReadDTO"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_delays_api_v1_voyages__voyage_id__delays_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                voyage_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DelayReadDTO"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_delay_api_v1_voyages__voyage_id__delays_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                voyage_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DelayCreateBody"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DelayReadDTO"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_delay_api_v1_delays__delay_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                delay_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DelayReadDTO"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_delay_api_v1_delays__delay_id__patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                delay_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DelayUpdateBody"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DelayReadDTO"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    approve_delay_api_v1_delays__delay_id__approve_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                delay_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DelayReadDTO"];
                 };
             };
             /** @description Validation Error */
