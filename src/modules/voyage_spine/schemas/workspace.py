@@ -34,5 +34,6 @@ class VoyageWorkspaceResponse(BaseModel):
     itinerary: List[WorkspaceItineraryItemDTO]
     voyage_instructions: Optional[str] = None
     ops_notes: Optional[str] = None
+    has_exception: bool = False
 
     model_config = ConfigDict(from_attributes=True)

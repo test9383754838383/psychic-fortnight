@@ -6,6 +6,9 @@ from sqlalchemy import event
 from src.modules.voyage_spine.services.schedule_query import ScheduleQueryService
 from src.modules.voyage_spine.models.voyage import VoyageStatus
 from src.modules.voyage_spine.exceptions import ScheduleWindowTooLargeError
+from src.modules.alerts.models.alert import Alert
+from src.modules.tasks.models.task import Task
+from src.modules.auth.services.auth_service import AuthService
 from tests.modules.master_data.conftest import (
     VesselFactory,
     PortFactory,
@@ -356,6 +359,70 @@ async def test_get_schedule_current_next_port_no_itinerary(session: AsyncSession
 
 
 @pytest.mark.asyncio
+async def test_get_schedule_sets_has_exception_for_warning_alert_and_overdue_task(
+    session: AsyncSession,
+):
+    vessel = VesselFactory.build(status="Active")
+    session.add(vessel)
+    await session.commit()
+
+    normal_voyage = VoyageFactory.build(
+        vessel_ref=vessel.id,
+        voyage_no="NO-EXCEPTION",
+        commencing_datetime=datetime(2026, 6, 1, tzinfo=timezone.utc),
+        expected_completing_datetime=datetime(2026, 6, 10, tzinfo=timezone.utc),
+    )
+    alert_voyage = VoyageFactory.build(
+        vessel_ref=vessel.id,
+        voyage_no="HAS-ALERT",
+        commencing_datetime=datetime(2026, 6, 1, tzinfo=timezone.utc),
+        expected_completing_datetime=datetime(2026, 6, 10, tzinfo=timezone.utc),
+    )
+    task_voyage = VoyageFactory.build(
+        vessel_ref=vessel.id,
+        voyage_no="HAS-TASK",
+        commencing_datetime=datetime(2026, 6, 1, tzinfo=timezone.utc),
+        expected_completing_datetime=datetime(2026, 6, 10, tzinfo=timezone.utc),
+    )
+    session.add_all([normal_voyage, alert_voyage, task_voyage])
+    await session.flush()
+    user = await AuthService(session).create_user(
+        "schedule_exception_user", "password", []
+    )
+
+    session.add_all(
+        [
+            Alert(
+                linked_entity_type="Voyage",
+                linked_entity_id=alert_voyage.id,
+                alert_type="ETA Overdue",
+                message="ETA slipped",
+                severity="Warning",
+                triggered_at=datetime(2026, 6, 2, tzinfo=timezone.utc),
+            ),
+            Task(
+                linked_entity_type="Voyage",
+                linked_entity_id=task_voyage.id,
+                title="Chase NOR",
+                due_datetime=datetime(2020, 1, 1, tzinfo=timezone.utc),
+                status="Open",
+                created_by=user.id,
+                created_at=datetime(2026, 6, 2, tzinfo=timezone.utc),
+            ),
+        ]
+    )
+    await session.commit()
+
+    service = ScheduleQueryService(session)
+    resp = await service.get_schedule(date(2026, 6, 1), date(2026, 6, 30))
+    voyages = {v.voyage_no: v for v in resp.vessels[0].voyages}
+
+    assert voyages["NO-EXCEPTION"].has_exception is False
+    assert voyages["HAS-ALERT"].has_exception is True
+    assert voyages["HAS-TASK"].has_exception is True
+
+
+@pytest.mark.asyncio
 async def test_get_schedule_no_n_plus_one(session: AsyncSession):
     # Create several vessels and voyages with itinerary lines
     vessels = [VesselFactory.build(status="Active") for _ in range(3)]
@@ -402,6 +469,7 @@ async def test_get_schedule_no_n_plus_one(session: AsyncSession):
     # 3. Itinerary lines (selectinload)
     # 4. Port list (master_data)
     # 5. Counterparty list (master_data)
+    # 6. Exception lookup for all returned voyages
     # Total should be bounded and small, definitely not N+1 per voyage.
     # N = 3 vessels * 2 voyages = 6 voyages. If N+1, we'd see 6 extra queries.
-    assert query_count <= 10
+    assert query_count <= 11

@@ -44,6 +44,9 @@ from src.modules.delay_tracking import (
     voyage_router as delay_voyage_router,
     member_router as delay_member_router,
 )
+from src.modules.alerts import alerts_router
+from src.modules.tasks import tasks_router
+from src.core.health import health_router
 from src.dependencies import AsyncSessionLocal
 
 
@@ -132,5 +135,14 @@ def create_app() -> FastAPI:
     # Delay Tracking module
     app.include_router(delay_voyage_router, prefix="/api/v1", tags=["delays"])
     app.include_router(delay_member_router, prefix="/api/v1", tags=["delays"])
+
+    # Alerts module
+    app.include_router(alerts_router, prefix="/api/v1", tags=["alerts"])
+
+    # Tasks module
+    app.include_router(tasks_router, prefix="/api/v1", tags=["tasks"])
+
+    # Health (no /api/v1 prefix — infrastructure endpoint)
+    app.include_router(health_router)
 
     return app
