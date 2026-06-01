@@ -14,11 +14,9 @@ test("Operational Reporting Panels E2E flow", async ({ page }) => {
   // Wait for loading to finish
   await expect(page.locator("text=Loading session...")).not.toBeVisible();
 
-  // If not logged in, we should see the Authentication Required message
   const loginButton = page.locator('button:has-text("Sign In as Operator (Stub)")');
-  if (await loginButton.isVisible()) {
-    await loginButton.click();
-  }
+  await loginButton.click();
+  await expect(loginButton).toBeHidden();
 
   // Verify workspace loads
   await expect(page.locator("h1")).toContainText("Voyage V001");
@@ -49,8 +47,9 @@ test("Operational Reporting Panels E2E flow", async ({ page }) => {
   await expect(page.locator('text=All Fast')).toBeVisible();
   await expect(page.locator('text=E2E Port Event Notes')).toBeVisible();
 
-  // Verify append-only: no Edit or Delete buttons inside the event-log-panel
-  const eventLogPanel = page.locator('.event-log-panel');
+  // Scope to EventLogPanel's testid — DelayTrackingPanel shares the same CSS
+  // class but has data-testid="delay-tracking-panel".
+  const eventLogPanel = page.locator('[data-testid="event-log-panel"]');
   await expect(eventLogPanel.locator('button:has-text("Edit")')).not.toBeVisible();
   await expect(eventLogPanel.locator('button:has-text("Delete")')).not.toBeVisible();
 
