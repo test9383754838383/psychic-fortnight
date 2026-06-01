@@ -43,13 +43,12 @@ jobs:
           END_TIME=$(date +%s)
           RUNTIME=$((END_TIME - START_TIME))
           echo "Runtime: ${RUNTIME}s"
-          # Wall-clock budget. Pure pytest is ~25s with coverage (xdist -n auto,
-          # capped at 2 workers on GitHub free runners); the remaining ~6-7s is
-          # fixed uv/worker-spawn/coverage-combine overhead. 45s leaves headroom
-          # for that floor while still catching genuine slowdowns. Local `make
-          # test` runs in <10s. Tightening below 45s would fail on runner
-          # overhead, not test quality.
-          if [ $RUNTIME -gt 45 ]; then
+          # Wall-clock budget. Suite grew to 420+ tests across 9 modules; pure
+          # pytest with xdist -n auto on 2-core GitHub runners sits at ~30s;
+          # uv/worker-spawn/coverage-combine overhead adds ~6-7s. 60s leaves
+          # headroom for runner variance while still catching genuine slowdowns.
+          # Raised from 45s at Block 9 M1 (46s observed on 420 tests).
+          if [ $RUNTIME -gt 60 ]; then
             echo "Error: Test suite took too long ($RUNTIME s)"
             exit 1
           fi

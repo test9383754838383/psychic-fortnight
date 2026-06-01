@@ -43,6 +43,14 @@ modules = [
             "modules.auth",
         ]
     },
+    {
+        path = "modules.delay_tracking",
+        depends_on = [
+            "modules.voyage_spine",
+            "modules.port_call",
+            "modules.auth",
+        ]
+    },
 ]
 
 [[interfaces]]
@@ -158,4 +166,14 @@ expose = [
 ]
 from = [
     "modules.bunker_request",
+]
+
+[[interfaces]]
+expose = [
+    "voyage_router",
+    "member_router",
+    "DelayReadDTO",
+]
+from = [
+    "modules.delay_tracking",
 ]
