@@ -16,11 +16,9 @@ test("Delay tracking full creation, editing, and approval/locking lifecycle flow
   // Wait for loading to finish
   await expect(page.locator("text=Loading session...")).not.toBeVisible();
 
-  // If not logged in, click Operator stub sign in
   const loginButton = page.locator('button:has-text("Sign In as Operator (Stub)")');
-  if (await loginButton.isVisible()) {
-    await loginButton.click();
-  }
+  await loginButton.click();
+  await expect(loginButton).toBeHidden();
 
   // 2. Verify Voyage Workspace Header is loaded
   await expect(page.locator("h1")).toContainText("Voyage V001");
@@ -49,7 +47,7 @@ test("Delay tracking full creation, editing, and approval/locking lifecycle flow
   const delayCard = page.locator(".checklist-panel .checklist-card").first();
   await expect(delayCard).toBeVisible();
   await expect(delayCard.locator(".checklist-card-title")).toContainText("Weather");
-  await expect(delayCard.locator(".status-chip")).toContainText("Open");
+  await expect(delayCard.locator(".status-chip")).toContainText("Pending");
   await expect(delayCard.locator("text=Stormy delay at sea")).toBeVisible();
 
   // 7. Click Edit on the open delay card
