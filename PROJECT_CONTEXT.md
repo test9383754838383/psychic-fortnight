@@ -29,7 +29,19 @@ Durable project rules and roadmap: `ORCHESTRA.md`.
 
 **Date:** 2026-06-01
 
-**Status:** Block 7b (Checklists) **complete**. Block 7 (Forms & Checklists) fully done. Block 8 (Bunker Request) is next.
+**Status:** Blocks 8 (Bunker Request) and 9 (Delay Tracking) **complete**. Block 10 (Tasks & Alerts) is next.
+
+**Block 9 evidence:**
+- M1 (backend) merged via PR #18: `feat(delay_tracking): implement Block 9 M1 backend`
+- M2 (frontend) merged via PR #20: `feat(delay_tracking): implement Block 9 M2 frontend`
+- Module: Delay (voyage FK, port_call XOR leg_ref, 12 delay_types, 5 fault_attributions, approval lock, actual_duration derived); DelayTrackingPanel in Voyage Workspace
+- Runbook: `docs/delay_tracking/runbook.md`
+
+**Block 8 evidence:**
+- M1 (backend) merged via PR #17: `feat(bunker_request): implement Block 8 M1 backend`
+- M2 (frontend) merged via PR #21: `fix(bunker_request): wire BunkerRequestPanel into VoyageWorkspacePage`
+- Module: BunkerRequest (fuel_type, Raised→In Progress→Stemmed→Supplied, Blocked side-state, mandatory blocker_note); BunkerRequestPanel in Voyage Workspace
+- Runbook: `docs/bunker_request/runbook.md`
 
 **Block 7b evidence:**
 - M1 (backend) merged via PR #11: `feat(checklists): implement Block 7b M1 backend`
@@ -147,4 +159,4 @@ See `CLAUDE.md`. Highlights:
 
 ## Next step
 
-Block 8 (Bunker Request). Draft the five-doc spec set in `docs/bunker_request/` per `[ADR-0012]`. No new technology. Entities: `BunkerRequest` (voyage_ref, port_call_ref optional, fuel_type, quantity, status Raised→In Progress→Stemmed→Supplied/Blocked). Two milestones (M1 backend, M2 frontend).
+Block 10 (Tasks & Alerts). Final V1 block. Includes the deployment milestone (Docker Compose, Caddy, CI/CD image build — the GAP from V1_ROADMAP). Draft the five-doc spec set in `docs/tasks_alerts/` per `[ADR-0012]`.
