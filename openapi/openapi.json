@@ -3484,6 +3484,246 @@
           }
         }
       }
+    },
+    "/api/v1/voyages/{voyage_id}/delays": {
+      "post": {
+        "tags": [
+          "delays",
+          "delays"
+        ],
+        "summary": "Create Delay",
+        "operationId": "create_delay_api_v1_voyages__voyage_id__delays_post",
+        "parameters": [
+          {
+            "name": "voyage_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Voyage Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DelayCreateBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DelayReadDTO"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "delays",
+          "delays"
+        ],
+        "summary": "List Delays",
+        "operationId": "list_delays_api_v1_voyages__voyage_id__delays_get",
+        "parameters": [
+          {
+            "name": "voyage_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Voyage Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/DelayReadDTO"
+                  },
+                  "title": "Response List Delays Api V1 Voyages  Voyage Id  Delays Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/delays/{delay_id}": {
+      "get": {
+        "tags": [
+          "delays",
+          "delays"
+        ],
+        "summary": "Get Delay",
+        "operationId": "get_delay_api_v1_delays__delay_id__get",
+        "parameters": [
+          {
+            "name": "delay_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Delay Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DelayReadDTO"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "delays",
+          "delays"
+        ],
+        "summary": "Update Delay",
+        "operationId": "update_delay_api_v1_delays__delay_id__patch",
+        "parameters": [
+          {
+            "name": "delay_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Delay Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DelayUpdateBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DelayReadDTO"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/delays/{delay_id}/approve": {
+      "post": {
+        "tags": [
+          "delays",
+          "delays"
+        ],
+        "summary": "Approve Delay",
+        "operationId": "approve_delay_api_v1_delays__delay_id__approve_post",
+        "parameters": [
+          {
+            "name": "delay_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Delay Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DelayReadDTO"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -4287,6 +4527,336 @@
         },
         "type": "object",
         "title": "CounterpartyUpdateDTO"
+      },
+      "DelayCreateBody": {
+        "properties": {
+          "delay_type": {
+            "type": "string",
+            "enum": [
+              "Weather",
+              "Mechanical",
+              "Port Congestion",
+              "Awaiting Berth",
+              "Awaiting Orders",
+              "Cargo Operations",
+              "Bunkering Delay",
+              "Strike",
+              "Deviation",
+              "Piracy/Security",
+              "Quarantine/Disease",
+              "Other"
+            ],
+            "title": "Delay Type"
+          },
+          "fault_attribution": {
+            "type": "string",
+            "enum": [
+              "Vessel",
+              "Charterer",
+              "Port",
+              "Weather",
+              "Force Majeure"
+            ],
+            "title": "Fault Attribution"
+          },
+          "start_datetime": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Start Datetime"
+          },
+          "description": {
+            "type": "string",
+            "title": "Description"
+          },
+          "end_datetime": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "End Datetime"
+          },
+          "claimed_duration": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Claimed Duration"
+          },
+          "port_call_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Port Call Id"
+          },
+          "leg_ref": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Leg Ref"
+          }
+        },
+        "type": "object",
+        "required": [
+          "delay_type",
+          "fault_attribution",
+          "start_datetime",
+          "description"
+        ],
+        "title": "DelayCreateBody"
+      },
+      "DelayReadDTO": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "voyage_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Voyage Id"
+          },
+          "port_call_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Port Call Id"
+          },
+          "leg_ref": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Leg Ref"
+          },
+          "delay_type": {
+            "type": "string",
+            "title": "Delay Type"
+          },
+          "fault_attribution": {
+            "type": "string",
+            "title": "Fault Attribution"
+          },
+          "start_datetime": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Start Datetime"
+          },
+          "end_datetime": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "End Datetime"
+          },
+          "actual_duration": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Actual Duration"
+          },
+          "claimed_duration": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Claimed Duration"
+          },
+          "description": {
+            "type": "string",
+            "title": "Description"
+          },
+          "recorded_by": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Recorded By"
+          },
+          "approved_by": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Approved By"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "voyage_id",
+          "delay_type",
+          "fault_attribution",
+          "start_datetime",
+          "description",
+          "recorded_by"
+        ],
+        "title": "DelayReadDTO"
+      },
+      "DelayUpdateBody": {
+        "properties": {
+          "delay_type": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "Weather",
+                  "Mechanical",
+                  "Port Congestion",
+                  "Awaiting Berth",
+                  "Awaiting Orders",
+                  "Cargo Operations",
+                  "Bunkering Delay",
+                  "Strike",
+                  "Deviation",
+                  "Piracy/Security",
+                  "Quarantine/Disease",
+                  "Other"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Delay Type"
+          },
+          "fault_attribution": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "Vessel",
+                  "Charterer",
+                  "Port",
+                  "Weather",
+                  "Force Majeure"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fault Attribution"
+          },
+          "start_datetime": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Start Datetime"
+          },
+          "end_datetime": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "End Datetime"
+          },
+          "claimed_duration": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Claimed Duration"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          },
+          "port_call_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Port Call Id"
+          },
+          "leg_ref": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Leg Ref"
+          }
+        },
+        "type": "object",
+        "title": "DelayUpdateBody"
       },
       "FormCreateDTO": {
         "properties": {

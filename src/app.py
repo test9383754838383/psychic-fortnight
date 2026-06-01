@@ -40,6 +40,10 @@ from src.modules.bunker_request import (
     voyage_router as bunker_voyage_router,
     member_router as bunker_member_router,
 )
+from src.modules.delay_tracking import (
+    voyage_router as delay_voyage_router,
+    member_router as delay_member_router,
+)
 from src.dependencies import AsyncSessionLocal
 
 
@@ -124,5 +128,9 @@ def create_app() -> FastAPI:
     # Bunker Request module
     app.include_router(bunker_voyage_router, prefix="/api/v1", tags=["bunker-requests"])
     app.include_router(bunker_member_router, prefix="/api/v1", tags=["bunker-requests"])
+
+    # Delay Tracking module
+    app.include_router(delay_voyage_router, prefix="/api/v1", tags=["delays"])
+    app.include_router(delay_member_router, prefix="/api/v1", tags=["delays"])
 
     return app
