@@ -755,6 +755,59 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/voyages/{voyage_id}/bunker-requests": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Bunker Requests */
+        get: operations["list_bunker_requests_api_v1_voyages__voyage_id__bunker_requests_get"];
+        put?: never;
+        /** Create Bunker Request */
+        post: operations["create_bunker_request_api_v1_voyages__voyage_id__bunker_requests_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/bunker-requests/{bunker_request_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Bunker Request */
+        get: operations["get_bunker_request_api_v1_bunker_requests__bunker_request_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Update Bunker Request */
+        patch: operations["update_bunker_request_api_v1_bunker_requests__bunker_request_id__patch"];
+        trace?: never;
+    };
+    "/api/v1/bunker-requests/{bunker_request_id}/transition": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Transition Bunker Request */
+        post: operations["transition_bunker_request_api_v1_bunker_requests__bunker_request_id__transition_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -842,6 +895,87 @@ export interface components {
              * Format: date-time
              */
             updated_at: string;
+        };
+        /** BunkerRequestCreateBody */
+        BunkerRequestCreateBody: {
+            /**
+             * Fuel Type
+             * @enum {string}
+             */
+            fuel_type: "HFO" | "VLSFO" | "MGO" | "LSMGO" | "HSFO" | "ULSD" | "LNG" | "Biofuel";
+            /** Quantity Required Mt */
+            quantity_required_mt: number;
+            /** Specification Grade */
+            specification_grade?: string | null;
+            /** Max Sulphur Content */
+            max_sulphur_content?: number | null;
+            /** Port Call Id */
+            port_call_id?: string | null;
+            /** Supplier Id */
+            supplier_id?: string | null;
+            /** Eta Supply */
+            eta_supply?: string | null;
+        };
+        /** BunkerRequestReadDTO */
+        BunkerRequestReadDTO: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Voyage Id
+             * Format: uuid
+             */
+            voyage_id: string;
+            /** Port Call Id */
+            port_call_id?: string | null;
+            /** Fuel Type */
+            fuel_type: string;
+            /** Quantity Required Mt */
+            quantity_required_mt: number;
+            /** Specification Grade */
+            specification_grade?: string | null;
+            /** Max Sulphur Content */
+            max_sulphur_content?: number | null;
+            /** Status */
+            status: string;
+            /** Blocker Note */
+            blocker_note?: string | null;
+            /**
+             * Raised By
+             * Format: uuid
+             */
+            raised_by: string;
+            /**
+             * Raised At
+             * Format: date-time
+             */
+            raised_at: string;
+            /** Supplier Id */
+            supplier_id?: string | null;
+            /** Eta Supply */
+            eta_supply?: string | null;
+        };
+        /** BunkerRequestTransitionBody */
+        BunkerRequestTransitionBody: {
+            /** Status */
+            status: string;
+            /** Blocker Note */
+            blocker_note?: string | null;
+        };
+        /** BunkerRequestUpdateBody */
+        BunkerRequestUpdateBody: {
+            /** Quantity Required Mt */
+            quantity_required_mt?: number | null;
+            /** Specification Grade */
+            specification_grade?: string | null;
+            /** Max Sulphur Content */
+            max_sulphur_content?: number | null;
+            /** Supplier Id */
+            supplier_id?: string | null;
+            /** Eta Supply */
+            eta_supply?: string | null;
         };
         /** ChecklistCreateDTO */
         ChecklistCreateDTO: {
@@ -3952,6 +4086,173 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ChecklistItemReadDTO"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_bunker_requests_api_v1_voyages__voyage_id__bunker_requests_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                voyage_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BunkerRequestReadDTO"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_bunker_request_api_v1_voyages__voyage_id__bunker_requests_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                voyage_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["BunkerRequestCreateBody"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BunkerRequestReadDTO"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_bunker_request_api_v1_bunker_requests__bunker_request_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                bunker_request_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BunkerRequestReadDTO"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_bunker_request_api_v1_bunker_requests__bunker_request_id__patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                bunker_request_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["BunkerRequestUpdateBody"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BunkerRequestReadDTO"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    transition_bunker_request_api_v1_bunker_requests__bunker_request_id__transition_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                bunker_request_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["BunkerRequestTransitionBody"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BunkerRequestReadDTO"];
                 };
             };
             /** @description Validation Error */
