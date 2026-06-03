@@ -1,20 +1,34 @@
 import { test, expect } from "@playwright/test";
+import type { Page } from "@playwright/test";
 import { execSync } from "child_process";
+
+// Fixed session seeded by seed_e2e_user.py — injected as a cookie so tests
+// never hit the Argon2-backed login endpoint during parallel execution.
+const E2E_SESSION_ID = "e2e-fixed-session-00000000000000000000000000000001";
 
 test.beforeAll(() => {
   execSync("cd .. && uv run python scripts/seed_e2e_user.py");
   execSync("cd .. && uv run python scripts/seed_e2e_data.py");
 });
 
+async function withAuth(page: Page): Promise<void> {
+  await page.context().addCookies([{
+    name: "session_id",
+    value: E2E_SESSION_ID,
+    domain: "localhost",
+    path: "/",
+    expires: Date.now() / 1000 + 365 * 24 * 3600,
+    httpOnly: true,
+    secure: false,
+    sameSite: "Lax",
+  }]);
+}
+
 test("voyages list shows active voyage and navigates to Voyage Manager with Properties save", async ({
   page,
 }) => {
+  await withAuth(page);
   await page.goto("/voyages");
-  await expect(page.locator("text=Loading session...")).not.toBeVisible();
-
-  const loginButton = page.locator('button:has-text("Sign In as Operator (Stub)")');
-  await loginButton.click();
-  await expect(loginButton).toBeHidden();
 
   await expect(page.locator("h1")).toHaveText("Voyages", { timeout: 10000 });
 
@@ -49,12 +63,8 @@ test("voyages list shows active voyage and navigates to Voyage Manager with Prop
 test("itinerary line can be added and voyage summary updates", async ({ page }) => {
   const voyageNo = `ITIN-E2E-${Date.now()}`;
 
+  await withAuth(page);
   await page.goto("/voyages");
-  await expect(page.locator("text=Loading session...")).not.toBeVisible();
-
-  const loginButton = page.locator('button:has-text("Sign In as Operator (Stub)")');
-  await loginButton.click();
-  await expect(loginButton).toBeHidden();
 
   await expect(page.locator("h1")).toHaveText("Voyages", { timeout: 10000 });
 
@@ -102,12 +112,8 @@ test("itinerary line can be added and voyage summary updates", async ({ page }) 
 test("New Voyage modal creates voyage and it appears in list", async ({ page }) => {
   const voyageNo = `E2E-VOY-${Date.now()}`;
 
+  await withAuth(page);
   await page.goto("/voyages");
-  await expect(page.locator("text=Loading session...")).not.toBeVisible();
-
-  const loginButton = page.locator('button:has-text("Sign In as Operator (Stub)")');
-  await loginButton.click();
-  await expect(loginButton).toBeHidden();
 
   await expect(page.locator("h1")).toHaveText("Voyages", { timeout: 10000 });
 

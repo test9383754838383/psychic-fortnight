@@ -1,5 +1,21 @@
 import { test, expect } from "@playwright/test";
 import { execSync } from "child_process";
+import type { Page } from "@playwright/test";
+
+const E2E_SESSION_ID = "e2e-fixed-session-00000000000000000000000000000001";
+
+async function withAuth(page: Page): Promise<void> {
+  await page.context().addCookies([{
+    name: "session_id",
+    value: E2E_SESSION_ID,
+    domain: "localhost",
+    path: "/",
+    expires: Date.now() / 1000 + 365 * 24 * 3600,
+    httpOnly: true,
+    secure: false,
+    sameSite: "Lax",
+  }]);
+}
 
 test.beforeAll(() => {
   // Seed the E2E user and data before tests run
@@ -9,14 +25,8 @@ test.beforeAll(() => {
 
 test("Checklists full creation and sign-off lifecycle flow", async ({ page }) => {
   // 1. Go to Voyage Workspace
+  await withAuth(page);
   await page.goto("/voyages/00000000-0000-0000-0000-000000000002/workspace");
-
-  // Wait for loading to finish
-  await expect(page.locator("text=Loading session...")).not.toBeVisible();
-
-  const loginButton = page.locator('button:has-text("Sign In as Operator (Stub)")');
-  await loginButton.click();
-  await expect(loginButton).toBeHidden();
 
   // 2. Verify Voyage Workspace Header and Port Call Selection
   await expect(page.locator("h1")).toContainText("Voyage V001");

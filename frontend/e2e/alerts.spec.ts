@@ -1,5 +1,21 @@
 import { test, expect } from "@playwright/test";
 import { execSync } from "child_process";
+import type { Page } from "@playwright/test";
+
+const E2E_SESSION_ID = "e2e-fixed-session-00000000000000000000000000000001";
+
+async function withAuth(page: Page): Promise<void> {
+  await page.context().addCookies([{
+    name: "session_id",
+    value: E2E_SESSION_ID,
+    domain: "localhost",
+    path: "/",
+    expires: Date.now() / 1000 + 365 * 24 * 3600,
+    httpOnly: true,
+    secure: false,
+    sameSite: "Lax",
+  }]);
+}
 
 test.beforeAll(() => {
   execSync("cd .. && uv run python scripts/seed_e2e_user.py");
@@ -12,13 +28,8 @@ test("alerts: create Critical alert, attempt resolve without note → error, res
   const alertMessage = `Critical NOR alert ${Date.now()}`;
 
   // 1. Navigate to Voyage Workspace
+  await withAuth(page);
   await page.goto("/voyages/00000000-0000-0000-0000-000000000002/workspace");
-
-  await expect(page.locator("text=Loading session...")).not.toBeVisible();
-
-  const loginButton = page.locator('button:has-text("Sign In as Operator (Stub)")');
-  await loginButton.click();
-  await expect(loginButton).toBeHidden();
 
   // 2. Verify workspace loaded
   await expect(page.locator("h1")).toContainText("Voyage V001");
