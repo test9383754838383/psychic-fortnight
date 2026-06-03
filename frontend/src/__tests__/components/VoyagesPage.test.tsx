@@ -109,4 +109,22 @@ describe("VoyagesList", () => {
     fireEvent.click(screen.getByTestId("new-voyage-btn"));
     expect(screen.getByTestId("new-voyage-modal")).toBeInTheDocument();
   });
+
+  it("renders three view tabs with CURRENT VOYAGE LIST active by default", async () => {
+    render(<VoyagesList />);
+    await waitFor(() => screen.getByTestId("tab-current"));
+    expect(screen.getByTestId("tab-current")).toBeInTheDocument();
+    expect(screen.getByTestId("tab-all")).toBeInTheDocument();
+    expect(screen.getByTestId("tab-tco")).toBeInTheDocument();
+  });
+
+  it("clicking ALL VOYAGES tab still shows voyages", async () => {
+    render(<VoyagesList />);
+    await waitFor(() => screen.getByTestId("tab-all"));
+    fireEvent.click(screen.getByTestId("tab-all"));
+    await waitFor(() => {
+      expect(screen.getByText("VOY-M1-001")).toBeInTheDocument();
+      expect(screen.getByText("VOY-M1-002")).toBeInTheDocument();
+    });
+  });
 });

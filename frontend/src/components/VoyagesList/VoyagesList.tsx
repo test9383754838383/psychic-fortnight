@@ -14,7 +14,6 @@ export interface VoyagesFilters {
 }
 
 const ACTIVE_STATUSES = ["Forecast", "Scheduled", "Commenced"];
-const ALL_STATUSES = ["Forecast", "Scheduled", "Commenced", "Completed", "Closed", "Cancelled"];
 const LOB_OPTIONS = ["Tankers", "Dry Bulk", "Container", "LNG/LPG", "Chemical", "Other"];
 const TRADE_AREA_OPTIONS = [
   "Mediterranean", "Baltic", "North Sea", "Black Sea", "Atlantic",
@@ -225,13 +224,20 @@ function fmtDT(iso: string | null | undefined): string {
   });
 }
 
+type ActiveTab = "current" | "all" | "tco";
+
+const TAB_LABELS: { key: ActiveTab; label: string }[] = [
+  { key: "current", label: "CURRENT VOYAGE LIST" },
+  { key: "all",     label: "ALL VOYAGES" },
+  { key: "tco",     label: "TCO VOYAGES" },
+];
+
 export function VoyagesList({ filters = {}, onFilterChange, onVoyageClick }: VoyagesListProps) {
   const [showNew, setShowNew] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
+  const [activeTab, setActiveTab] = useState<ActiveTab>("current");
 
-  const status = filters.status ?? "";
   const search = filters.search ?? "";
-  const activeDefault = !status;
 
   const { data: vessels } = useQuery({
     queryKey: ["vessels"],
@@ -247,13 +253,12 @@ export function VoyagesList({ filters = {}, onFilterChange, onVoyageClick }: Voy
   );
 
   const { data: voyages, isLoading, refetch } = useQuery({
-    queryKey: ["voyages", filters],
+    queryKey: ["voyages", filters, activeTab],
     queryFn: async () => {
       const { data, response } = await apiClient.GET("/api/v1/voyages", { params: { query: { limit: 200 } } });
       if (!response.ok) throw new Error("Failed");
       let list = (data ?? []) as Voyage[];
-      if (activeDefault) list = list.filter((v) => ACTIVE_STATUSES.includes(v.status));
-      else if (status && status !== "All") list = list.filter((v) => v.status === status);
+      if (activeTab === "current") list = list.filter((v) => ACTIVE_STATUSES.includes(v.status));
       if (search) list = list.filter((v) => v.voyage_no.toLowerCase().includes(search.toLowerCase()));
       return list;
     },
@@ -290,7 +295,7 @@ export function VoyagesList({ filters = {}, onFilterChange, onVoyageClick }: Voy
       </div>
 
       {showSearch && (
-        <div style={{ display: "flex", gap: "0.5rem", marginBottom: "0.5rem", alignItems: "center" }}>
+        <div style={{ marginBottom: "0.5rem" }}>
           <input
             autoFocus
             type="text"
@@ -299,17 +304,36 @@ export function VoyagesList({ filters = {}, onFilterChange, onVoyageClick }: Voy
             onChange={(e) => onFilterChange?.({ ...filters, search: e.target.value })}
             style={{ background: "rgba(255,255,255,0.04)", color: "var(--text-primary)", border: "1px solid rgba(255,255,255,0.12)", borderRadius: "6px", padding: "0.35rem 0.75rem", fontSize: "0.82rem", width: "220px" }}
           />
-          <select
-            value={status}
-            onChange={(e) => onFilterChange?.({ ...filters, status: e.target.value })}
-            style={{ background: "rgba(255,255,255,0.04)", color: "var(--text-primary)", border: "1px solid rgba(255,255,255,0.12)", borderRadius: "6px", padding: "0.35rem 0.75rem", fontSize: "0.82rem" }}
-          >
-            <option value="">Active (Forecast / Scheduled / Commenced)</option>
-            <option value="All">All statuses</option>
-            {ALL_STATUSES.map((s) => <option key={s} value={s}>{s}</option>)}
-          </select>
         </div>
       )}
+
+      <div style={{ display: "flex", gap: 0, borderBottom: "1px solid rgba(255,255,255,0.08)", marginBottom: "0.5rem" }}>
+        {TAB_LABELS.map(({ key, label }) => {
+          const isActive = activeTab === key;
+          return (
+            <button
+              key={key}
+              data-testid={`tab-${key}`}
+              onClick={() => setActiveTab(key)}
+              style={{
+                background: "none",
+                border: "none",
+                borderBottom: isActive ? "2px solid #38bdf8" : "2px solid transparent",
+                color: isActive ? "#38bdf8" : "var(--text-secondary)",
+                cursor: "pointer",
+                padding: "0.5rem 1rem",
+                fontSize: "0.75rem",
+                fontWeight: isActive ? 700 : 500,
+                letterSpacing: "0.05em",
+                marginBottom: "-1px",
+              }}
+              type="button"
+            >
+              {label}
+            </button>
+          );
+        })}
+      </div>
 
       <div style={{ marginBottom: "0.75rem" }}>
         <button style={{ background: "none", border: "none", color: "#38bdf8", cursor: "pointer", fontSize: "0.82rem", padding: "0.25rem 0" }} type="button">
