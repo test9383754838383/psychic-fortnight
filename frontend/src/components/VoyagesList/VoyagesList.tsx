@@ -208,8 +208,6 @@ const COLS = [
   { label: "Voyage No.", align: "left" as const },
   { label: "Voyage Completing", align: "left" as const },
   { label: "Voyage Commencing", align: "left" as const },
-  { label: "Commence GMT+/-", align: "right" as const },
-  { label: "Complete GMT+/-", align: "right" as const },
   { label: "Vessel Name", align: "left" as const },
 ];
 
@@ -226,10 +224,10 @@ function fmtDT(iso: string | null | undefined): string {
 
 type ActiveTab = "current" | "all" | "tco";
 
-const TAB_LABELS: { key: ActiveTab; label: string }[] = [
-  { key: "current", label: "CURRENT VOYAGE LIST" },
-  { key: "all",     label: "ALL VOYAGES" },
-  { key: "tco",     label: "TCO VOYAGES" },
+const TAB_DEFS: { key: ActiveTab; label: string; enabled: boolean }[] = [
+  { key: "current", label: "CURRENT VOYAGE LIST", enabled: true },
+  { key: "all",     label: "ALL VOYAGES",          enabled: true },
+  { key: "tco",     label: "TCO VOYAGES",           enabled: false },
 ];
 
 export function VoyagesList({ filters = {}, onFilterChange, onVoyageClick }: VoyagesListProps) {
@@ -308,19 +306,21 @@ export function VoyagesList({ filters = {}, onFilterChange, onVoyageClick }: Voy
       )}
 
       <div style={{ display: "flex", gap: 0, borderBottom: "1px solid rgba(255,255,255,0.08)", marginBottom: "0.5rem" }}>
-        {TAB_LABELS.map(({ key, label }) => {
+        {TAB_DEFS.map(({ key, label, enabled }) => {
           const isActive = activeTab === key;
           return (
             <button
               key={key}
               data-testid={`tab-${key}`}
-              onClick={() => setActiveTab(key)}
+              onClick={enabled ? () => { setActiveTab(key); } : undefined}
+              title={enabled ? label : "Coming soon"}
               style={{
                 background: "none",
                 border: "none",
                 borderBottom: isActive ? "2px solid #38bdf8" : "2px solid transparent",
                 color: isActive ? "#38bdf8" : "var(--text-secondary)",
-                cursor: "pointer",
+                cursor: enabled ? "pointer" : "default",
+                opacity: enabled ? 1 : 0.35,
                 padding: "0.5rem 1rem",
                 fontSize: "0.75rem",
                 fontWeight: isActive ? 700 : 500,
@@ -336,7 +336,7 @@ export function VoyagesList({ filters = {}, onFilterChange, onVoyageClick }: Voy
       </div>
 
       <div style={{ marginBottom: "0.75rem" }}>
-        <button style={{ background: "none", border: "none", color: "#38bdf8", cursor: "pointer", fontSize: "0.82rem", padding: "0.25rem 0" }} type="button">
+        <button disabled title="Coming soon" style={{ background: "none", border: "none", color: "#38bdf8", cursor: "default", fontSize: "0.82rem", padding: "0.25rem 0", opacity: 0.35 }} type="button">
           + ADD VIEW
         </button>
       </div>
@@ -378,8 +378,6 @@ export function VoyagesList({ filters = {}, onFilterChange, onVoyageClick }: Voy
                   </td>
                   <td style={{ padding: "0.75rem 1rem", color: "var(--text-secondary)", whiteSpace: "nowrap" }}>{fmtDT(v.expected_completing_datetime)}</td>
                   <td style={{ padding: "0.75rem 1rem", color: "var(--text-secondary)", whiteSpace: "nowrap" }}>{fmtDT(v.commencing_datetime)}</td>
-                  <td style={{ padding: "0.75rem 1rem", color: "var(--text-secondary)", textAlign: "right" }}>—</td>
-                  <td style={{ padding: "0.75rem 1rem", color: "var(--text-secondary)", textAlign: "right" }}>—</td>
                   <td style={{ padding: "0.75rem 1rem", color: "var(--text-secondary)" }}>
                     {vesselMap[v.vessel_ref] ?? `${v.vessel_ref.slice(0, 8)}…`}
                   </td>

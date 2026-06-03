@@ -65,8 +65,8 @@ test("itinerary line can be added and voyage summary updates", async ({ page }) 
   await page.getByTestId("add-port-btn").click();
   await expect(page.getByTestId("port-select")).toBeVisible({ timeout: 5000 });
 
-  // Select the seeded Rotterdam port
-  await page.getByTestId("port-select").selectOption({ label: /Rotterdam/ });
+  // Select the seeded Rotterdam port (id seeded as 00000000-0000-0000-0000-000000000003)
+  await page.getByTestId("port-select").selectOption({ value: "00000000-0000-0000-0000-000000000003" });
   await page.getByTestId("port-fn-select").selectOption("Load");
 
   // ETA and ETD: 1 day apart
