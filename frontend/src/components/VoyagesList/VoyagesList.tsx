@@ -3,10 +3,11 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiClient } from "../../api/client";
 import type { components } from "../../api/schema";
 
+type UserSummary = components["schemas"]["UserSummaryDTO"];
+
 type Voyage = components["schemas"]["VoyageResponseDTO"];
 
 export interface VoyagesFilters {
-  status: string;
   vessel_id: string;
   ops_coordinator: string;
   trade_area: string;
@@ -60,6 +61,14 @@ function NewVoyageModal({ onClose, onCreated }: { onClose: () => void; onCreated
       const { data, response } = await apiClient.GET("/api/v1/vessels");
       if (!response.ok) throw new Error("Failed");
       return data as { id: string; name: string }[];
+    },
+  });
+  const { data: users } = useQuery({
+    queryKey: ["users"],
+    queryFn: async () => {
+      const { data, response } = await apiClient.GET("/api/v1/users");
+      if (!response.ok) throw new Error("Failed");
+      return (data ?? []) as UserSummary[];
     },
   });
 
@@ -145,7 +154,15 @@ function NewVoyageModal({ onClose, onCreated }: { onClose: () => void; onCreated
         </div>
         <div>
           <label style={lbl}>Ops Coordinator</label>
-          <input style={f} value={form.ops_coordinator_user_id} onChange={(e) => setForm((v) => ({ ...v, ops_coordinator_user_id: e.target.value }))} placeholder="User ID" />
+          <select
+            data-testid="ops-coordinator-select"
+            style={f}
+            value={form.ops_coordinator_user_id}
+            onChange={(e) => setForm((v) => ({ ...v, ops_coordinator_user_id: e.target.value }))}
+          >
+            <option value="">—</option>
+            {users?.map((u) => <option key={u.id} value={u.id}>{u.username}</option>)}
+          </select>
         </div>
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.75rem" }}>
           <div>

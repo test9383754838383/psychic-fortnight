@@ -62,8 +62,8 @@ class Voyage(Base):
     )
 
     # M1 production-elevation fields (Voyage Core)
-    ops_coordinator_user_id: Mapped[Optional[str]] = mapped_column(
-        String(100), nullable=True, index=True
+    ops_coordinator_user_id: Mapped[Optional[uuid.UUID]] = mapped_column(
+        ForeignKey("users.id", ondelete="SET NULL"), nullable=True, index=True
     )
     trade_area: Mapped[Optional[str]] = mapped_column(String(100), nullable=True)
     lob: Mapped[Optional[str]] = mapped_column(String(50), nullable=True)

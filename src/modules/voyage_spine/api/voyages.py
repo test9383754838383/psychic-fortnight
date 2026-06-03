@@ -40,7 +40,7 @@ class VoyageCreateDTO(BaseModel):
     terms: Optional[VoyageTermsDTO] = None
     # M1 Voyage Core fields
     status: Optional[str] = None
-    ops_coordinator_user_id: Optional[str] = None
+    ops_coordinator_user_id: Optional[uuid.UUID] = None
     trade_area: Optional[str] = None
     lob: Optional[str] = None
     is_pool: bool = False
@@ -60,8 +60,8 @@ class VoyageUpdateDTO(BaseModel):
     expected_completing_manual_override: Optional[bool] = None
     expected_completing_datetime: Optional[datetime] = None
     terms: Optional[VoyageTermsDTO] = None
-    # M1 Voyage Core fields
-    ops_coordinator_user_id: Optional[str] = None
+    # M1 Voyage Core fields — use model_fields_set to distinguish absent vs explicit null
+    ops_coordinator_user_id: Optional[uuid.UUID] = None
     trade_area: Optional[str] = None
     lob: Optional[str] = None
     is_pool: Optional[bool] = None
@@ -118,7 +118,7 @@ class VoyageResponseDTO(BaseModel):
     created_at: datetime
     updated_at: datetime
     # M1 Voyage Core fields
-    ops_coordinator_user_id: Optional[str] = None
+    ops_coordinator_user_id: Optional[uuid.UUID] = None
     trade_area: Optional[str] = None
     lob: Optional[str] = None
     is_pool: bool = False
@@ -176,9 +176,7 @@ class VoyageResponseDTO(BaseModel):
                 "cancelled_at": getattr(data, "cancelled_at", None),
                 "created_at": getattr(data, "created_at"),
                 "updated_at": getattr(data, "updated_at"),
-                "ops_coordinator_user_id": getattr(
-                    data, "ops_coordinator_user_id", None
-                ),
+                "ops_coordinator_user_id": getattr(data, "ops_coordinator_user_id", None),
                 "trade_area": getattr(data, "trade_area", None),
                 "lob": getattr(data, "lob", None),
                 "is_pool": getattr(data, "is_pool", False),
@@ -248,6 +246,7 @@ async def create_voyage(
     }
     if data.status is not None:
         create_data["status"] = data.status
+
     if data.terms:
         create_data["terms"] = {
             "charterer_name": data.terms.charterer_name,
@@ -264,7 +263,7 @@ async def list_voyages(
     vessel_ref: Optional[uuid.UUID] = None,
     status: Optional[str] = None,
     charterer_ref: Optional[uuid.UUID] = None,
-    ops_coordinator_user_id: Optional[str] = None,
+    ops_coordinator_user_id: Optional[uuid.UUID] = None,
     trade_area: Optional[str] = None,
     commencing_start: Optional[datetime] = None,
     commencing_end: Optional[datetime] = None,
@@ -329,11 +328,11 @@ async def update_voyage(
         )
     if data.expected_completing_datetime is not None:
         update_data["expected_completing_datetime"] = data.expected_completing_datetime
-    if data.ops_coordinator_user_id is not None:
+    if "ops_coordinator_user_id" in data.model_fields_set:
         update_data["ops_coordinator_user_id"] = data.ops_coordinator_user_id
-    if data.trade_area is not None:
+    if "trade_area" in data.model_fields_set:
         update_data["trade_area"] = data.trade_area
-    if data.lob is not None:
+    if "lob" in data.model_fields_set:
         update_data["lob"] = data.lob
     if data.is_pool is not None:
         update_data["is_pool"] = data.is_pool

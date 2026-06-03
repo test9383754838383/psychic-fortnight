@@ -4,7 +4,6 @@ import { authenticatedRoute } from "./router";
 import { VoyagesPage } from "./VoyagesPage";
 
 export const voyagesSearchSchema = z.object({
-  status: z.string().default(""),
   vessel_id: z.string().default(""),
   ops_coordinator: z.string().default(""),
   trade_area: z.string().default(""),

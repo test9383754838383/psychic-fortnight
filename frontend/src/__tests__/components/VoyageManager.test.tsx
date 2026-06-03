@@ -34,7 +34,7 @@ const MOCK_VOYAGE: components["schemas"]["VoyageResponseDTO"] = {
   cancelled_at: null,
   created_at: "2026-06-01T00:00:00Z",
   updated_at: "2026-06-01T00:00:00Z",
-  ops_coordinator_user_id: "coord-7",
+  ops_coordinator_user_id: "coord-7-uuid-0000-0000-00000000",
   trade_area: "Mediterranean",
   lob: "Tankers",
   is_pool: true,
@@ -67,6 +67,10 @@ function ok(body: unknown) {
 }
 
 describe("VoyageManagerContent", () => {
+  const MOCK_USERS = [
+    { id: "coord-7-uuid-0000-0000-00000000", username: "ops_coord" },
+  ];
+
   beforeEach(() => {
     vi.clearAllMocks();
     vi.mocked(apiClient.GET).mockImplementation((path) => {
@@ -74,6 +78,7 @@ describe("VoyageManagerContent", () => {
       if (path === "/api/v1/voyages/{voyage_id}") return ok(MOCK_VOYAGE);
       if (path === "/api/v1/vessels") return ok([{ id: "vessel-id-00000000-0000", name: "MV FORTUNA" }]);
       if (path === "/api/v1/ports") return ok([]);
+      if (path === "/api/v1/users") return ok(MOCK_USERS);
       return ok(null);
     });
   });
@@ -90,11 +95,11 @@ describe("VoyageManagerContent", () => {
     await waitFor(() => expect(screen.getByText("MV FORTUNA")).toBeInTheDocument());
   });
 
-  it("renders properties panel with ops coordinator pre-filled", async () => {
+  it("renders properties panel with ops coordinator select", async () => {
     render(<VoyageManagerContent voyageId="voyage-id-1" onBack={vi.fn()} />);
     await waitFor(() => {
-      const input = screen.getByTestId("ops-coordinator-input") as HTMLInputElement;
-      expect(input.value).toBe("coord-7");
+      const sel = screen.getByTestId("ops-coordinator-select") as HTMLSelectElement;
+      expect(sel).toBeInTheDocument();
     });
   });
 

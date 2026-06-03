@@ -4,6 +4,8 @@ import { apiClient } from "../api/client";
 import type { components } from "../api/schema";
 import { ItineraryPanel } from "../components/ItineraryPanel/ItineraryPanel";
 
+type UserSummary = components["schemas"]["UserSummaryDTO"];
+
 type Voyage = components["schemas"]["VoyageResponseDTO"];
 
 const CONTENT_TABS = [
@@ -69,6 +71,14 @@ const NEXT_STATUSES: Record<string, string[]> = {
 
 function PropertiesPanel({ voyage, onSaved }: { voyage: Voyage; onSaved: () => void }) {
   const queryClient = useQueryClient();
+  const { data: users } = useQuery({
+    queryKey: ["users"],
+    queryFn: async () => {
+      const { data, response } = await apiClient.GET("/api/v1/users");
+      if (!response.ok) throw new Error("Failed");
+      return (data ?? []) as UserSummary[];
+    },
+  });
   const [form, setForm] = useState({
     ops_coordinator_user_id: voyage.ops_coordinator_user_id ?? "",
     trade_area: voyage.trade_area ?? "",
@@ -191,14 +201,15 @@ function PropertiesPanel({ voyage, onSaved }: { voyage: Voyage; onSaved: () => v
           <div style={sec}>Users</div>
           <div>
             <label style={lbl}>Ops Coordinator</label>
-            <input
-              data-testid="ops-coordinator-input"
-              type="text"
+            <select
+              data-testid="ops-coordinator-select"
               value={form.ops_coordinator_user_id}
               onChange={(e) => setForm((f) => ({ ...f, ops_coordinator_user_id: e.target.value }))}
-              placeholder="User ID or name"
               style={{ ...sel, width: "100%", boxSizing: "border-box" }}
-            />
+            >
+              <option value="">—</option>
+              {users?.map((u) => <option key={u.id} value={u.id}>{u.username}</option>)}
+            </select>
           </div>
         </section>
 
