@@ -3,6 +3,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiClient } from "../api/client";
 import type { components } from "../api/schema";
 import { ItineraryPanel } from "../components/ItineraryPanel/ItineraryPanel";
+import { PortActivitiesPanel } from "../components/PortActivitiesPanel/PortActivitiesPanel";
 
 type UserSummary = components["schemas"]["UserSummaryDTO"];
 
@@ -10,7 +11,7 @@ type Voyage = components["schemas"]["VoyageResponseDTO"];
 
 const CONTENT_TABS = [
   { key: "itinerary", label: "ITINERARY", enabled: true },
-  { key: "port-activities", label: "PORT ACTIVITIES", enabled: false },
+  { key: "port-activities", label: "PORT ACTIVITIES", enabled: true },
   { key: "cargoes", label: "CARGOES", enabled: false },
   { key: "delays", label: "DELAYS", enabled: false },
   { key: "bunkers", label: "BUNKERS", enabled: false },
@@ -332,6 +333,12 @@ export function VoyageManagerContent({ voyageId, onBack }: VoyageManagerContentP
             <div style={{ padding: "2rem", color: "var(--text-secondary)", fontSize: "0.85rem" }}>Loading…</div>
           ) : activeContentTab === "itinerary" ? (
             <ItineraryPanel
+              voyageId={voyageId}
+              itineraryLines={voyage.itinerary_lines ?? []}
+              onRefetch={() => void refetch()}
+            />
+          ) : activeContentTab === "port-activities" ? (
+            <PortActivitiesPanel
               voyageId={voyageId}
               itineraryLines={voyage.itinerary_lines ?? []}
               onRefetch={() => void refetch()}

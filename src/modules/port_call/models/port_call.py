@@ -1,9 +1,10 @@
 import enum
 import uuid
 from datetime import datetime
+from decimal import Decimal
 from typing import Optional
 
-from sqlalchemy import CheckConstraint, ForeignKey, String, Boolean, Integer
+from sqlalchemy import CheckConstraint, ForeignKey, Numeric, String, Boolean, Integer
 from sqlalchemy.orm import Mapped, mapped_column
 from advanced_alchemy.base import UUIDAuditBase
 
@@ -73,6 +74,12 @@ class PortCall(UUIDAuditBase):
     customs_cleared_datetime: Mapped[Optional[datetime]] = mapped_column(nullable=True)
 
     ops_notes: Mapped[Optional[str]] = mapped_column(nullable=True)
+
+    # Drafts (M3)
+    arrival_draft_fwd: Mapped[Optional[Decimal]] = mapped_column(Numeric(5, 2), nullable=True)
+    arrival_draft_aft: Mapped[Optional[Decimal]] = mapped_column(Numeric(5, 2), nullable=True)
+    departure_draft_fwd: Mapped[Optional[Decimal]] = mapped_column(Numeric(5, 2), nullable=True)
+    departure_draft_aft: Mapped[Optional[Decimal]] = mapped_column(Numeric(5, 2), nullable=True)
 
     __table_args__ = (
         CheckConstraint(

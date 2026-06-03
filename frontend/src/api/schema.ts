@@ -1867,6 +1867,14 @@ export interface components {
             customs_cleared_datetime?: string | null;
             /** Ops Notes */
             ops_notes?: string | null;
+            /** Arrival Draft Fwd */
+            arrival_draft_fwd?: string | null;
+            /** Arrival Draft Aft */
+            arrival_draft_aft?: string | null;
+            /** Departure Draft Fwd */
+            departure_draft_fwd?: string | null;
+            /** Departure Draft Aft */
+            departure_draft_aft?: string | null;
             /**
              * Created At
              * Format: date-time
@@ -1921,6 +1929,14 @@ export interface components {
             ops_notes?: string | null;
             /** Correction Reason */
             correction_reason?: string | null;
+            /** Arrival Draft Fwd */
+            arrival_draft_fwd?: number | null;
+            /** Arrival Draft Aft */
+            arrival_draft_aft?: number | null;
+            /** Departure Draft Fwd */
+            departure_draft_fwd?: number | null;
+            /** Departure Draft Aft */
+            departure_draft_aft?: number | null;
         };
         /** PortCreateDTO */
         PortCreateDTO: {

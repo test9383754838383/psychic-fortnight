@@ -79,6 +79,8 @@ describe("VoyageManagerContent", () => {
       if (path === "/api/v1/vessels") return ok([{ id: "vessel-id-00000000-0000", name: "MV FORTUNA" }]);
       if (path === "/api/v1/ports") return ok([]);
       if (path === "/api/v1/users") return ok(MOCK_USERS);
+      if (path === "/api/v1/voyages/{voyage_id}/port-calls") return ok([]);
+      if (path === "/api/v1/port-calls/{port_call_id}/events") return ok([]);
       return ok(null);
     });
   });
@@ -125,11 +127,18 @@ describe("VoyageManagerContent", () => {
     expect(screen.getByTestId("content-tab-itinerary")).toBeInTheDocument();
   });
 
-  it("renders disabled content tabs", async () => {
+  it("renders all content tabs", async () => {
     render(<VoyageManagerContent voyageId="voyage-id-1" onBack={vi.fn()} />);
     await waitFor(() => screen.getByTestId("content-tab-port-activities"));
     expect(screen.getByTestId("content-tab-port-activities")).toBeInTheDocument();
     expect(screen.getByTestId("content-tab-cargoes")).toBeInTheDocument();
     expect(screen.getByTestId("content-tab-delays")).toBeInTheDocument();
+  });
+
+  it("clicking PORT ACTIVITIES tab renders PortActivitiesPanel", async () => {
+    render(<VoyageManagerContent voyageId="voyage-id-1" onBack={vi.fn()} />);
+    await waitFor(() => screen.getByTestId("content-tab-port-activities"));
+    fireEvent.click(screen.getByTestId("content-tab-port-activities"));
+    await waitFor(() => expect(screen.getByTestId("port-selector")).toBeInTheDocument());
   });
 });

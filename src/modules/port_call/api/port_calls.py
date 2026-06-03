@@ -1,5 +1,6 @@
 import uuid
 from datetime import datetime
+from decimal import Decimal
 from typing import List, Optional
 
 from fastapi import APIRouter, Depends, status, HTTPException
@@ -47,6 +48,10 @@ class PortCallUpdateDTO(BaseModel):
     customs_cleared_datetime: Optional[datetime] = None
     ops_notes: Optional[str] = None
     correction_reason: Optional[str] = None
+    arrival_draft_fwd: Optional[float] = None
+    arrival_draft_aft: Optional[float] = None
+    departure_draft_fwd: Optional[float] = None
+    departure_draft_aft: Optional[float] = None
 
 
 class PortCallResponseDTO(BaseModel):
@@ -72,6 +77,10 @@ class PortCallResponseDTO(BaseModel):
     customs_cleared: bool
     customs_cleared_datetime: Optional[datetime] = None
     ops_notes: Optional[str] = None
+    arrival_draft_fwd: Optional[Decimal] = None
+    arrival_draft_aft: Optional[Decimal] = None
+    departure_draft_fwd: Optional[Decimal] = None
+    departure_draft_aft: Optional[Decimal] = None
     created_at: datetime
     updated_at: datetime
 
@@ -175,9 +184,12 @@ async def update_port_call(
             # Invalid status in DTO, service layer will catch it
             pass
 
-    update_data: PortCallUpdateData = {
-        k: v for k, v in data.model_dump().items() if v is not None
-    }  # type: ignore
+    _DRAFT_FIELDS = {"arrival_draft_fwd", "arrival_draft_aft", "departure_draft_fwd", "departure_draft_aft"}
+    raw = {k: v for k, v in data.model_dump().items() if v is not None}
+    update_data: PortCallUpdateData = {  # type: ignore
+        k: (Decimal(str(v)) if k in _DRAFT_FIELDS else v)
+        for k, v in raw.items()
+    }
 
     pc = await service.update(port_call_id, update_data, caller_roles)
     return PortCallResponseDTO.model_validate(pc)

@@ -6958,6 +6958,54 @@
             ],
             "title": "Ops Notes"
           },
+          "arrival_draft_fwd": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Arrival Draft Fwd"
+          },
+          "arrival_draft_aft": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Arrival Draft Aft"
+          },
+          "departure_draft_fwd": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Departure Draft Fwd"
+          },
+          "departure_draft_aft": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Departure Draft Aft"
+          },
           "created_at": {
             "type": "string",
             "format": "date-time",
@@ -7208,6 +7256,50 @@
               }
             ],
             "title": "Correction Reason"
+          },
+          "arrival_draft_fwd": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Arrival Draft Fwd"
+          },
+          "arrival_draft_aft": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Arrival Draft Aft"
+          },
+          "departure_draft_fwd": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Departure Draft Fwd"
+          },
+          "departure_draft_aft": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Departure Draft Aft"
           }
         },
         "type": "object",
