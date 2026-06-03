@@ -13,6 +13,7 @@ from advanced_alchemy.base import UUIDAuditBase
 
 
 class VoyageStatus(str, enum.Enum):
+    FORECAST = "Forecast"
     SCHEDULED = "Scheduled"
     COMMENCED = "Commenced"
     COMPLETED = "Completed"
@@ -59,6 +60,17 @@ class Voyage(Base):
     status: Mapped[str] = mapped_column(
         String(20), default=VoyageStatus.SCHEDULED.value, nullable=False
     )
+
+    # M1 production-elevation fields (Voyage Core)
+    ops_coordinator_user_id: Mapped[Optional[str]] = mapped_column(
+        String(100), nullable=True, index=True
+    )
+    trade_area: Mapped[Optional[str]] = mapped_column(String(100), nullable=True)
+    lob: Mapped[Optional[str]] = mapped_column(String(50), nullable=True)
+    is_pool: Mapped[bool] = mapped_column(default=False, nullable=False)
+    is_ice_class: Mapped[bool] = mapped_column(default=False, nullable=False)
+    is_clean: Mapped[bool] = mapped_column(default=False, nullable=False)
+    is_coated: Mapped[bool] = mapped_column(default=False, nullable=False)
     commencing_datetime: Mapped[datetime] = mapped_column(nullable=False)
     expected_completing_datetime: Mapped[Optional[datetime]] = mapped_column(
         nullable=True

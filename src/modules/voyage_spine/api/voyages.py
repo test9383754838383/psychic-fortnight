@@ -37,6 +37,15 @@ class VoyageCreateDTO(BaseModel):
     voyage_instructions: Optional[str] = None
     ops_notes: Optional[str] = None
     terms: Optional[VoyageTermsDTO] = None
+    # M1 Voyage Core fields
+    status: Optional[str] = None
+    ops_coordinator_user_id: Optional[str] = None
+    trade_area: Optional[str] = None
+    lob: Optional[str] = None
+    is_pool: bool = False
+    is_ice_class: bool = False
+    is_clean: bool = False
+    is_coated: bool = False
 
 
 class VoyageUpdateDTO(BaseModel):
@@ -50,6 +59,14 @@ class VoyageUpdateDTO(BaseModel):
     expected_completing_manual_override: Optional[bool] = None
     expected_completing_datetime: Optional[datetime] = None
     terms: Optional[VoyageTermsDTO] = None
+    # M1 Voyage Core fields
+    ops_coordinator_user_id: Optional[str] = None
+    trade_area: Optional[str] = None
+    lob: Optional[str] = None
+    is_pool: Optional[bool] = None
+    is_ice_class: Optional[bool] = None
+    is_clean: Optional[bool] = None
+    is_coated: Optional[bool] = None
 
 
 class ItineraryLineResponseDTO(BaseModel):
@@ -84,6 +101,14 @@ class VoyageResponseDTO(BaseModel):
     cancelled_at: Optional[datetime] = None
     created_at: datetime
     updated_at: datetime
+    # M1 Voyage Core fields
+    ops_coordinator_user_id: Optional[str] = None
+    trade_area: Optional[str] = None
+    lob: Optional[str] = None
+    is_pool: bool = False
+    is_ice_class: bool = False
+    is_clean: bool = False
+    is_coated: bool = False
     terms: Optional[VoyageTermsDTO] = None
     itinerary_lines: List[ItineraryLineResponseDTO] = Field(default_factory=list)
 
@@ -135,6 +160,15 @@ class VoyageResponseDTO(BaseModel):
                 "cancelled_at": getattr(data, "cancelled_at", None),
                 "created_at": getattr(data, "created_at"),
                 "updated_at": getattr(data, "updated_at"),
+                "ops_coordinator_user_id": getattr(
+                    data, "ops_coordinator_user_id", None
+                ),
+                "trade_area": getattr(data, "trade_area", None),
+                "lob": getattr(data, "lob", None),
+                "is_pool": getattr(data, "is_pool", False),
+                "is_ice_class": getattr(data, "is_ice_class", False),
+                "is_clean": getattr(data, "is_clean", False),
+                "is_coated": getattr(data, "is_coated", False),
                 "terms": terms_dict if has_terms else None,
                 "itinerary_lines": [
                     ItineraryLineResponseDTO.model_validate(line)
@@ -182,7 +216,16 @@ async def create_voyage(
         "previous_voyage_ref": data.previous_voyage_ref,
         "voyage_instructions": data.voyage_instructions,
         "ops_notes": data.ops_notes,
+        "ops_coordinator_user_id": data.ops_coordinator_user_id,
+        "trade_area": data.trade_area,
+        "lob": data.lob,
+        "is_pool": data.is_pool,
+        "is_ice_class": data.is_ice_class,
+        "is_clean": data.is_clean,
+        "is_coated": data.is_coated,
     }
+    if data.status is not None:
+        create_data["status"] = data.status
     if data.terms:
         create_data["terms"] = {
             "charterer_name": data.terms.charterer_name,
@@ -199,6 +242,8 @@ async def list_voyages(
     vessel_ref: Optional[uuid.UUID] = None,
     status: Optional[str] = None,
     charterer_ref: Optional[uuid.UUID] = None,
+    ops_coordinator_user_id: Optional[str] = None,
+    trade_area: Optional[str] = None,
     commencing_start: Optional[datetime] = None,
     commencing_end: Optional[datetime] = None,
     limit: int = 50,
@@ -211,6 +256,8 @@ async def list_voyages(
         vessel_ref=vessel_ref,
         status=status,
         charterer_ref=charterer_ref,
+        ops_coordinator_user_id=ops_coordinator_user_id,
+        trade_area=trade_area,
         commencing_start=commencing_start,
         commencing_end=commencing_end,
         limit=limit,
@@ -260,6 +307,20 @@ async def update_voyage(
         )
     if data.expected_completing_datetime is not None:
         update_data["expected_completing_datetime"] = data.expected_completing_datetime
+    if data.ops_coordinator_user_id is not None:
+        update_data["ops_coordinator_user_id"] = data.ops_coordinator_user_id
+    if data.trade_area is not None:
+        update_data["trade_area"] = data.trade_area
+    if data.lob is not None:
+        update_data["lob"] = data.lob
+    if data.is_pool is not None:
+        update_data["is_pool"] = data.is_pool
+    if data.is_ice_class is not None:
+        update_data["is_ice_class"] = data.is_ice_class
+    if data.is_clean is not None:
+        update_data["is_clean"] = data.is_clean
+    if data.is_coated is not None:
+        update_data["is_coated"] = data.is_coated
 
     if data.terms:
         update_data["terms"] = {
