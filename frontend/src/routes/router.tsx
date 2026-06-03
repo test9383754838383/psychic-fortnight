@@ -5,6 +5,7 @@ import { RequireAuth } from "../auth/RequireAuth";
 import { AppShell } from "../components/AppShell/AppShell";
 import { scheduleRoute } from "./schedule";
 import { voyagesRoute } from "./voyages";
+import { voyageManagerRoute } from "./voyages.$voyageId";
 import { voyageWorkspaceRoute } from "./voyages.$voyageId.workspace";
 import { formsRoute } from "./forms";
 import { alertsRoute } from "./alerts";
@@ -61,7 +62,7 @@ export const authenticatedRoute = createRoute({
 // Build Route Tree
 const routeTree = rootRoute.addChildren([
   indexRoute,
-  authenticatedRoute.addChildren([scheduleRoute, voyagesRoute, voyageWorkspaceRoute, formsRoute, alertsRoute, tasksRoute]),
+  authenticatedRoute.addChildren([scheduleRoute, voyagesRoute, voyageManagerRoute, voyageWorkspaceRoute, formsRoute, alertsRoute, tasksRoute]),
 ]);
 
 // Create Router instance

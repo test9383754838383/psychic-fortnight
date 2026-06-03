@@ -10,6 +10,9 @@ export function VoyagesPage() {
     <VoyagesList
       filters={filters}
       onFilterChange={(f) => void navigate({ search: (s) => ({ ...s, ...f }) })}
+      onVoyageClick={(id) =>
+        void navigate({ to: "/voyages/$voyageId", params: { voyageId: id } })
+      }
     />
   );
 }

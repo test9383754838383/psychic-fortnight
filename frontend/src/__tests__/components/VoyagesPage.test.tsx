@@ -16,6 +16,8 @@ const MOCK_USER: components["schemas"]["UserResponseDTO"] = {
   roles: ["Operations"],
 };
 
+const MOCK_VESSEL = { id: "vessel-id-00000000-0000", name: "MV FORTUNA" };
+
 const MOCK_VOYAGE: components["schemas"]["VoyageResponseDTO"] = {
   id: "voyage-id-1",
   voyage_no: "VOY-M1-001",
@@ -67,7 +69,7 @@ describe("VoyagesList", () => {
     vi.mocked(apiClient.GET).mockImplementation((path) => {
       if (path === "/api/v1/auth/me") return ok(MOCK_USER);
       if (path === "/api/v1/voyages") return ok([MOCK_VOYAGE, MOCK_SCHEDULED]);
-      if (path === "/api/v1/vessels") return ok([]);
+      if (path === "/api/v1/vessels") return ok([MOCK_VESSEL]);
       return ok([]);
     });
   });
@@ -85,33 +87,20 @@ describe("VoyagesList", () => {
     });
   });
 
-  it("displays M1 fields: status, ops coordinator, trade area, lob", async () => {
+  it("shows vessel name and commencing year in list", async () => {
     render(<VoyagesList />);
     await waitFor(() => {
-      expect(screen.getAllByText("Forecast").length).toBeGreaterThanOrEqual(1);
-      expect(screen.getByText("coord-7")).toBeInTheDocument();
-      expect(screen.getAllByText("Mediterranean").length).toBeGreaterThanOrEqual(1);
-      expect(screen.getAllByText("Tankers").length).toBeGreaterThanOrEqual(1);
+      expect(screen.getAllByText("MV FORTUNA").length).toBeGreaterThanOrEqual(1);
+      expect(screen.getAllByText(/2026/).length).toBeGreaterThanOrEqual(1);
     });
   });
 
-  it("shows Properties panel when a row is clicked", async () => {
-    render(<VoyagesList />);
+  it("calls onVoyageClick when voyage number is clicked", async () => {
+    const onVoyageClick = vi.fn();
+    render(<VoyagesList onVoyageClick={onVoyageClick} />);
     await waitFor(() => screen.getByText("VOY-M1-001"));
-    fireEvent.click(screen.getByTestId("voyage-row-voyage-id-1"));
-    await waitFor(() => {
-      expect(screen.getByTestId("properties-panel")).toBeInTheDocument();
-    });
-  });
-
-  it("properties panel shows ops coordinator input pre-filled", async () => {
-    render(<VoyagesList />);
-    await waitFor(() => screen.getByText("VOY-M1-001"));
-    fireEvent.click(screen.getByTestId("voyage-row-voyage-id-1"));
-    await waitFor(() => {
-      const input = screen.getByTestId("ops-coordinator-input") as HTMLInputElement;
-      expect(input.value).toBe("coord-7");
-    });
+    fireEvent.click(screen.getByText("VOY-M1-001"));
+    expect(onVoyageClick).toHaveBeenCalledWith("voyage-id-1");
   });
 
   it("clicking + New Voyage opens the modal", async () => {

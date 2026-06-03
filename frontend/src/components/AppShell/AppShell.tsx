@@ -121,7 +121,10 @@ export function AppShell() {
   function getModuleName(): string {
     const exact = MODULE_NAMES[pathname];
     if (exact) return exact;
-    if (pathname.startsWith("/voyages/")) return "Voyage Workspace";
+    if (pathname.startsWith("/voyages/")) {
+      if (pathname.endsWith("/workspace")) return "Voyage Workspace";
+      return "Voyage Manager";
+    }
     return "Operations";
   }
 
