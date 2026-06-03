@@ -46,11 +46,11 @@ test("voyages list shows active voyage and navigates to Voyage Manager with Prop
 
   await expect(page.getByTestId("voyage-header-no")).toHaveText("V001");
 
-  // Properties panel is open by default
-  await expect(page.getByTestId("ops-coordinator-input")).toBeVisible({ timeout: 10000 });
+  // Properties panel is open by default — coordinator is now a select picker
+  await expect(page.getByTestId("ops-coordinator-select")).toBeVisible({ timeout: 10000 });
 
-  // Edit and save an M1 field
-  await page.getByTestId("ops-coordinator-input").fill("test-coordinator");
+  // Select the seeded operator user and save
+  await page.getByTestId("ops-coordinator-select").selectOption({ label: "operator" });
   await page.getByTestId("save-properties-btn").click();
 
   // Save completes — button returns to "Save", no error banner
