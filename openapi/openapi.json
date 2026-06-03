@@ -6017,6 +6017,39 @@
               }
             ],
             "title": "Sequence No"
+          },
+          "speed_kts": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Speed Kts"
+          },
+          "distance_nm": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Distance Nm"
+          },
+          "eca_nm": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Eca Nm"
           }
         },
         "type": "object",
@@ -6063,6 +6096,42 @@
             "format": "date-time",
             "title": "Planned Etd"
           },
+          "speed_kts": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Speed Kts"
+          },
+          "distance_nm": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Distance Nm"
+          },
+          "eca_nm": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Eca Nm"
+          },
           "created_at": {
             "type": "string",
             "format": "date-time",
@@ -6072,6 +6141,23 @@
             "type": "string",
             "format": "date-time",
             "title": "Updated At"
+          },
+          "port_days": {
+            "type": "number",
+            "title": "Port Days",
+            "readOnly": true
+          },
+          "sea_days": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sea Days",
+            "readOnly": true
           }
         },
         "type": "object",
@@ -6084,7 +6170,9 @@
           "planned_eta",
           "planned_etd",
           "created_at",
-          "updated_at"
+          "updated_at",
+          "port_days",
+          "sea_days"
         ],
         "title": "ItineraryLineResponseDTO"
       },
@@ -6147,6 +6235,39 @@
               }
             ],
             "title": "Sequence No"
+          },
+          "speed_kts": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Speed Kts"
+          },
+          "distance_nm": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Distance Nm"
+          },
+          "eca_nm": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Eca Nm"
           }
         },
         "type": "object",

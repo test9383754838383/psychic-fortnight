@@ -1574,6 +1574,12 @@ export interface components {
             planned_etd: string;
             /** Sequence No */
             sequence_no?: number | null;
+            /** Speed Kts */
+            speed_kts?: number | null;
+            /** Distance Nm */
+            distance_nm?: number | null;
+            /** Eca Nm */
+            eca_nm?: number | null;
         };
         /** ItineraryLineResponseDTO */
         ItineraryLineResponseDTO: {
@@ -1606,6 +1612,12 @@ export interface components {
              * Format: date-time
              */
             planned_etd: string;
+            /** Speed Kts */
+            speed_kts?: string | null;
+            /** Distance Nm */
+            distance_nm?: string | null;
+            /** Eca Nm */
+            eca_nm?: string | null;
             /**
              * Created At
              * Format: date-time
@@ -1616,6 +1628,10 @@ export interface components {
              * Format: date-time
              */
             updated_at: string;
+            /** Port Days */
+            readonly port_days: number;
+            /** Sea Days */
+            readonly sea_days: number | null;
         };
         /** ItineraryLineUpdateDTO */
         ItineraryLineUpdateDTO: {
@@ -1629,6 +1645,12 @@ export interface components {
             planned_etd?: string | null;
             /** Sequence No */
             sequence_no?: number | null;
+            /** Speed Kts */
+            speed_kts?: number | null;
+            /** Distance Nm */
+            distance_nm?: number | null;
+            /** Eca Nm */
+            eca_nm?: number | null;
         };
         JsonObject: {
             [key: string]: unknown;

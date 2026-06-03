@@ -2,8 +2,20 @@ import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiClient } from "../api/client";
 import type { components } from "../api/schema";
+import { ItineraryPanel } from "../components/ItineraryPanel/ItineraryPanel";
 
 type Voyage = components["schemas"]["VoyageResponseDTO"];
+
+const CONTENT_TABS = [
+  { key: "itinerary", label: "ITINERARY", enabled: true },
+  { key: "port-activities", label: "PORT ACTIVITIES", enabled: false },
+  { key: "cargoes", label: "CARGOES", enabled: false },
+  { key: "delays", label: "DELAYS", enabled: false },
+  { key: "bunkers", label: "BUNKERS", enabled: false },
+  { key: "reports", label: "REPORTS", enabled: false },
+  { key: "instructions", label: "INSTRUCTIONS", enabled: false },
+  { key: "notes", label: "NOTES", enabled: false },
+] as const;
 
 const LOB_OPTIONS = ["Tankers", "Dry Bulk", "Container", "LNG/LPG", "Chemical", "Other"];
 const TRADE_AREA_OPTIONS = [
@@ -212,6 +224,7 @@ export interface VoyageManagerContentProps {
 
 export function VoyageManagerContent({ voyageId, onBack }: VoyageManagerContentProps) {
   const [activePanel, setActivePanel] = useState<"properties" | null>("properties");
+  const [activeContentTab, setActiveContentTab] = useState<string>("itinerary");
 
   const { data: voyage, refetch } = useQuery({
     queryKey: ["voyage", voyageId],
@@ -274,12 +287,45 @@ export function VoyageManagerContent({ voyageId, onBack }: VoyageManagerContentP
           )}
         </div>
 
-        <div style={{ flex: 1, padding: "2rem", overflow: "auto", color: "var(--text-secondary)", fontSize: "0.85rem" }}>
+        <div style={{ display: "flex", borderBottom: "1px solid rgba(255,255,255,0.08)", flexShrink: 0 }}>
+          {CONTENT_TABS.map(({ key, label, enabled }) => {
+            const active = activeContentTab === key;
+            return (
+              <button
+                key={key}
+                data-testid={`content-tab-${key}`}
+                type="button"
+                title={enabled ? label : "Coming soon"}
+                onClick={enabled ? () => { setActiveContentTab(key); } : undefined}
+                style={{
+                  background: "none",
+                  border: "none",
+                  borderBottom: active ? "2px solid #38bdf8" : "2px solid transparent",
+                  color: active ? "#38bdf8" : "rgba(148,163,184,0.6)",
+                  cursor: enabled ? "pointer" : "default",
+                  opacity: enabled ? 1 : 0.35,
+                  padding: "0.5rem 1rem",
+                  fontSize: "0.72rem",
+                  fontWeight: active ? 700 : 500,
+                  letterSpacing: "0.06em",
+                }}
+              >
+                {label}
+              </button>
+            );
+          })}
+        </div>
+
+        <div style={{ flex: 1, overflow: "auto" }}>
           {!voyage ? (
-            <span>Loading…</span>
-          ) : (
-            <span>Itinerary, P&amp;L, and other panels coming in M2+.</span>
-          )}
+            <div style={{ padding: "2rem", color: "var(--text-secondary)", fontSize: "0.85rem" }}>Loading…</div>
+          ) : activeContentTab === "itinerary" ? (
+            <ItineraryPanel
+              voyageId={voyageId}
+              itineraryLines={voyage.itinerary_lines ?? []}
+              onRefetch={() => void refetch()}
+            />
+          ) : null}
         </div>
       </div>
 

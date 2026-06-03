@@ -1,5 +1,6 @@
 import uuid
 from datetime import date, datetime, timezone
+from decimal import Decimal
 from typing import List, Optional, TypedDict
 
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -91,6 +92,9 @@ class ItineraryLineCreateData(TypedDict, total=False):
     planned_eta: datetime
     planned_etd: datetime
     sequence_no: Optional[int]
+    speed_kts: Optional[Decimal]
+    distance_nm: Optional[Decimal]
+    eca_nm: Optional[Decimal]
 
 
 class ItineraryLineUpdateData(TypedDict, total=False):
@@ -99,6 +103,9 @@ class ItineraryLineUpdateData(TypedDict, total=False):
     planned_eta: Optional[datetime]
     planned_etd: Optional[datetime]
     sequence_no: Optional[int]
+    speed_kts: Optional[Decimal]
+    distance_nm: Optional[Decimal]
+    eca_nm: Optional[Decimal]
 
 
 class VoyageService:
@@ -469,6 +476,9 @@ class VoyageService:
             port_function=port_function,
             planned_eta=planned_eta,
             planned_etd=planned_etd,
+            speed_kts=data.get("speed_kts"),
+            distance_nm=data.get("distance_nm"),
+            eca_nm=data.get("eca_nm"),
         )
 
         sequence_no = data.get("sequence_no")
@@ -543,6 +553,14 @@ class VoyageService:
             raise VoyageSpineError(
                 "Planned ETD must be greater than or equal to ETA", status_code=422
             )
+
+        # M2 fields
+        if "speed_kts" in data:
+            line.speed_kts = data.get("speed_kts")
+        if "distance_nm" in data:
+            line.distance_nm = data.get("distance_nm")
+        if "eca_nm" in data:
+            line.eca_nm = data.get("eca_nm")
 
         # 4. Reorder via sequence_no change
         sequence_no = data.get("sequence_no")

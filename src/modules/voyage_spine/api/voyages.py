@@ -1,9 +1,10 @@
 import uuid
 from datetime import date, datetime
+from decimal import Decimal
 from typing import List, Optional
 
 from fastapi import APIRouter, Depends, status
-from pydantic import BaseModel, ConfigDict, Field, model_validator
+from pydantic import BaseModel, ConfigDict, Field, computed_field, model_validator
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.dependencies import get_current_user, get_db_session
@@ -77,10 +78,25 @@ class ItineraryLineResponseDTO(BaseModel):
     port_function: str
     planned_eta: datetime
     planned_etd: datetime
+    speed_kts: Optional[Decimal] = None
+    distance_nm: Optional[Decimal] = None
+    eca_nm: Optional[Decimal] = None
     created_at: datetime
     updated_at: datetime
 
     model_config = ConfigDict(from_attributes=True)
+
+    @computed_field
+    @property
+    def port_days(self) -> float:
+        return (self.planned_etd - self.planned_eta).total_seconds() / 86400
+
+    @computed_field
+    @property
+    def sea_days(self) -> Optional[float]:
+        if self.distance_nm and self.speed_kts and self.speed_kts > 0:
+            return float(self.distance_nm) / (float(self.speed_kts) * 24)
+        return None
 
 
 class VoyageResponseDTO(BaseModel):
@@ -184,6 +200,9 @@ class ItineraryLineCreateDTO(BaseModel):
     planned_eta: datetime
     planned_etd: datetime
     sequence_no: Optional[int] = None
+    speed_kts: Optional[float] = None
+    distance_nm: Optional[float] = None
+    eca_nm: Optional[float] = None
 
 
 class ItineraryLineUpdateDTO(BaseModel):
@@ -192,6 +211,9 @@ class ItineraryLineUpdateDTO(BaseModel):
     planned_eta: Optional[datetime] = None
     planned_etd: Optional[datetime] = None
     sequence_no: Optional[int] = None
+    speed_kts: Optional[float] = None
+    distance_nm: Optional[float] = None
+    eca_nm: Optional[float] = None
 
 
 class VoyageStatusTransitionDTO(BaseModel):
@@ -364,6 +386,9 @@ async def insert_itinerary_line(
         "planned_eta": data.planned_eta,
         "planned_etd": data.planned_etd,
         "sequence_no": data.sequence_no,
+        "speed_kts": Decimal(str(data.speed_kts)) if data.speed_kts is not None else None,
+        "distance_nm": Decimal(str(data.distance_nm)) if data.distance_nm is not None else None,
+        "eca_nm": Decimal(str(data.eca_nm)) if data.eca_nm is not None else None,
     }
     line = await service.insert_itinerary_line(voyage_id, create_data)
     return ItineraryLineResponseDTO.model_validate(line)
@@ -403,6 +428,12 @@ async def update_itinerary_line(
         update_data["planned_etd"] = data.planned_etd
     if data.sequence_no is not None:
         update_data["sequence_no"] = data.sequence_no
+    if data.speed_kts is not None:
+        update_data["speed_kts"] = Decimal(str(data.speed_kts))
+    if data.distance_nm is not None:
+        update_data["distance_nm"] = Decimal(str(data.distance_nm))
+    if data.eca_nm is not None:
+        update_data["eca_nm"] = Decimal(str(data.eca_nm))
 
     line = await service.update_itinerary_line(voyage_id, line_id, update_data)
     return ItineraryLineResponseDTO.model_validate(line)

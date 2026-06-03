@@ -46,6 +46,46 @@ test("voyages list shows active voyage and navigates to Voyage Manager with Prop
   await expect(page.locator("text=Failed to save.")).not.toBeVisible();
 });
 
+test("itinerary line can be added and voyage summary updates", async ({ page }) => {
+  await page.goto("/voyages");
+  await expect(page.locator("text=Loading session...")).not.toBeVisible();
+
+  const loginButton = page.locator('button:has-text("Sign In as Operator (Stub)")');
+  await loginButton.click();
+  await expect(loginButton).toBeHidden();
+
+  await page.waitForURL("**/voyages**", { timeout: 10000 });
+  await page.locator('button:has-text("V001")').click();
+  await page.waitForURL("**/voyages/00000000-0000-0000-0000-000000000002**", { timeout: 10000 });
+
+  // ITINERARY tab is active by default
+  await expect(page.getByTestId("content-tab-itinerary")).toBeVisible({ timeout: 10000 });
+
+  // Click + Add Port
+  await page.getByTestId("add-port-btn").click();
+  await expect(page.getByTestId("port-select")).toBeVisible({ timeout: 5000 });
+
+  // Select the seeded Rotterdam port
+  await page.getByTestId("port-select").selectOption({ label: /Rotterdam/ });
+  await page.getByTestId("port-fn-select").selectOption("Load");
+
+  // ETA and ETD: 1 day apart
+  await page.getByTestId("eta-input").fill("2026-07-01T08:00");
+  await page.getByTestId("etd-input").fill("2026-07-02T08:00");
+
+  // Speed 12 kts, distance 288 nm → sea_days = 1.0
+  await page.getByTestId("speed-input").fill("12");
+  await page.getByTestId("distance-input").fill("288");
+  await page.getByTestId("eca-input").fill("0");
+
+  await page.getByTestId("save-row-btn").click();
+
+  // After save: summary updates
+  await expect(page.getByTestId("summary-port-days")).toContainText("1.00", { timeout: 10000 });
+  await expect(page.getByTestId("summary-sea-days")).toContainText("1.00", { timeout: 10000 });
+  await expect(page.locator("text=Failed to add port")).not.toBeVisible();
+});
+
 test("New Voyage modal creates voyage and it appears in list", async ({ page }) => {
   const voyageNo = `E2E-VOY-${Date.now()}`;
 

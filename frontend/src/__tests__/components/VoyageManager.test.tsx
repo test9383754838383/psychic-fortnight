@@ -6,7 +6,7 @@ import type { components } from "../../api/schema";
 import { VoyageManagerContent } from "../../routes/VoyageManagerPage";
 
 vi.mock("../../api/client", () => ({
-  apiClient: { GET: vi.fn(), POST: vi.fn(), PATCH: vi.fn() },
+  apiClient: { GET: vi.fn(), POST: vi.fn(), PATCH: vi.fn(), DELETE: vi.fn() },
 }));
 
 const MOCK_USER: components["schemas"]["UserResponseDTO"] = {
@@ -42,7 +42,24 @@ const MOCK_VOYAGE: components["schemas"]["VoyageResponseDTO"] = {
   is_clean: false,
   is_coated: true,
   terms: null,
-  itinerary_lines: [],
+  itinerary_lines: [
+    {
+      id: "line-id-1",
+      voyage_id: "voyage-id-1",
+      sequence_no: 0,
+      port_ref: "port-id-1",
+      port_function: "Load",
+      planned_eta: "2026-06-10T08:00:00Z",
+      planned_etd: "2026-06-12T08:00:00Z",
+      speed_kts: "14.0",
+      distance_nm: "1344.0",
+      eca_nm: "200.0",
+      port_days: 2.0,
+      sea_days: 4.0,
+      created_at: "2026-06-01T00:00:00Z",
+      updated_at: "2026-06-01T00:00:00Z",
+    },
+  ],
 };
 
 function ok(body: unknown) {
@@ -56,6 +73,7 @@ describe("VoyageManagerContent", () => {
       if (path === "/api/v1/auth/me") return ok(MOCK_USER);
       if (path === "/api/v1/voyages/{voyage_id}") return ok(MOCK_VOYAGE);
       if (path === "/api/v1/vessels") return ok([{ id: "vessel-id-00000000-0000", name: "MV FORTUNA" }]);
+      if (path === "/api/v1/ports") return ok([]);
       return ok(null);
     });
   });
@@ -94,5 +112,19 @@ describe("VoyageManagerContent", () => {
     await waitFor(() => screen.getByTestId("save-properties-btn"));
     fireEvent.click(screen.getByTestId("save-properties-btn"));
     await waitFor(() => expect(apiClient.PATCH).toHaveBeenCalled());
+  });
+
+  it("renders ITINERARY tab active by default", async () => {
+    render(<VoyageManagerContent voyageId="voyage-id-1" onBack={vi.fn()} />);
+    await waitFor(() => screen.getByTestId("content-tab-itinerary"));
+    expect(screen.getByTestId("content-tab-itinerary")).toBeInTheDocument();
+  });
+
+  it("renders disabled content tabs", async () => {
+    render(<VoyageManagerContent voyageId="voyage-id-1" onBack={vi.fn()} />);
+    await waitFor(() => screen.getByTestId("content-tab-port-activities"));
+    expect(screen.getByTestId("content-tab-port-activities")).toBeInTheDocument();
+    expect(screen.getByTestId("content-tab-cargoes")).toBeInTheDocument();
+    expect(screen.getByTestId("content-tab-delays")).toBeInTheDocument();
   });
 });
