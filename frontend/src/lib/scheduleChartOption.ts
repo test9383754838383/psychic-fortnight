@@ -21,6 +21,7 @@ interface RenderItemParams {
     width: number;
     height: number;
   };
+  dataIndex: number;
 }
 
 interface RenderItemApi {
@@ -138,10 +139,11 @@ export function buildScheduleOption(data: VesselScheduleResponse): EChartsOption
             }
           );
 
-          const voyage = a.value(3) as VoyageBarDTO;
-          const label = `${voyage.voyage_no} ${voyage.current_next_port_code ?? ""}`;
+          const dataItem = seriesData[(params as RenderItemParams).dataIndex];
+          const voyage = dataItem?.value[3];
+          const label = voyage ? `${voyage.voyage_no} ${voyage.current_next_port_code ?? ""}` : "";
 
-          const barColor = getStatusColor(voyage.status);
+          const barColor = getStatusColor(voyage?.status ?? "");
           const textStyle = {
             text: label,
             x: rectShape ? rectShape.x + 5 : 0,

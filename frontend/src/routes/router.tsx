@@ -1,6 +1,8 @@
-import { createRootRoute, createRoute, createRouter, Outlet } from "@tanstack/react-router";
+import { createRootRoute, createRoute, createRouter, Outlet, redirect } from "@tanstack/react-router";
+import { scheduleSearchSchema } from "./schedule";
 import { useCurrentUser } from "../auth/AuthContext";
 import { RequireAuth } from "../auth/RequireAuth";
+import { AppShell } from "../components/AppShell/AppShell";
 import { scheduleRoute } from "./schedule";
 import { voyageWorkspaceRoute } from "./voyages.$voyageId.workspace";
 import { formsRoute } from "./forms";
@@ -34,10 +36,13 @@ function IndexPage() {
   );
 }
 
-// Index Route - Renders the placeholder root route proving auth integration
+// Index Route - Redirects to /schedule
 export const indexRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/",
+  beforeLoad: () => {
+    throw redirect({ to: "/schedule", search: scheduleSearchSchema.parse({}) });
+  },
   component: IndexPage,
 });
 
@@ -47,7 +52,7 @@ export const authenticatedRoute = createRoute({
   id: "authenticated",
   component: () => (
     <RequireAuth>
-      <Outlet />
+      <AppShell />
     </RequireAuth>
   ),
 });
