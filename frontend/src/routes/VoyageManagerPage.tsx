@@ -4,6 +4,7 @@ import { apiClient } from "../api/client";
 import type { components } from "../api/schema";
 import { ItineraryPanel } from "../components/ItineraryPanel/ItineraryPanel";
 import { PortActivitiesPanel } from "../components/PortActivitiesPanel/PortActivitiesPanel";
+import { CargoesPanel } from "../components/CargoesPanel/CargoesPanel";
 
 type UserSummary = components["schemas"]["UserSummaryDTO"];
 
@@ -12,7 +13,7 @@ type Voyage = components["schemas"]["VoyageResponseDTO"];
 const CONTENT_TABS = [
   { key: "itinerary", label: "ITINERARY", enabled: true },
   { key: "port-activities", label: "PORT ACTIVITIES", enabled: true },
-  { key: "cargoes", label: "CARGOES", enabled: false },
+  { key: "cargoes", label: "CARGOES", enabled: true },
   { key: "delays", label: "DELAYS", enabled: false },
   { key: "bunkers", label: "BUNKERS", enabled: false },
   { key: "reports", label: "REPORTS", enabled: false },
@@ -343,6 +344,8 @@ export function VoyageManagerContent({ voyageId, onBack }: VoyageManagerContentP
               itineraryLines={voyage.itinerary_lines ?? []}
               onRefetch={() => void refetch()}
             />
+          ) : activeContentTab === "cargoes" ? (
+            <CargoesPanel voyageId={voyageId} />
           ) : null}
         </div>
       </div>

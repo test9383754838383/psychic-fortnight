@@ -81,6 +81,7 @@ describe("VoyageManagerContent", () => {
       if (path === "/api/v1/users") return ok(MOCK_USERS);
       if (path === "/api/v1/voyages/{voyage_id}/port-calls") return ok([]);
       if (path === "/api/v1/port-calls/{port_call_id}/events") return ok([]);
+      if (path === "/api/v1/voyages/{voyage_id}/cargoes") return ok([]);
       return ok(null);
     });
   });
@@ -140,5 +141,12 @@ describe("VoyageManagerContent", () => {
     await waitFor(() => screen.getByTestId("content-tab-port-activities"));
     fireEvent.click(screen.getByTestId("content-tab-port-activities"));
     await waitFor(() => expect(screen.getByTestId("port-selector")).toBeInTheDocument());
+  });
+
+  it("clicking CARGOES tab renders CargoesPanel", async () => {
+    render(<VoyageManagerContent voyageId="voyage-id-1" onBack={vi.fn()} />);
+    await waitFor(() => screen.getByTestId("content-tab-cargoes"));
+    fireEvent.click(screen.getByTestId("content-tab-cargoes"));
+    await waitFor(() => expect(screen.getByTestId("add-cargo-btn")).toBeInTheDocument());
   });
 });
