@@ -1,5 +1,21 @@
 import { test, expect } from "@playwright/test";
 import { execSync } from "child_process";
+import type { Page } from "@playwright/test";
+
+const E2E_SESSION_ID = "e2e-fixed-session-00000000000000000000000000000001";
+
+async function withAuth(page: Page): Promise<void> {
+  await page.context().addCookies([{
+    name: "session_id",
+    value: E2E_SESSION_ID,
+    domain: "localhost",
+    path: "/",
+    expires: Date.now() / 1000 + 365 * 24 * 3600,
+    httpOnly: true,
+    secure: false,
+    sameSite: "Lax",
+  }]);
+}
 
 test.beforeAll(() => {
   // Seed the E2E user and data before tests run
@@ -9,19 +25,8 @@ test.beforeAll(() => {
 
 test("Port Call full lifecycle flow", async ({ page }) => {
   // 1. Login
-  await page.goto("/voyages/00000000-0000-0000-0000-000000000002/workspace"); 
-  
-  // Wait for loading to finish
-  await expect(page.locator("text=Loading session...")).not.toBeVisible();
-
-  // Each test runs in a fresh browser context (no session), so the stub login
-  // button is always present on a protected route. click() auto-waits for it to
-  // be actionable, avoiding the race where isVisible() is checked before the
-  // auth screen finishes rendering (which left tests on "Authentication
-  // Required" under serial load).
-  const loginButton = page.locator('button:has-text("Sign In as Operator (Stub)")');
-  await loginButton.click();
-  await expect(loginButton).toBeHidden();
+  await withAuth(page);
+  await page.goto("/voyages/00000000-0000-0000-0000-000000000002/workspace");
 
   // 2. Verify Workspace Page
   await expect(page.locator("h1")).toContainText("Voyage V001");

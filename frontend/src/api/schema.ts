@@ -1574,6 +1574,12 @@ export interface components {
             planned_etd: string;
             /** Sequence No */
             sequence_no?: number | null;
+            /** Speed Kts */
+            speed_kts?: number | null;
+            /** Distance Nm */
+            distance_nm?: number | null;
+            /** Eca Nm */
+            eca_nm?: number | null;
         };
         /** ItineraryLineResponseDTO */
         ItineraryLineResponseDTO: {
@@ -1606,6 +1612,12 @@ export interface components {
              * Format: date-time
              */
             planned_etd: string;
+            /** Speed Kts */
+            speed_kts?: string | null;
+            /** Distance Nm */
+            distance_nm?: string | null;
+            /** Eca Nm */
+            eca_nm?: string | null;
             /**
              * Created At
              * Format: date-time
@@ -1616,6 +1628,10 @@ export interface components {
              * Format: date-time
              */
             updated_at: string;
+            /** Port Days */
+            readonly port_days: number;
+            /** Sea Days */
+            readonly sea_days: number | null;
         };
         /** ItineraryLineUpdateDTO */
         ItineraryLineUpdateDTO: {
@@ -1629,6 +1645,12 @@ export interface components {
             planned_etd?: string | null;
             /** Sequence No */
             sequence_no?: number | null;
+            /** Speed Kts */
+            speed_kts?: number | null;
+            /** Distance Nm */
+            distance_nm?: number | null;
+            /** Eca Nm */
+            eca_nm?: number | null;
         };
         JsonObject: {
             [key: string]: unknown;
@@ -2263,6 +2285,34 @@ export interface components {
             /** Ops Notes */
             ops_notes?: string | null;
             terms?: components["schemas"]["VoyageTermsDTO"] | null;
+            /** Status */
+            status?: string | null;
+            /** Ops Coordinator User Id */
+            ops_coordinator_user_id?: string | null;
+            /** Trade Area */
+            trade_area?: string | null;
+            /** Lob */
+            lob?: string | null;
+            /**
+             * Is Pool
+             * @default false
+             */
+            is_pool: boolean;
+            /**
+             * Is Ice Class
+             * @default false
+             */
+            is_ice_class: boolean;
+            /**
+             * Is Clean
+             * @default false
+             */
+            is_clean: boolean;
+            /**
+             * Is Coated
+             * @default false
+             */
+            is_coated: boolean;
         };
         /** VoyageResponseDTO */
         VoyageResponseDTO: {
@@ -2315,6 +2365,32 @@ export interface components {
              * Format: date-time
              */
             updated_at: string;
+            /** Ops Coordinator User Id */
+            ops_coordinator_user_id?: string | null;
+            /** Trade Area */
+            trade_area?: string | null;
+            /** Lob */
+            lob?: string | null;
+            /**
+             * Is Pool
+             * @default false
+             */
+            is_pool: boolean;
+            /**
+             * Is Ice Class
+             * @default false
+             */
+            is_ice_class: boolean;
+            /**
+             * Is Clean
+             * @default false
+             */
+            is_clean: boolean;
+            /**
+             * Is Coated
+             * @default false
+             */
+            is_coated: boolean;
             terms?: components["schemas"]["VoyageTermsDTO"] | null;
             /** Itinerary Lines */
             itinerary_lines?: components["schemas"]["ItineraryLineResponseDTO"][];
@@ -2356,6 +2432,20 @@ export interface components {
             /** Expected Completing Datetime */
             expected_completing_datetime?: string | null;
             terms?: components["schemas"]["VoyageTermsDTO"] | null;
+            /** Ops Coordinator User Id */
+            ops_coordinator_user_id?: string | null;
+            /** Trade Area */
+            trade_area?: string | null;
+            /** Lob */
+            lob?: string | null;
+            /** Is Pool */
+            is_pool?: boolean | null;
+            /** Is Ice Class */
+            is_ice_class?: boolean | null;
+            /** Is Clean */
+            is_clean?: boolean | null;
+            /** Is Coated */
+            is_coated?: boolean | null;
         };
         /** VoyageWorkspaceResponse */
         VoyageWorkspaceResponse: {
@@ -3145,6 +3235,8 @@ export interface operations {
                 vessel_ref?: string | null;
                 status?: string | null;
                 charterer_ref?: string | null;
+                ops_coordinator_user_id?: string | null;
+                trade_area?: string | null;
                 commencing_start?: string | null;
                 commencing_end?: string | null;
                 limit?: number;

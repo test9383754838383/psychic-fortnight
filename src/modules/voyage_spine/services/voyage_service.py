@@ -1,5 +1,6 @@
 import uuid
 from datetime import date, datetime, timezone
+from decimal import Decimal
 from typing import List, Optional, TypedDict
 
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -53,6 +54,15 @@ class VoyageCreateData(TypedDict, total=False):
     voyage_instructions: Optional[str]
     ops_notes: Optional[str]
     terms: Optional[VoyageTermsData]
+    # M1 Voyage Core fields
+    status: Optional[str]
+    ops_coordinator_user_id: Optional[str]
+    trade_area: Optional[str]
+    lob: Optional[str]
+    is_pool: Optional[bool]
+    is_ice_class: Optional[bool]
+    is_clean: Optional[bool]
+    is_coated: Optional[bool]
 
 
 class VoyageUpdateData(TypedDict, total=False):
@@ -66,6 +76,14 @@ class VoyageUpdateData(TypedDict, total=False):
     expected_completing_manual_override: Optional[bool]
     expected_completing_datetime: Optional[datetime]
     terms: Optional[VoyageTermsData]
+    # M1 Voyage Core fields
+    ops_coordinator_user_id: Optional[str]
+    trade_area: Optional[str]
+    lob: Optional[str]
+    is_pool: Optional[bool]
+    is_ice_class: Optional[bool]
+    is_clean: Optional[bool]
+    is_coated: Optional[bool]
 
 
 class ItineraryLineCreateData(TypedDict, total=False):
@@ -74,6 +92,9 @@ class ItineraryLineCreateData(TypedDict, total=False):
     planned_eta: datetime
     planned_etd: datetime
     sequence_no: Optional[int]
+    speed_kts: Optional[Decimal]
+    distance_nm: Optional[Decimal]
+    eca_nm: Optional[Decimal]
 
 
 class ItineraryLineUpdateData(TypedDict, total=False):
@@ -82,6 +103,9 @@ class ItineraryLineUpdateData(TypedDict, total=False):
     planned_eta: Optional[datetime]
     planned_etd: Optional[datetime]
     sequence_no: Optional[int]
+    speed_kts: Optional[Decimal]
+    distance_nm: Optional[Decimal]
+    eca_nm: Optional[Decimal]
 
 
 class VoyageService:
@@ -173,7 +197,12 @@ class VoyageService:
                     "previous_voyage_ref", str(prev_ref), "does not exist"
                 )
 
-        # 4. Construct flat model parameters
+        # 4. Resolve status (default Scheduled; validate against enum)
+        status = data.get("status") or VoyageStatus.SCHEDULED.value
+        if status not in [e.value for e in VoyageStatus]:
+            raise VoyageSpineError(f"Invalid voyage status: {status}", status_code=422)
+
+        # 5. Construct flat model parameters
         params: dict[str, str | uuid.UUID | datetime | date | bool | None] = {
             "voyage_no": voyage_no,
             "vessel_ref": vessel_ref,
@@ -182,7 +211,14 @@ class VoyageService:
             "previous_voyage_ref": prev_ref,
             "voyage_instructions": data.get("voyage_instructions"),
             "ops_notes": data.get("ops_notes"),
-            "status": VoyageStatus.SCHEDULED.value,
+            "status": status,
+            "ops_coordinator_user_id": data.get("ops_coordinator_user_id"),
+            "trade_area": data.get("trade_area"),
+            "lob": data.get("lob"),
+            "is_pool": data.get("is_pool", False),
+            "is_ice_class": data.get("is_ice_class", False),
+            "is_clean": data.get("is_clean", False),
+            "is_coated": data.get("is_coated", False),
         }
 
         # Handle nested terms mapping
@@ -214,6 +250,8 @@ class VoyageService:
         vessel_ref: Optional[uuid.UUID] = None,
         status: Optional[str] = None,
         charterer_ref: Optional[uuid.UUID] = None,
+        ops_coordinator_user_id: Optional[str] = None,
+        trade_area: Optional[str] = None,
         commencing_start: Optional[datetime] = None,
         commencing_end: Optional[datetime] = None,
         limit: int = 50,
@@ -226,6 +264,12 @@ class VoyageService:
             stmt = stmt.where(Voyage.status == status)
         if charterer_ref is not None:
             stmt = stmt.where(Voyage.charterer_ref == charterer_ref)
+        if ops_coordinator_user_id is not None:
+            stmt = stmt.where(
+                Voyage.ops_coordinator_user_id == ops_coordinator_user_id
+            )
+        if trade_area is not None:
+            stmt = stmt.where(Voyage.trade_area == trade_area)
         if commencing_start is not None:
             stmt = stmt.where(Voyage.commencing_datetime >= commencing_start)
         if commencing_end is not None:
@@ -283,6 +327,22 @@ class VoyageService:
         if "ops_notes" in data:
             voyage.ops_notes = data["ops_notes"]
 
+        # M1 Voyage Core fields
+        if "ops_coordinator_user_id" in data:
+            voyage.ops_coordinator_user_id = data["ops_coordinator_user_id"]
+        if "trade_area" in data:
+            voyage.trade_area = data["trade_area"]
+        if "lob" in data:
+            voyage.lob = data["lob"]
+        if "is_pool" in data and data["is_pool"] is not None:
+            voyage.is_pool = data["is_pool"]
+        if "is_ice_class" in data and data["is_ice_class"] is not None:
+            voyage.is_ice_class = data["is_ice_class"]
+        if "is_clean" in data and data["is_clean"] is not None:
+            voyage.is_clean = data["is_clean"]
+        if "is_coated" in data and data["is_coated"] is not None:
+            voyage.is_coated = data["is_coated"]
+
         # Handle nested terms mapping
         terms = data.get("terms")
         if terms:
@@ -329,6 +389,10 @@ class VoyageService:
 
         # Status transition matrix (D-LOCK-4)
         allowed_transitions = {
+            VoyageStatus.FORECAST.value: {
+                VoyageStatus.SCHEDULED.value,
+                VoyageStatus.CANCELLED.value,
+            },
             VoyageStatus.SCHEDULED.value: {
                 VoyageStatus.COMMENCED.value,
                 VoyageStatus.CANCELLED.value,
@@ -412,6 +476,9 @@ class VoyageService:
             port_function=port_function,
             planned_eta=planned_eta,
             planned_etd=planned_etd,
+            speed_kts=data.get("speed_kts"),
+            distance_nm=data.get("distance_nm"),
+            eca_nm=data.get("eca_nm"),
         )
 
         sequence_no = data.get("sequence_no")
@@ -486,6 +553,14 @@ class VoyageService:
             raise VoyageSpineError(
                 "Planned ETD must be greater than or equal to ETA", status_code=422
             )
+
+        # M2 fields
+        if "speed_kts" in data:
+            line.speed_kts = data.get("speed_kts")
+        if "distance_nm" in data:
+            line.distance_nm = data.get("distance_nm")
+        if "eca_nm" in data:
+            line.eca_nm = data.get("eca_nm")
 
         # 4. Reorder via sequence_no change
         sequence_no = data.get("sequence_no")
