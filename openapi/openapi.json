@@ -1163,6 +1163,38 @@
             }
           },
           {
+            "name": "ops_coordinator_user_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Ops Coordinator User Id"
+            }
+          },
+          {
+            "name": "trade_area",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Trade Area"
+            }
+          },
+          {
             "name": "commencing_start",
             "in": "query",
             "required": false,
@@ -8292,6 +8324,70 @@
                 "type": "null"
               }
             ]
+          },
+          "status": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Status"
+          },
+          "ops_coordinator_user_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ops Coordinator User Id"
+          },
+          "trade_area": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Trade Area"
+          },
+          "lob": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Lob"
+          },
+          "is_pool": {
+            "type": "boolean",
+            "title": "Is Pool",
+            "default": false
+          },
+          "is_ice_class": {
+            "type": "boolean",
+            "title": "Is Ice Class",
+            "default": false
+          },
+          "is_clean": {
+            "type": "boolean",
+            "title": "Is Clean",
+            "default": false
+          },
+          "is_coated": {
+            "type": "boolean",
+            "title": "Is Coated",
+            "default": false
           }
         },
         "type": "object",
@@ -8446,6 +8542,59 @@
             "type": "string",
             "format": "date-time",
             "title": "Updated At"
+          },
+          "ops_coordinator_user_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ops Coordinator User Id"
+          },
+          "trade_area": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Trade Area"
+          },
+          "lob": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Lob"
+          },
+          "is_pool": {
+            "type": "boolean",
+            "title": "Is Pool",
+            "default": false
+          },
+          "is_ice_class": {
+            "type": "boolean",
+            "title": "Is Ice Class",
+            "default": false
+          },
+          "is_clean": {
+            "type": "boolean",
+            "title": "Is Clean",
+            "default": false
+          },
+          "is_coated": {
+            "type": "boolean",
+            "title": "Is Coated",
+            "default": false
           },
           "terms": {
             "anyOf": [
@@ -8657,6 +8806,83 @@
                 "type": "null"
               }
             ]
+          },
+          "ops_coordinator_user_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ops Coordinator User Id"
+          },
+          "trade_area": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Trade Area"
+          },
+          "lob": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Lob"
+          },
+          "is_pool": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Is Pool"
+          },
+          "is_ice_class": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Is Ice Class"
+          },
+          "is_clean": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Is Clean"
+          },
+          "is_coated": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Is Coated"
           }
         },
         "type": "object",

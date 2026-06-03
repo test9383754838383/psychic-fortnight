@@ -4,6 +4,7 @@ import { useCurrentUser } from "../../auth/AuthContext";
 
 const MODULE_NAMES: Record<string, string> = {
   "/schedule": "Vessel Schedule",
+  "/voyages": "Voyages",
   "/tasks": "Tasks",
   "/alerts": "Alerts",
   "/forms": "Forms",
@@ -100,7 +101,7 @@ interface NavItem {
 const NAV_ITEMS: NavItem[] = [
   { label: "Vessel Schedule", Icon: IconSchedule,  to: "/schedule", matchPrefix: "/schedule", disabled: false },
   { label: "Port Calls",      Icon: IconPortCalls, to: "/schedule", matchPrefix: "/__never__", disabled: true  },
-  { label: "Voyages",         Icon: IconVoyages,   to: "/schedule", matchPrefix: "/__never__", disabled: true  },
+  { label: "Voyages",         Icon: IconVoyages,   to: "/voyages",  matchPrefix: "/voyages",   disabled: false },
   { label: "Tasks",           Icon: IconTasks,     to: "/tasks",    matchPrefix: "/tasks",     disabled: false },
   { label: "Alerts",          Icon: IconAlerts,    to: "/alerts",   matchPrefix: "/alerts",    disabled: false },
   { label: "Forms",           Icon: IconForms,     to: "/forms",    matchPrefix: "/forms",     disabled: false },
