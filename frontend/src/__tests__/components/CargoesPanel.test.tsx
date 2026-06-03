@@ -37,7 +37,7 @@ const MOCK_CARGO: components["schemas"]["CargoResponseDTO"] = {
   id: "cargo-id-1",
   voyage_id: "voyage-id-1",
   commodity: "Crude Oil",
-  quantity: "25000.000" as unknown as number,
+  quantity: "25000.000",
   unit: "MT",
   load_port_ref: "port-id-1",
   discharge_port_ref: "port-id-2",
