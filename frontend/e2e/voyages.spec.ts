@@ -47,6 +47,8 @@ test("voyages list shows active voyage and navigates to Voyage Manager with Prop
 });
 
 test("itinerary line can be added and voyage summary updates", async ({ page }) => {
+  const voyageNo = `ITIN-E2E-${Date.now()}`;
+
   await page.goto("/voyages");
   await expect(page.locator("text=Loading session...")).not.toBeVisible();
 
@@ -54,9 +56,20 @@ test("itinerary line can be added and voyage summary updates", async ({ page }) 
   await loginButton.click();
   await expect(loginButton).toBeHidden();
 
-  await page.waitForURL("**/voyages**", { timeout: 10000 });
-  await page.locator('button:has-text("V001")').click();
-  await page.waitForURL("**/voyages/00000000-0000-0000-0000-000000000002**", { timeout: 10000 });
+  await expect(page.locator("h1")).toHaveText("Voyages", { timeout: 10000 });
+
+  // Create a fresh voyage so this test is idempotent across runs
+  await page.getByTestId("new-voyage-btn").click();
+  await expect(page.getByTestId("new-voyage-modal")).toBeVisible();
+  await page.getByTestId("voyage-no-input").fill(voyageNo);
+  await page.getByTestId("vessel-select").selectOption({ label: "E2E TEST VESSEL" });
+  await page.getByTestId("create-voyage-btn").click();
+  await expect(page.getByTestId("new-voyage-modal")).not.toBeVisible({ timeout: 10000 });
+
+  // Navigate to the new voyage's Manager page
+  await expect(page.locator(`button:has-text("${voyageNo}")`)).toBeVisible({ timeout: 10000 });
+  await page.locator(`button:has-text("${voyageNo}")`).click();
+  await page.waitForURL("**/voyages/**", { timeout: 10000 });
 
   // ITINERARY tab is active by default
   await expect(page.getByTestId("content-tab-itinerary")).toBeVisible({ timeout: 10000 });
@@ -73,14 +86,14 @@ test("itinerary line can be added and voyage summary updates", async ({ page }) 
   await page.getByTestId("eta-input").fill("2026-07-01T08:00");
   await page.getByTestId("etd-input").fill("2026-07-02T08:00");
 
-  // Speed 12 kts, distance 288 nm → sea_days = 1.0
+  // Speed 12 kts, distance 288 nm → sea_days = 288/(12*24) = 1.0
   await page.getByTestId("speed-input").fill("12");
   await page.getByTestId("distance-input").fill("288");
   await page.getByTestId("eca-input").fill("0");
 
   await page.getByTestId("save-row-btn").click();
 
-  // After save: summary updates
+  // Fresh voyage has 0 existing lines → after adding 1: port_days=1.00, sea_days=1.00
   await expect(page.getByTestId("summary-port-days")).toContainText("1.00", { timeout: 10000 });
   await expect(page.getByTestId("summary-sea-days")).toContainText("1.00", { timeout: 10000 });
   await expect(page.locator("text=Failed to add port")).not.toBeVisible();
