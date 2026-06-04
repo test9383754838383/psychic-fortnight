@@ -16,6 +16,20 @@ class Settings(BaseSettings):
     ARGON2_MEMORY_COST: int = 19456
     ARGON2_PARALLELISM: int = 1
 
+    # File uploads
+    UPLOAD_DIR: str = "uploads"
+    UPLOAD_MAX_BYTES: int = 10 * 1024 * 1024  # 10 MB
+    UPLOAD_ALLOWED_TYPES: list[str] = [
+        "application/pdf",
+        "image/jpeg",
+        "image/png",
+        "image/tiff",
+        "application/msword",
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        "application/vnd.ms-excel",
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    ]
+
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
 
