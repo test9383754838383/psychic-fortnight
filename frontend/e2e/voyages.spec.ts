@@ -450,6 +450,81 @@ test("reports tab: create NOON report, add bunker line, submit, approve", async 
   await expect(page.getByTestId(`approve-report-btn-${reportId}`)).not.toBeVisible();
 });
 
+test("instructions tab: create from template → approve → send → pdf download available", async ({
+  page,
+}) => {
+  const voyageNo = `INSTR-E2E-${Date.now()}`;
+
+  await withAuth(page);
+  await page.goto("/voyages");
+  await expect(page.locator("h1")).toHaveText("Voyages", { timeout: 10000 });
+
+  // Create fresh voyage
+  await page.getByTestId("new-voyage-btn").click();
+  await expect(page.getByTestId("new-voyage-modal")).toBeVisible();
+  await page.getByTestId("voyage-no-input").fill(voyageNo);
+  await page.getByTestId("vessel-select").selectOption({ label: "E2E TEST VESSEL" });
+  await page.getByTestId("create-voyage-btn").click();
+  await expect(page.getByTestId("new-voyage-modal")).not.toBeVisible({ timeout: 10000 });
+
+  await expect(page.locator(`button:has-text("${voyageNo}")`)).toBeVisible({ timeout: 10000 });
+  await page.locator(`button:has-text("${voyageNo}")`).click();
+  await page.waitForURL("**/voyages/**", { timeout: 10000 });
+
+  // Switch to INSTRUCTIONS tab
+  await page.getByTestId("content-tab-instructions").click();
+  await expect(page.getByTestId("new-instruction-btn")).toBeVisible({ timeout: 10000 });
+
+  // Create a new instruction using Standard Voyage Orders template
+  await page.getByTestId("new-instruction-btn").click();
+  await expect(page.getByTestId("instruction-title-input")).toBeVisible();
+  await page.getByTestId("instruction-title-input").fill("E2E Voyage Orders");
+
+  // Pick template from the dropdown
+  const templateSelect = page.getByTestId("template-select");
+  await expect(templateSelect).toBeVisible();
+  const options = await templateSelect.locator("option").allTextContents();
+  const stdIdx = options.findIndex((o) => o.includes("Standard Voyage Orders"));
+  expect(stdIdx).toBeGreaterThan(-1);
+  await templateSelect.selectOption({ index: stdIdx });
+
+  await page.getByTestId("save-instruction-btn").click();
+
+  // Instruction appears with draft badge
+  await expect(page.locator("text=E2E Voyage Orders")).toBeVisible({ timeout: 10000 });
+
+  // Get instruction ID from card testid
+  const card = page.locator('[data-testid^="instruction-card-"]').first();
+  const cardId = await card.getAttribute("data-testid").then((t) => t?.replace("instruction-card-", "") ?? "");
+
+  // Send button is disabled on draft (illegal transition)
+  await expect(page.getByTestId(`send-btn-${cardId}`)).toBeDisabled();
+
+  // Approve
+  await page.getByTestId(`approve-btn-${cardId}`).click();
+  await expect(page.locator("text=approved").first()).toBeVisible({ timeout: 10000 });
+
+  // After approval: approve button gone, send button enabled
+  await expect(page.getByTestId(`approve-btn-${cardId}`)).not.toBeVisible();
+  await expect(page.getByTestId(`send-btn-${cardId}`)).not.toBeDisabled({ timeout: 5000 });
+
+  // PDF link present (approved → showPdf=true)
+  await expect(page.getByTestId(`pdf-link-${cardId}`)).toBeVisible();
+
+  // Send
+  await page.getByTestId(`send-btn-${cardId}`).click();
+  await expect(page.locator("text=sent").first()).toBeVisible({ timeout: 10000 });
+
+  // After send: both approve and send buttons gone (terminal), PDF still present
+  await expect(page.getByTestId(`approve-btn-${cardId}`)).not.toBeVisible();
+  await expect(page.getByTestId(`send-btn-${cardId}`)).not.toBeVisible();
+  await expect(page.getByTestId(`pdf-link-${cardId}`)).toBeVisible();
+
+  // PDF export: verify link points to correct URL
+  const pdfHref = await page.getByTestId(`pdf-link-${cardId}`).getAttribute("href");
+  expect(pdfHref).toContain(`/api/v1/instructions/${cardId}/pdf`);
+});
+
 test("New Voyage modal creates voyage and it appears in list", async ({ page }) => {
   const voyageNo = `E2E-VOY-${Date.now()}`;
 

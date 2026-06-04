@@ -21,6 +21,8 @@ dependencies = [
     "tzdata>=2026.2",
     "uvicorn[standard]>=0.48.0",
     "openai>=1.56.0",
+    "fpdf2>=2.8.3",
+    "nh3>=0.2.18",
 ]
 
 [tool.pytest.ini_options]
