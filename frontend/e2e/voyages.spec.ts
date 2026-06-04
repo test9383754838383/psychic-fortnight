@@ -328,6 +328,59 @@ test("bunkers tab: add ROB entry for a port call", async ({ page }) => {
   // Voyage summary shows the grade
   await expect(page.getByTestId("voyage-bunker-summary")).toBeVisible();
   await expect(page.getByTestId("summary-row-VLSFO")).toBeVisible({ timeout: 5000 });
+
+  // ── sea-leg consumption: add second port + port call + ROB ──────────────
+
+  // Add second itinerary line (Discharge, later dates)
+  await page.getByTestId("content-tab-itinerary").click();
+  await expect(page.getByTestId("add-port-btn")).toBeVisible({ timeout: 10000 });
+  await page.getByTestId("add-port-btn").click();
+  await page.getByTestId("port-select").selectOption({ value: "00000000-0000-0000-0000-000000000003" });
+  await page.getByTestId("port-fn-select").selectOption("Discharge");
+  await page.getByTestId("eta-input").fill("2026-09-10T08:00");
+  await page.getByTestId("etd-input").fill("2026-09-12T08:00");
+  await page.getByTestId("speed-input").fill("13");
+  await page.getByTestId("distance-input").fill("1440");
+  await page.getByTestId("eca-input").fill("0");
+  await page.getByTestId("save-row-btn").click();
+  await expect(page.getByTestId("summary-port-days")).toBeVisible({ timeout: 10000 });
+
+  // Switch to PORT ACTIVITIES; select second line and start port call
+  await page.getByTestId("content-tab-port-activities").click();
+  await expect(page.getByTestId("port-selector")).toBeVisible({ timeout: 10000 });
+  // Select the Discharge option (second line, index 1)
+  await page.getByTestId("port-selector").selectOption({ index: 1 });
+  await expect(page.getByTestId("start-port-call-btn")).toBeVisible({ timeout: 20000 });
+  await page.getByTestId("start-port-call-btn").click();
+  await expect(page.getByTestId("port-call-status")).toBeVisible({ timeout: 10000 });
+
+  // Back to BUNKERS tab — add ROB at second port call (VLSFO arrival = 1200)
+  await page.getByTestId("content-tab-bunkers").click();
+  await expect(page.getByTestId("add-rob-btn")).toBeVisible({ timeout: 10000 });
+  await page.getByTestId("add-rob-btn").click();
+  await expect(page.getByTestId("fuel-grade-select")).toBeVisible();
+
+  // Select second port call in the form and fill arrival ROB
+  const portCallSelect = page.getByTestId("port-call-select");
+  const pcOptions = await portCallSelect.locator("option").all();
+  // Select last option (the newly created second port call)
+  const lastOption = pcOptions[pcOptions.length - 1];
+  const lastValue = await lastOption.getAttribute("value");
+  await portCallSelect.selectOption({ value: lastValue ?? "" });
+
+  await page.getByTestId("fuel-grade-select").selectOption("VLSFO");
+  await page.getByTestId("rob-arrival-input").fill("1200");
+  await page.getByTestId("rob-departure-input").fill("1100");
+  await page.getByTestId("save-rob-btn").click();
+
+  // Sea-leg row should appear: departure 1760 (PC1) - arrival 1200 (PC2) = 560 MT
+  await expect(page.getByTestId("sea-leg-row-0-VLSFO")).toBeVisible({ timeout: 10000 });
+  const seaLegRow = page.getByTestId("sea-leg-row-0-VLSFO");
+  await expect(seaLegRow).toContainText("560");
+
+  // Summary sea cons for VLSFO = 560
+  await expect(page.getByTestId("summary-sea-cons-VLSFO")).toBeVisible();
+  await expect(page.getByTestId("summary-sea-cons-VLSFO")).toContainText("560");
 });
 
 test("New Voyage modal creates voyage and it appears in list", async ({ page }) => {

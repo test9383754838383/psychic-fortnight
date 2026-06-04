@@ -5,6 +5,7 @@ import type { components } from "../../api/schema";
 
 type BunkerRob = components["schemas"]["BunkerRobReadDTO"];
 type PortCall = components["schemas"]["PortCallResponseDTO"];
+type ItineraryLine = components["schemas"]["ItineraryLineResponseDTO"];
 
 const FUEL_GRADES = ["VLSFO", "LSMGO", "HSFO", "MGO", "LNG"] as const;
 type FuelGrade = (typeof FUEL_GRADES)[number];
@@ -62,12 +63,73 @@ const td: React.CSSProperties = {
   borderBottom: "1px solid rgba(255,255,255,0.05)",
 };
 
-function fmtMt(val: string | null | undefined): string {
-  if (!val) return "—";
-  const n = parseFloat(val);
+function fmtMt(val: string | number | null | undefined): string {
+  if (val === null || val === undefined || val === "") return "—";
+  const n = typeof val === "number" ? val : parseFloat(val);
   if (isNaN(n)) return "—";
   return n.toLocaleString("en-US", { maximumFractionDigits: 0 });
 }
+
+function parseF(val: string | null | undefined): number | null {
+  if (!val) return null;
+  const n = parseFloat(val);
+  return isNaN(n) ? null : n;
+}
+
+// ── sea-leg derivation ────────────────────────────────────────────────────────
+
+interface SeaLeg {
+  legIndex: number;              // 0-based: 0 = between PC[0] and PC[1]
+  grade: FuelGrade;
+  seaConsMt: number;             // prev departure − next arrival
+  distanceNm: number | null;
+  seaDays: number | null;
+  mtPerDay: number | null;
+}
+
+function deriveSeaLegs(
+  sortedPcs: PortCall[],
+  robs: BunkerRob[],
+  ilineMap: Map<string, ItineraryLine>,
+): SeaLeg[] {
+  // Index robs by port_call_id → grade → rob
+  const robIndex = new Map<string, Map<string, BunkerRob>>();
+  for (const r of robs) {
+    if (!robIndex.has(r.port_call_id)) robIndex.set(r.port_call_id, new Map());
+    robIndex.get(r.port_call_id)!.set(r.fuel_grade, r);
+  }
+
+  const legs: SeaLeg[] = [];
+  for (let i = 0; i < sortedPcs.length - 1; i++) {
+    const prev = sortedPcs[i]!;
+    const next = sortedPcs[i + 1]!;
+    const prevRobs = robIndex.get(prev.id);
+    const nextRobs = robIndex.get(next.id);
+
+    // Itinerary line for the next port call gives distance/sea_days for the leg into it
+    const iline = next.itinerary_line_id ? ilineMap.get(next.itinerary_line_id) ?? null : null;
+    const distanceNm = iline?.distance_nm ? parseF(iline.distance_nm) : null;
+    const seaDays = iline?.sea_days ?? null;
+
+    for (const grade of FUEL_GRADES) {
+      const prevRob = prevRobs?.get(grade);
+      const nextRob = nextRobs?.get(grade);
+      if (!prevRob || !nextRob) continue;
+
+      const dep = parseF(prevRob.rob_departure_mt);
+      const arr = parseF(nextRob.rob_arrival_mt);
+      if (dep === null || arr === null) continue;
+
+      const seaConsMt = dep - arr;
+      const mtPerDay = seaDays && seaDays > 0 ? seaConsMt / seaDays : null;
+
+      legs.push({ legIndex: i, grade, seaConsMt, distanceNm, seaDays, mtPerDay });
+    }
+  }
+  return legs;
+}
+
+// ── form component ─────────────────────────────────────────────────────────────
 
 function RobForm({
   form,
@@ -124,9 +186,7 @@ function RobForm({
           style={inp}
         >
           {FUEL_GRADES.map((g) => (
-            <option key={g} value={g}>
-              {g}
-            </option>
+            <option key={g} value={g}>{g}</option>
           ))}
         </select>
       </div>
@@ -179,6 +239,8 @@ function RobForm({
   );
 }
 
+// ── main panel ────────────────────────────────────────────────────────────────
+
 export function BunkersPanel({ voyageId }: BunkersPanelProps) {
   const queryClient = useQueryClient();
   const [showForm, setShowForm] = useState(false);
@@ -192,6 +254,17 @@ export function BunkersPanel({ voyageId }: BunkersPanelProps) {
       });
       if (!response.ok) throw new Error("Failed to fetch port calls");
       return (data ?? []) as PortCall[];
+    },
+  });
+
+  const { data: voyage, isLoading: voyageLoading } = useQuery({
+    queryKey: ["voyage", voyageId],
+    queryFn: async () => {
+      const { data, response } = await apiClient.GET("/api/v1/voyages/{voyage_id}", {
+        params: { path: { voyage_id: voyageId } },
+      });
+      if (!response.ok) throw new Error("Failed to fetch voyage");
+      return data;
     },
   });
 
@@ -267,9 +340,34 @@ export function BunkersPanel({ voyageId }: BunkersPanelProps) {
     onSuccess: invalidate,
   });
 
-  // Voyage summary: per grade totals
+  // ── itinerary line map: id → line ─────────────────────────────────────────
+  const ilineMap = new Map<string, ItineraryLine>();
+  for (const il of (voyage?.itinerary_lines ?? [])) {
+    ilineMap.set(il.id, il as ItineraryLine);
+  }
+
+  // ── sort port calls by itinerary sequence, then created_at ───────────────
+  const sortedPcs = [...portCalls].sort((a, b) => {
+    const seqA = a.itinerary_line_id ? (ilineMap.get(a.itinerary_line_id)?.sequence_no ?? Infinity) : Infinity;
+    const seqB = b.itinerary_line_id ? (ilineMap.get(b.itinerary_line_id)?.sequence_no ?? Infinity) : Infinity;
+    if (seqA !== seqB) return seqA - seqB;
+    return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+  });
+
+  // ── derive sea legs ───────────────────────────────────────────────────────
+  const seaLegs = deriveSeaLegs(sortedPcs, robs, ilineMap);
+
+  // Index sea legs for lookup: `${legIndex}-${grade}` → SeaLeg
+  const seaLegMap = new Map<string, SeaLeg>();
+  for (const leg of seaLegs) {
+    seaLegMap.set(`${leg.legIndex}-${leg.grade}`, leg);
+  }
+
+  // ── voyage summary ────────────────────────────────────────────────────────
   const gradeSummary = FUEL_GRADES.map((grade) => {
     const gradeRobs = robs.filter((r) => r.fuel_grade === grade);
+    const gradeLegs = seaLegs.filter((l) => l.grade === grade);
+
     const sumField = (field: keyof BunkerRob) =>
       gradeRobs.reduce((acc, r) => {
         const val = r[field];
@@ -280,15 +378,18 @@ export function BunkersPanel({ voyageId }: BunkersPanelProps) {
     const totalReceived = sumField("received_mt");
     const totalPortCons = sumField("port_consumption_mt");
     const totalDeparture = sumField("rob_departure_mt");
-    const totalCalcCons = sumField("calculated_port_consumption_mt");
     const totalVariance = sumField("variance_mt");
+    const totalSeaCons = gradeLegs.reduce((acc, l) => acc + l.seaConsMt, 0);
 
-    return { grade, totalArrival, totalReceived, totalPortCons, totalDeparture, totalCalcCons, totalVariance, count: gradeRobs.length };
-  }).filter((s) => s.count > 0);
+    return {
+      grade, totalArrival, totalReceived, totalPortCons, totalDeparture, totalVariance,
+      totalSeaCons, count: gradeRobs.length,
+    };
+  }).filter((s) => s.count > 0 || seaLegs.some((l) => l.grade === s.grade));
 
-  const firstPortCallId = portCalls[0]?.id ?? "";
+  const firstPortCallId = sortedPcs[0]?.id ?? "";
 
-  if (pcLoading || robsLoading) {
+  if (pcLoading || robsLoading || voyageLoading) {
     return (
       <div style={{ padding: "2rem", color: "var(--text-secondary)", fontSize: "0.85rem" }}>
         Loading…
@@ -322,14 +423,14 @@ export function BunkersPanel({ voyageId }: BunkersPanelProps) {
       {showForm && !editingRob && (
         <RobForm
           form={EMPTY_FORM(firstPortCallId)}
-          portCalls={portCalls}
+          portCalls={sortedPcs}
           onCancel={() => setShowForm(false)}
           onSave={(form) => createMutation.mutate(form)}
           isSaving={createMutation.isPending}
         />
       )}
 
-      {/* ROB records table */}
+      {/* ROB records table with sea-leg rows interspersed */}
       {robs.length > 0 && (
         <div style={{ marginBottom: "2rem" }}>
           <div style={{ fontSize: "0.72rem", fontWeight: 700, color: "#64748b", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: "0.5rem" }}>
@@ -346,89 +447,164 @@ export function BunkersPanel({ voyageId }: BunkersPanelProps) {
                 <th style={th}>ROB Dep (MT)</th>
                 <th style={th}>Calc Cons (MT)</th>
                 <th style={th}>Variance (MT)</th>
+                <th style={th}>Sea Cons (MT)</th>
+                <th style={th}>Dist (nm)</th>
+                <th style={th}>Days</th>
+                <th style={th}>MT/Day</th>
                 <th style={th}>BDN</th>
                 <th style={th}></th>
               </tr>
             </thead>
             <tbody>
-              {robs.map((rob) => {
-                const hasVariance = rob.variance_mt && parseFloat(rob.variance_mt) !== 0;
+              {sortedPcs.map((pc, pcIdx) => {
+                // Robs for this port call
+                const pcRobs = robs.filter((r) => r.port_call_id === pc.id);
+                // Sea legs after this port call (between pcIdx and pcIdx+1)
+                const legsAfter = seaLegs.filter((l) => l.legIndex === pcIdx);
+
                 return (
-                  <React.Fragment key={rob.id}>
-                    <tr data-testid={`rob-row-${rob.id}`}>
-                      <td style={{ ...td, fontWeight: 600, color: "#38bdf8" }}>{rob.fuel_grade}</td>
-                      <td style={{ ...td, fontSize: "0.72rem", color: "var(--text-secondary)" }}>
-                        {rob.port_call_id.slice(0, 8)}…
-                      </td>
-                      <td style={td}>{fmtMt(rob.rob_arrival_mt)}</td>
-                      <td style={td}>{fmtMt(rob.received_mt)}</td>
-                      <td style={td}>{fmtMt(rob.port_consumption_mt)}</td>
-                      <td style={td}>{fmtMt(rob.rob_departure_mt)}</td>
-                      <td style={td}>{fmtMt(rob.calculated_port_consumption_mt)}</td>
-                      <td style={td}>
-                        {rob.variance_mt ? (
-                          <span>
-                            {fmtMt(rob.variance_mt)}
-                            {hasVariance && (
-                              <span
-                                data-testid={`variance-flag-${rob.id}`}
-                                style={{ marginLeft: "0.4rem", color: "#f59e0b", fontSize: "0.7rem", fontWeight: 700 }}
-                                title="Variance detected"
-                              >
-                                ▲
-                              </span>
-                            )}
-                          </span>
-                        ) : "—"}
-                      </td>
-                      <td style={{ ...td, fontSize: "0.78rem" }}>{rob.bdn_number ?? "—"}</td>
-                      <td style={td}>
-                        <div style={{ display: "flex", gap: "0.35rem" }}>
-                          <button
-                            data-testid={`edit-rob-btn-${rob.id}`}
-                            type="button"
-                            onClick={() => {
-                              setShowForm(false);
-                              setEditingRob(rob);
-                            }}
-                            style={{ fontSize: "0.72rem", padding: "0.2rem 0.5rem", borderRadius: "3px", border: "1px solid rgba(255,255,255,0.15)", background: "rgba(255,255,255,0.04)", color: "var(--text-secondary)", cursor: "pointer" }}
-                          >
-                            Edit
-                          </button>
-                          <button
-                            data-testid={`delete-rob-btn-${rob.id}`}
-                            type="button"
-                            onClick={() => deleteMutation.mutate(rob.id)}
-                            disabled={deleteMutation.isPending}
-                            style={{ fontSize: "0.72rem", padding: "0.2rem 0.5rem", borderRadius: "3px", border: "1px solid rgba(248,113,113,0.3)", background: "rgba(248,113,113,0.06)", color: "#f87171", cursor: "pointer" }}
-                          >
-                            Del
-                          </button>
-                        </div>
+                  <React.Fragment key={pc.id}>
+                    {/* Port call header row */}
+                    <tr>
+                      <td
+                        colSpan={14}
+                        style={{
+                          ...td,
+                          background: "rgba(255,255,255,0.02)",
+                          fontSize: "0.7rem",
+                          fontWeight: 700,
+                          color: "#64748b",
+                          textTransform: "uppercase",
+                          letterSpacing: "0.06em",
+                        }}
+                      >
+                        Port Call {pcIdx + 1} — {pc.id.slice(0, 8)}…
                       </td>
                     </tr>
-                    {editingRob?.id === rob.id && (
-                      <tr>
-                        <td colSpan={10} style={{ padding: 0 }}>
-                          <RobForm
-                            form={{
-                              port_call_id: rob.port_call_id,
-                              fuel_grade: rob.fuel_grade as FuelGrade,
-                              rob_arrival_mt: rob.rob_arrival_mt ?? "",
-                              received_mt: rob.received_mt ?? "",
-                              port_consumption_mt: rob.port_consumption_mt ?? "",
-                              rob_departure_mt: rob.rob_departure_mt ?? "",
-                              sulphur_pct: rob.sulphur_pct ?? "",
-                              bdn_number: rob.bdn_number ?? "",
-                            }}
-                            portCalls={portCalls}
-                            onCancel={() => setEditingRob(null)}
-                            onSave={(form) => updateMutation.mutate({ id: rob.id, form })}
-                            isSaving={updateMutation.isPending}
-                          />
+
+                    {/* ROB rows for this port call */}
+                    {pcRobs.map((rob) => {
+                      const hasVariance = rob.variance_mt && parseFloat(rob.variance_mt) !== 0;
+                      return (
+                        <React.Fragment key={rob.id}>
+                          <tr data-testid={`rob-row-${rob.id}`}>
+                            <td style={{ ...td, fontWeight: 600, color: "#38bdf8" }}>{rob.fuel_grade}</td>
+                            <td style={{ ...td, fontSize: "0.72rem", color: "var(--text-secondary)" }}>
+                              {rob.port_call_id.slice(0, 8)}…
+                            </td>
+                            <td style={td}>{fmtMt(rob.rob_arrival_mt)}</td>
+                            <td style={td}>{fmtMt(rob.received_mt)}</td>
+                            <td style={td}>{fmtMt(rob.port_consumption_mt)}</td>
+                            <td style={td}>{fmtMt(rob.rob_departure_mt)}</td>
+                            <td style={td}>{fmtMt(rob.calculated_port_consumption_mt)}</td>
+                            <td style={td}>
+                              {rob.variance_mt ? (
+                                <span>
+                                  {fmtMt(rob.variance_mt)}
+                                  {hasVariance && (
+                                    <span
+                                      data-testid={`variance-flag-${rob.id}`}
+                                      style={{ marginLeft: "0.4rem", color: "#f59e0b", fontSize: "0.7rem", fontWeight: 700 }}
+                                      title="Variance detected"
+                                    >
+                                      ▲
+                                    </span>
+                                  )}
+                                </span>
+                              ) : "—"}
+                            </td>
+                            {/* Sea cons N/A for port-call rows */}
+                            <td style={{ ...td, color: "var(--text-secondary)" }}>—</td>
+                            <td style={{ ...td, color: "var(--text-secondary)" }}>—</td>
+                            <td style={{ ...td, color: "var(--text-secondary)" }}>—</td>
+                            <td style={{ ...td, color: "var(--text-secondary)" }}>—</td>
+                            <td style={{ ...td, fontSize: "0.78rem" }}>{rob.bdn_number ?? "—"}</td>
+                            <td style={td}>
+                              <div style={{ display: "flex", gap: "0.35rem" }}>
+                                <button
+                                  data-testid={`edit-rob-btn-${rob.id}`}
+                                  type="button"
+                                  onClick={() => { setShowForm(false); setEditingRob(rob); }}
+                                  style={{ fontSize: "0.72rem", padding: "0.2rem 0.5rem", borderRadius: "3px", border: "1px solid rgba(255,255,255,0.15)", background: "rgba(255,255,255,0.04)", color: "var(--text-secondary)", cursor: "pointer" }}
+                                >
+                                  Edit
+                                </button>
+                                <button
+                                  data-testid={`delete-rob-btn-${rob.id}`}
+                                  type="button"
+                                  onClick={() => deleteMutation.mutate(rob.id)}
+                                  disabled={deleteMutation.isPending}
+                                  style={{ fontSize: "0.72rem", padding: "0.2rem 0.5rem", borderRadius: "3px", border: "1px solid rgba(248,113,113,0.3)", background: "rgba(248,113,113,0.06)", color: "#f87171", cursor: "pointer" }}
+                                >
+                                  Del
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                          {editingRob?.id === rob.id && (
+                            <tr>
+                              <td colSpan={14} style={{ padding: 0 }}>
+                                <RobForm
+                                  form={{
+                                    port_call_id: rob.port_call_id,
+                                    fuel_grade: rob.fuel_grade as FuelGrade,
+                                    rob_arrival_mt: rob.rob_arrival_mt ?? "",
+                                    received_mt: rob.received_mt ?? "",
+                                    port_consumption_mt: rob.port_consumption_mt ?? "",
+                                    rob_departure_mt: rob.rob_departure_mt ?? "",
+                                    sulphur_pct: rob.sulphur_pct ?? "",
+                                    bdn_number: rob.bdn_number ?? "",
+                                  }}
+                                  portCalls={sortedPcs}
+                                  onCancel={() => setEditingRob(null)}
+                                  onSave={(form) => updateMutation.mutate({ id: rob.id, form })}
+                                  isSaving={updateMutation.isPending}
+                                />
+                              </td>
+                            </tr>
+                          )}
+                        </React.Fragment>
+                      );
+                    })}
+
+                    {/* Sea-leg rows after this port call (before next) */}
+                    {legsAfter.map((leg) => (
+                      <tr
+                        key={`sea-${leg.legIndex}-${leg.grade}`}
+                        data-testid={`sea-leg-row-${leg.legIndex}-${leg.grade}`}
+                        style={{ background: "rgba(56,189,248,0.03)", fontStyle: "italic" }}
+                      >
+                        <td style={{ ...td, fontWeight: 600, color: "#38bdf8" }}>{leg.grade}</td>
+                        <td style={{ ...td, fontSize: "0.7rem", color: "#64748b" }}>Sea Leg →</td>
+                        {/* ROB Arr, Received, Port Cons, ROB Dep, Calc Cons, Variance: N/A for sea leg */}
+                        <td style={{ ...td, color: "var(--text-secondary)" }}>—</td>
+                        <td style={{ ...td, color: "var(--text-secondary)" }}>—</td>
+                        <td style={{ ...td, color: "var(--text-secondary)" }}>—</td>
+                        <td style={{ ...td, color: "var(--text-secondary)" }}>—</td>
+                        <td style={{ ...td, color: "var(--text-secondary)" }}>—</td>
+                        <td style={{ ...td, color: "var(--text-secondary)" }}>—</td>
+                        {/* Sea Cons */}
+                        <td style={{ ...td, fontWeight: 600, color: "#34d399" }}>
+                          {fmtMt(leg.seaConsMt)}
                         </td>
+                        {/* Distance */}
+                        <td style={td}>
+                          {leg.distanceNm !== null
+                            ? leg.distanceNm.toLocaleString("en-US", { maximumFractionDigits: 0 })
+                            : "—"}
+                        </td>
+                        {/* Days */}
+                        <td style={td}>
+                          {leg.seaDays !== null ? leg.seaDays.toFixed(1) : "—"}
+                        </td>
+                        {/* MT/Day */}
+                        <td style={td}>
+                          {leg.mtPerDay !== null ? leg.mtPerDay.toFixed(1) : "—"}
+                        </td>
+                        <td style={{ ...td, color: "var(--text-secondary)" }}>—</td>
+                        <td style={td} />
                       </tr>
-                    )}
+                    ))}
                   </React.Fragment>
                 );
               })}
@@ -458,22 +634,28 @@ export function BunkersPanel({ voyageId }: BunkersPanelProps) {
                 <th style={th}>Opening ROB</th>
                 <th style={th}>Total Received</th>
                 <th style={th}>Total Port Cons</th>
+                <th style={th}>Total Sea Cons</th>
                 <th style={th}>Closing ROB</th>
                 <th style={th}>Total Variance</th>
               </tr>
             </thead>
             <tbody>
-              {gradeSummary.map(({ grade, totalArrival, totalReceived, totalPortCons, totalDeparture, totalVariance }) => (
+              {gradeSummary.map(({ grade, totalArrival, totalReceived, totalPortCons, totalDeparture, totalVariance, totalSeaCons }) => (
                 <tr key={grade} data-testid={`summary-row-${grade}`}>
                   <td style={{ ...td, fontWeight: 600, color: "#38bdf8" }}>{grade}</td>
-                  <td style={td}>{totalArrival > 0 ? totalArrival.toLocaleString("en-US", { maximumFractionDigits: 0 }) : "—"}</td>
-                  <td style={td}>{totalReceived > 0 ? totalReceived.toLocaleString("en-US", { maximumFractionDigits: 0 }) : "—"}</td>
-                  <td style={td}>{totalPortCons > 0 ? totalPortCons.toLocaleString("en-US", { maximumFractionDigits: 0 }) : "—"}</td>
-                  <td style={td}>{totalDeparture > 0 ? totalDeparture.toLocaleString("en-US", { maximumFractionDigits: 0 }) : "—"}</td>
+                  <td style={td}>{totalArrival > 0 ? fmtMt(totalArrival) : "—"}</td>
+                  <td style={td}>{totalReceived > 0 ? fmtMt(totalReceived) : "—"}</td>
+                  <td style={td}>{totalPortCons > 0 ? fmtMt(totalPortCons) : "—"}</td>
+                  <td style={td} data-testid={`summary-sea-cons-${grade}`}>
+                    {totalSeaCons !== 0
+                      ? <span style={{ color: "#34d399", fontWeight: 600 }}>{fmtMt(totalSeaCons)}</span>
+                      : "—"}
+                  </td>
+                  <td style={td}>{totalDeparture > 0 ? fmtMt(totalDeparture) : "—"}</td>
                   <td style={td}>
-                    {totalVariance !== 0 ? (
-                      <span style={{ color: "#f59e0b" }}>{totalVariance.toLocaleString("en-US", { maximumFractionDigits: 0 })}</span>
-                    ) : "0"}
+                    {totalVariance !== 0
+                      ? <span style={{ color: "#f59e0b" }}>{fmtMt(totalVariance)}</span>
+                      : "0"}
                   </td>
                 </tr>
               ))}
