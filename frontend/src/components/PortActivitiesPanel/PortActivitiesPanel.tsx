@@ -92,7 +92,6 @@ export function PortActivitiesPanel({
   const [selectedLineId, setSelectedLineId] = useState<string>(
     itineraryLines[0]?.id ?? ""
   );
-  const [subTab, setSubTab] = useState<"activities" | "robs">("activities");
   const [showAddActivity, setShowAddActivity] = useState(false);
   const [correctingId, setCorrectingId] = useState<string | null>(null);
   const [activityForm, setActivityForm] = useState({
@@ -493,40 +492,8 @@ export function PortActivitiesPanel({
             )}
           </div>
 
-          {/* Sub-tab bar */}
-          <div style={{ display: "flex", borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
-            {(["activities", "robs"] as const).map((tab) => {
-              const label = tab === "activities" ? "PORT ACTIVITIES" : "ROBs";
-              const active = subTab === tab;
-              const enabled = tab === "activities";
-              return (
-                <button
-                  key={tab}
-                  data-testid={`sub-tab-${tab}`}
-                  type="button"
-                  onClick={enabled ? () => setSubTab(tab) : undefined}
-                  title={enabled ? label : "Coming in M7"}
-                  style={{
-                    background: "none",
-                    border: "none",
-                    borderBottom: active ? "2px solid #38bdf8" : "2px solid transparent",
-                    color: active ? "#38bdf8" : "rgba(148,163,184,0.6)",
-                    cursor: enabled ? "pointer" : "default",
-                    opacity: enabled ? 1 : 0.35,
-                    padding: "0.45rem 1rem",
-                    fontSize: "0.72rem",
-                    fontWeight: active ? 700 : 500,
-                    letterSpacing: "0.06em",
-                  }}
-                >
-                  {label}
-                </button>
-              );
-            })}
-          </div>
-
-          {/* Activities sub-tab */}
-          {subTab === "activities" && (
+          {/* Activities */}
+          {(
             <div>
               {/* Activity table */}
               {sortedActivities.length > 0 && (
@@ -750,22 +717,6 @@ export function PortActivitiesPanel({
                   + Add Activity
                 </button>
               )}
-            </div>
-          )}
-
-          {/* ROBs sub-tab */}
-          {subTab === "robs" && (
-            <div
-              style={{
-                padding: "2rem",
-                textAlign: "center",
-                color: "var(--text-secondary)",
-                fontSize: "0.85rem",
-                border: "1px dashed rgba(255,255,255,0.08)",
-                borderRadius: "8px",
-              }}
-            >
-              ROB tracking by bunker grade is coming in M7 (Bunkers).
             </div>
           )}
         </>
