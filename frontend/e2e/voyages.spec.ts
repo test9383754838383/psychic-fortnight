@@ -549,3 +549,87 @@ test("New Voyage modal creates voyage and it appears in list", async ({ page }) 
     timeout: 10000,
   });
 });
+
+test("notes tab: create note, upload attachment, download, delete note (attachment gone)", async ({
+  page,
+  context,
+}) => {
+  const voyageNo = `NOTES-E2E-${Date.now()}`;
+
+  await withAuth(page);
+  await page.goto("/voyages");
+  await expect(page.locator("h1")).toHaveText("Voyages", { timeout: 10000 });
+
+  // Create fresh voyage
+  await page.getByTestId("new-voyage-btn").click();
+  await expect(page.getByTestId("new-voyage-modal")).toBeVisible();
+  await page.getByTestId("voyage-no-input").fill(voyageNo);
+  await page.getByTestId("vessel-select").selectOption({ label: "E2E TEST VESSEL" });
+  await page.getByTestId("create-voyage-btn").click();
+  await expect(page.getByTestId("new-voyage-modal")).not.toBeVisible({ timeout: 10000 });
+
+  await expect(page.locator(`button:has-text("${voyageNo}")`)).toBeVisible({ timeout: 10000 });
+  await page.locator(`button:has-text("${voyageNo}")`).click();
+  await page.waitForURL("**/voyages/**", { timeout: 10000 });
+
+  // Switch to NOTES tab
+  await page.getByTestId("content-tab-notes").click();
+  await expect(page.getByTestId("notes-panel")).toBeVisible({ timeout: 10000 });
+
+  // Empty state visible
+  await expect(page.getByTestId("notes-empty")).toBeVisible({ timeout: 10000 });
+
+  // Fill create form
+  await page.getByTestId("note-body-input").fill("Cargo shift observed in hold 3");
+  await page.getByTestId("note-category-select").selectOption("Safety");
+  await page.getByTestId("note-priority-select").selectOption("High");
+
+  // Upload a small PDF attachment in the create form
+  const pdfContent = Buffer.from("%PDF-1.4 E2E test attachment");
+  await page.getByTestId("note-file-input").setInputFiles({
+    name: "e2e_report.pdf",
+    mimeType: "application/pdf",
+    buffer: pdfContent,
+  });
+
+  await page.getByTestId("note-save-btn").click();
+
+  // Note card appears
+  await expect(page.getByTestId("notes-list")).toBeVisible({ timeout: 10000 });
+  await expect(page.locator("text=Cargo shift observed in hold 3")).toBeVisible({ timeout: 10000 });
+  // Chips in the note card (scope to notes-list to avoid hidden option elements)
+  const notesList = page.getByTestId("notes-list");
+  await expect(notesList.locator("text=Safety").first()).toBeVisible();
+  await expect(notesList.locator("text=High").first()).toBeVisible();
+
+  // Attachment listed
+  await expect(page.locator("text=e2e_report.pdf")).toBeVisible({ timeout: 10000 });
+
+  // Get note card testid to find the attachment download link
+  const noteCard = page.locator('[data-testid^="note-card-"]').first();
+  const noteCardId = await noteCard.getAttribute("data-testid").then(
+    (t) => t?.replace("note-card-", "") ?? ""
+  );
+
+  // Attachment row has a download link
+  const attRow = page.locator('[data-testid^="attachment-row-"]').first();
+  const attRowId = await attRow.getAttribute("data-testid").then(
+    (t) => t?.replace("attachment-row-", "") ?? ""
+  );
+  await expect(page.getByTestId(`attachment-download-${attRowId}`)).toBeVisible();
+
+  // Download the attachment — Playwright intercepts via download event
+  const [download] = await Promise.all([
+    page.waitForEvent("download"),
+    page.getByTestId(`attachment-download-${attRowId}`).click(),
+  ]);
+  expect(download.suggestedFilename()).toBe("e2e_report.pdf");
+
+  // Delete the note (confirm dialog accepted)
+  page.on("dialog", (d) => void d.accept());
+  await page.getByTestId(`note-delete-btn-${noteCardId}`).click();
+
+  // Note is gone
+  await expect(page.getByTestId("notes-empty")).toBeVisible({ timeout: 10000 });
+  await expect(page.locator("text=Cargo shift observed in hold 3")).not.toBeVisible();
+});

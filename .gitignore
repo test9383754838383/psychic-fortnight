@@ -169,6 +169,9 @@ tests/test.db-journal
 __pycache__
 *.pyc
 
+# File uploads (generated at runtime; never committed)
+uploads/
+
 # Frontend
 node_modules/
 .pnpm-store/

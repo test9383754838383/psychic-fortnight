@@ -58,6 +58,11 @@ from src.modules.bunker_rob import (
     port_call_router as bunker_rob_port_call_router,
     member_router as bunker_rob_member_router,
 )
+from src.modules.voyage_notes import (
+    voyage_router as notes_voyage_router,
+    member_router as notes_member_router,
+    attachment_router as notes_attachment_router,
+)
 from src.modules.voyage_instructions import (
     voyage_router as instr_voyage_router,
     member_router as instr_member_router,
@@ -178,6 +183,11 @@ def create_app() -> FastAPI:
     app.include_router(instr_voyage_router, prefix="/api/v1", tags=["voyage-instructions"])
     app.include_router(instr_member_router, prefix="/api/v1", tags=["voyage-instructions"])
     app.include_router(instr_templates_router, prefix="/api/v1", tags=["voyage-instructions"])
+
+    # Voyage Notes module (M11)
+    app.include_router(notes_voyage_router, prefix="/api/v1", tags=["voyage-notes"])
+    app.include_router(notes_member_router, prefix="/api/v1", tags=["voyage-notes"])
+    app.include_router(notes_attachment_router, prefix="/api/v1", tags=["voyage-notes"])
 
     # Health (no /api/v1 prefix — infrastructure endpoint)
     app.include_router(health_router)
