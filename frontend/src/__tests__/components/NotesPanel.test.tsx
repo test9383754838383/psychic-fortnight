@@ -48,6 +48,15 @@ vi.mock("../../api/client", () => ({
 
 const mockedClient = vi.mocked(apiClient);
 
+// openapi-fetch responses carry data + the raw Response; mirror that shape so
+// the mocks satisfy FetchResponse without weakening types.
+function ok(body: unknown) {
+  return Promise.resolve({ data: body, response: new Response(null, { status: 200 }) });
+}
+function created(body: unknown) {
+  return Promise.resolve({ data: body, response: new Response(null, { status: 201 }) });
+}
+
 describe("NotesPanel", () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -60,7 +69,7 @@ describe("NotesPanel", () => {
   });
 
   it("renders empty state when no notes exist", async () => {
-    mockedClient.GET.mockResolvedValue({ data: [] });
+    mockedClient.GET.mockImplementation(() => ok([]));
     render(<NotesPanel voyageId={VOYAGE_ID} />);
     await waitFor(() => {
       expect(screen.getByTestId("notes-empty")).toBeInTheDocument();
@@ -68,7 +77,7 @@ describe("NotesPanel", () => {
   });
 
   it("renders a note with body, category, and priority chips", async () => {
-    mockedClient.GET.mockResolvedValue({ data: [MOCK_NOTE] });
+    mockedClient.GET.mockImplementation(() => ok([MOCK_NOTE]));
     render(<NotesPanel voyageId={VOYAGE_ID} />);
     await waitFor(() => {
       expect(screen.getByTestId(`note-card-${NOTE_ID}`)).toBeInTheDocument();
@@ -79,7 +88,7 @@ describe("NotesPanel", () => {
   });
 
   it("renders attachment download link when note has attachments", async () => {
-    mockedClient.GET.mockResolvedValue({ data: [MOCK_NOTE_WITH_ATT] });
+    mockedClient.GET.mockImplementation(() => ok([MOCK_NOTE_WITH_ATT]));
     render(<NotesPanel voyageId={VOYAGE_ID} />);
     await waitFor(() => {
       expect(screen.getByTestId(`attachment-download-${ATT_ID}`)).toBeInTheDocument();
@@ -88,7 +97,7 @@ describe("NotesPanel", () => {
   });
 
   it("renders create form with category and priority dropdowns", async () => {
-    mockedClient.GET.mockResolvedValue({ data: [] });
+    mockedClient.GET.mockImplementation(() => ok([]));
     render(<NotesPanel voyageId={VOYAGE_ID} />);
     await waitFor(() => {
       expect(screen.getByTestId("note-create-form")).toBeInTheDocument();
@@ -98,7 +107,7 @@ describe("NotesPanel", () => {
   });
 
   it("create form save button is disabled when body is empty", async () => {
-    mockedClient.GET.mockResolvedValue({ data: [] });
+    mockedClient.GET.mockImplementation(() => ok([]));
     render(<NotesPanel voyageId={VOYAGE_ID} />);
     await waitFor(() => {
       expect(screen.getByTestId("note-save-btn")).toBeInTheDocument();
@@ -107,8 +116,8 @@ describe("NotesPanel", () => {
   });
 
   it("submits note creation via API", async () => {
-    mockedClient.GET.mockResolvedValue({ data: [] });
-    mockedClient.POST.mockResolvedValue({ data: MOCK_NOTE });
+    mockedClient.GET.mockImplementation(() => ok([]));
+    mockedClient.POST.mockImplementation(() => created(MOCK_NOTE));
     render(<NotesPanel voyageId={VOYAGE_ID} />);
     await waitFor(() => {
       expect(screen.getByTestId("note-body-input")).toBeInTheDocument();
@@ -137,7 +146,7 @@ describe("NotesPanel", () => {
   });
 
   it("renders edit and delete buttons for each note", async () => {
-    mockedClient.GET.mockResolvedValue({ data: [MOCK_NOTE] });
+    mockedClient.GET.mockImplementation(() => ok([MOCK_NOTE]));
     render(<NotesPanel voyageId={VOYAGE_ID} />);
     await waitFor(() => {
       expect(screen.getByTestId(`note-edit-btn-${NOTE_ID}`)).toBeInTheDocument();
@@ -146,7 +155,7 @@ describe("NotesPanel", () => {
   });
 
   it("clicking edit shows edit form with current values", async () => {
-    mockedClient.GET.mockResolvedValue({ data: [MOCK_NOTE] });
+    mockedClient.GET.mockImplementation(() => ok([MOCK_NOTE]));
     render(<NotesPanel voyageId={VOYAGE_ID} />);
     await waitFor(() => {
       expect(screen.getByTestId(`note-edit-btn-${NOTE_ID}`)).toBeInTheDocument();
@@ -161,7 +170,7 @@ describe("NotesPanel", () => {
   });
 
   it("attach button is disabled when no file selected", async () => {
-    mockedClient.GET.mockResolvedValue({ data: [MOCK_NOTE] });
+    mockedClient.GET.mockImplementation(() => ok([MOCK_NOTE]));
     render(<NotesPanel voyageId={VOYAGE_ID} />);
     await waitFor(() => {
       expect(screen.getByTestId(`note-attach-btn-${NOTE_ID}`)).toBeInTheDocument();
@@ -170,8 +179,8 @@ describe("NotesPanel", () => {
   });
 
   it("attachment delete button calls DELETE endpoint", async () => {
-    mockedClient.GET.mockResolvedValue({ data: [MOCK_NOTE_WITH_ATT] });
-    mockedClient.DELETE.mockResolvedValue({ data: null });
+    mockedClient.GET.mockImplementation(() => ok([MOCK_NOTE_WITH_ATT]));
+    mockedClient.DELETE.mockImplementation(() => ok(null));
     // Suppress window.confirm
     vi.spyOn(window, "confirm").mockReturnValue(true);
 
@@ -191,7 +200,7 @@ describe("NotesPanel", () => {
   });
 
   it("category dropdown contains all 4 categories", async () => {
-    mockedClient.GET.mockResolvedValue({ data: [] });
+    mockedClient.GET.mockImplementation(() => ok([]));
     render(<NotesPanel voyageId={VOYAGE_ID} />);
     await waitFor(() => {
       expect(screen.getByTestId("note-category-select")).toBeInTheDocument();
@@ -205,7 +214,7 @@ describe("NotesPanel", () => {
   });
 
   it("priority dropdown contains all 3 priorities", async () => {
-    mockedClient.GET.mockResolvedValue({ data: [] });
+    mockedClient.GET.mockImplementation(() => ok([]));
     render(<NotesPanel voyageId={VOYAGE_ID} />);
     await waitFor(() => {
       expect(screen.getByTestId("note-priority-select")).toBeInTheDocument();
