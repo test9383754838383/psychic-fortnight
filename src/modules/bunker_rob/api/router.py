@@ -52,6 +52,15 @@ class BunkerRobReadDTO(BaseModel):
     bdn_number: Optional[str] = None
     calculated_port_consumption_mt: Optional[Decimal] = None
     variance_mt: Optional[Decimal] = None
+    # M8 provenance fields
+    status: str = "estimated"
+    arrival_source_report_id: Optional[uuid.UUID] = None
+    departure_source_report_id: Optional[uuid.UUID] = None
+    received_source_report_id: Optional[uuid.UUID] = None
+    confirmed_at: Optional[datetime] = None
+    confirmed_by: Optional[uuid.UUID] = None
+    reconciliation_status: Optional[str] = None
+    reported_vs_delta_variance_mt: Optional[Decimal] = None
     created_at: datetime
     updated_at: datetime
 
@@ -74,6 +83,14 @@ def _to_dto(service: BunkerRobService, rob: object) -> BunkerRobReadDTO:
         bdn_number=rob.bdn_number,
         calculated_port_consumption_mt=service.calculated_port_consumption(rob),
         variance_mt=service.variance(rob),
+        status=rob.status,
+        arrival_source_report_id=rob.arrival_source_report_id,
+        departure_source_report_id=rob.departure_source_report_id,
+        received_source_report_id=rob.received_source_report_id,
+        confirmed_at=rob.confirmed_at,
+        confirmed_by=rob.confirmed_by,
+        reconciliation_status=rob.reconciliation_status,
+        reported_vs_delta_variance_mt=rob.reported_vs_delta_variance_mt,
         created_at=rob.created_at,
         updated_at=rob.updated_at,
     )
