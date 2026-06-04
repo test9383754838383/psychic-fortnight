@@ -78,10 +78,19 @@ function parseF(val: string | null | undefined): number | null {
 
 // ── sea-leg derivation ────────────────────────────────────────────────────────
 
+type ActivityReport = components["schemas"]["ActivityReportReadDTO"];
+
 interface SeaLeg {
-  legIndex: number;              // 0-based: 0 = between PC[0] and PC[1]
+  legIndex: number;
   grade: FuelGrade;
-  seaConsMt: number;             // prev departure − next arrival
+  // Primary: from approved NOON reports (M8)
+  reportedConsMt: number | null;
+  // Check: from ROB delta (M7 fallback)
+  robDeltaConsMt: number | null;
+  // Variance: reported − rob_delta (null if either missing)
+  varianceMt: number | null;
+  reconStatus: string | null;       // from PortCallBunkerRob.reconciliation_status
+  source: "reported" | "rob-delta" | "none";
   distanceNm: number | null;
   seaDays: number | null;
   mtPerDay: number | null;
@@ -91,6 +100,7 @@ function deriveSeaLegs(
   sortedPcs: PortCall[],
   robs: BunkerRob[],
   ilineMap: Map<string, ItineraryLine>,
+  approvedNoonReports: ActivityReport[],
 ): SeaLeg[] {
   // Index robs by port_call_id → grade → rob
   const robIndex = new Map<string, Map<string, BunkerRob>>();
@@ -106,24 +116,59 @@ function deriveSeaLegs(
     const prevRobs = robIndex.get(prev.id);
     const nextRobs = robIndex.get(next.id);
 
-    // Itinerary line for the next port call gives distance/sea_days for the leg into it
     const iline = next.itinerary_line_id ? ilineMap.get(next.itinerary_line_id) ?? null : null;
     const distanceNm = iline?.distance_nm ? parseF(iline.distance_nm) : null;
     const seaDays = iline?.sea_days ?? null;
 
+    // Determine time window for this leg (prev ETD / next ETA)
+    const legStart = prev.atd ?? prev.etd ?? null;
+    const legEnd = next.ata ?? next.eta ?? null;
+
     for (const grade of FUEL_GRADES) {
       const prevRob = prevRobs?.get(grade);
       const nextRob = nextRobs?.get(grade);
-      if (!prevRob || !nextRob) continue;
 
-      const dep = parseF(prevRob.rob_departure_mt);
-      const arr = parseF(nextRob.rob_arrival_mt);
-      if (dep === null || arr === null) continue;
+      // ROB-delta derivation
+      const dep = prevRob ? parseF(prevRob.rob_departure_mt) : null;
+      const arr = nextRob ? parseF(nextRob.rob_arrival_mt) : null;
+      const robDeltaConsMt = dep !== null && arr !== null ? dep - arr : null;
 
-      const seaConsMt = dep - arr;
-      const mtPerDay = seaDays && seaDays > 0 ? seaConsMt / seaDays : null;
+      // Reported consumption: sum approved NOON reports in the leg window for this grade
+      const noonInWindow = approvedNoonReports.filter((r) => {
+        if (!legStart || !legEnd) return true; // no window → include all
+        const dt = new Date(r.report_datetime).getTime();
+        return dt >= new Date(legStart).getTime() && dt <= new Date(legEnd).getTime();
+      });
+      const reportedConsMt = noonInWindow.length > 0
+        ? noonInWindow.reduce((acc, r) => {
+            const line = r.bunker_lines.find((l) => l.fuel_grade === grade);
+            return acc + (line?.reported_consumption_mt ? parseFloat(line.reported_consumption_mt) : 0);
+          }, 0)
+        : null;
 
-      legs.push({ legIndex: i, grade, seaConsMt, distanceNm, seaDays, mtPerDay });
+      // Variance
+      const varianceMt =
+        reportedConsMt !== null && robDeltaConsMt !== null
+          ? reportedConsMt - robDeltaConsMt
+          : null;
+
+      // Source & reconciliation status
+      const reconStatus = nextRob?.reconciliation_status ?? null;
+      const source: SeaLeg["source"] =
+        reportedConsMt !== null ? "reported" :
+        robDeltaConsMt !== null ? "rob-delta" :
+        "none";
+
+      if (source === "none") continue;
+
+      const primaryCons = reportedConsMt ?? robDeltaConsMt ?? 0;
+      const mtPerDay = seaDays && seaDays > 0 ? primaryCons / seaDays : null;
+
+      legs.push({
+        legIndex: i, grade,
+        reportedConsMt, robDeltaConsMt, varianceMt, reconStatus, source,
+        distanceNm, seaDays, mtPerDay,
+      });
     }
   }
   return legs;
@@ -279,6 +324,19 @@ export function BunkersPanel({ voyageId }: BunkersPanelProps) {
     },
   });
 
+  const { data: approvedReports = [] } = useQuery({
+    queryKey: ["voyage", voyageId, "activity-reports", "APPROVED"],
+    queryFn: async () => {
+      const { data, response } = await apiClient.GET("/api/v1/voyages/{voyage_id}/activity-reports", {
+        params: { path: { voyage_id: voyageId }, query: { status: "APPROVED" } },
+      });
+      if (!response.ok) throw new Error("Failed to fetch activity reports");
+      return (data ?? []) as ActivityReport[];
+    },
+  });
+
+  const approvedNoonReports = approvedReports.filter((r) => r.report_type === "NOON");
+
   const invalidate = () => {
     void queryClient.invalidateQueries({ queryKey: ["voyage", voyageId, "bunker-robs"] });
   };
@@ -355,7 +413,7 @@ export function BunkersPanel({ voyageId }: BunkersPanelProps) {
   });
 
   // ── derive sea legs ───────────────────────────────────────────────────────
-  const seaLegs = deriveSeaLegs(sortedPcs, robs, ilineMap);
+  const seaLegs = deriveSeaLegs(sortedPcs, robs, ilineMap, approvedNoonReports);
 
   // Index sea legs for lookup: `${legIndex}-${grade}` → SeaLeg
   const seaLegMap = new Map<string, SeaLeg>();
@@ -379,7 +437,7 @@ export function BunkersPanel({ voyageId }: BunkersPanelProps) {
     const totalPortCons = sumField("port_consumption_mt");
     const totalDeparture = sumField("rob_departure_mt");
     const totalVariance = sumField("variance_mt");
-    const totalSeaCons = gradeLegs.reduce((acc, l) => acc + l.seaConsMt, 0);
+    const totalSeaCons = gradeLegs.reduce((acc, l) => acc + (l.reportedConsMt ?? l.robDeltaConsMt ?? 0), 0);
 
     return {
       grade, totalArrival, totalReceived, totalPortCons, totalDeparture, totalVariance,
@@ -583,9 +641,27 @@ export function BunkersPanel({ voyageId }: BunkersPanelProps) {
                         <td style={{ ...td, color: "var(--text-secondary)" }}>—</td>
                         <td style={{ ...td, color: "var(--text-secondary)" }}>—</td>
                         <td style={{ ...td, color: "var(--text-secondary)" }}>—</td>
-                        {/* Sea Cons */}
+                        {/* Sea Cons — reported (primary) vs rob-delta (check) */}
                         <td style={{ ...td, fontWeight: 600, color: "#34d399" }}>
-                          {fmtMt(leg.seaConsMt)}
+                          {leg.reportedConsMt !== null ? (
+                            <span>
+                              <span title="From approved NOON reports">{fmtMt(leg.reportedConsMt)}</span>
+                              {leg.robDeltaConsMt !== null && (
+                                <span style={{ marginLeft: "0.3rem", fontSize: "0.68rem", color: "var(--text-secondary)" }}
+                                  title="ROB delta check">
+                                  ({fmtMt(leg.robDeltaConsMt)}Δ
+                                  {leg.varianceMt !== null && Math.abs(leg.varianceMt) > 0.5 ? (
+                                    <span style={{ color: "#f59e0b" }}> ±{fmtMt(Math.abs(leg.varianceMt))}</span>
+                                  ) : null})
+                                </span>
+                              )}
+                              {leg.reconStatus && (
+                                <span style={{ marginLeft: "0.3rem", fontSize: "0.62rem", color: leg.reconStatus === "within tolerance" ? "#34d399" : "#f59e0b" }}>
+                                  [{leg.reconStatus === "within tolerance" ? "✓" : "!"}]
+                                </span>
+                              )}
+                            </span>
+                          ) : fmtMt(leg.robDeltaConsMt)}
                         </td>
                         {/* Distance */}
                         <td style={td}>

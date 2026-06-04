@@ -29,6 +29,9 @@ from src.modules.operational_reporting import (
     voyage_reports_router,
     port_call_reports_router,
     reports_member_router,
+    activity_report_voyage_router,
+    activity_report_member_router,
+    activity_report_bunker_line_router,
 )
 from src.modules.forms.api.router import router as forms_router
 from src.modules.checklists import (
@@ -155,6 +158,11 @@ def create_app() -> FastAPI:
     # Cargo module
     app.include_router(cargo_voyage_router, prefix="/api/v1", tags=["cargoes"])
     app.include_router(cargo_member_router, prefix="/api/v1", tags=["cargoes"])
+
+    # Activity Reports module (M8)
+    app.include_router(activity_report_voyage_router, prefix="/api/v1", tags=["activity-reports"])
+    app.include_router(activity_report_member_router, prefix="/api/v1", tags=["activity-reports"])
+    app.include_router(activity_report_bunker_line_router, prefix="/api/v1", tags=["activity-reports"])
 
     # Bunker ROB module (M7)
     app.include_router(bunker_rob_voyage_router, prefix="/api/v1", tags=["bunker-robs"])

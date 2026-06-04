@@ -383,6 +383,73 @@ test("bunkers tab: add ROB entry for a port call", async ({ page }) => {
   await expect(page.getByTestId("summary-sea-cons-VLSFO")).toContainText("560");
 });
 
+test("reports tab: create NOON report, add bunker line, submit, approve", async ({ page }) => {
+  const voyageNo = `REPORT-E2E-${Date.now()}`;
+
+  await withAuth(page);
+  await page.goto("/voyages");
+  await expect(page.locator("h1")).toHaveText("Voyages", { timeout: 10000 });
+
+  // Create fresh voyage
+  await page.getByTestId("new-voyage-btn").click();
+  await expect(page.getByTestId("new-voyage-modal")).toBeVisible();
+  await page.getByTestId("voyage-no-input").fill(voyageNo);
+  await page.getByTestId("vessel-select").selectOption({ label: "E2E TEST VESSEL" });
+  await page.getByTestId("create-voyage-btn").click();
+  await expect(page.getByTestId("new-voyage-modal")).not.toBeVisible({ timeout: 10000 });
+
+  await expect(page.locator(`button:has-text("${voyageNo}")`)).toBeVisible({ timeout: 10000 });
+  await page.locator(`button:has-text("${voyageNo}")`).click();
+  await page.waitForURL("**/voyages/**", { timeout: 10000 });
+
+  // Navigate to REPORTS tab
+  await page.getByTestId("content-tab-reports").click();
+  await expect(page.getByTestId("add-report-btn")).toBeVisible({ timeout: 10000 });
+
+  // Open create form
+  await page.getByTestId("add-report-btn").click();
+  await expect(page.getByTestId("report-type-select")).toBeVisible();
+
+  // Fill NOON report
+  await page.getByTestId("report-type-select").selectOption("NOON");
+  await page.getByTestId("report-datetime-input").fill("2026-08-05T12:00");
+  await page.getByTestId("wind-force-input").fill("4");
+  await page.getByTestId("sea-state-input").fill("3");
+  await page.getByTestId("speed-kn-input").fill("12.5");
+  await page.getByTestId("distance-nm-input").fill("300");
+  await page.getByTestId("save-report-btn").click();
+
+  // Report card appears with DRAFT badge
+  await expect(page.locator("text=NOON").first()).toBeVisible({ timeout: 10000 });
+  await expect(page.locator("text=DRAFT").first()).toBeVisible({ timeout: 5000 });
+
+  // Add a bunker line
+  const reportCard = page.locator('[data-testid^="report-card-"]').first();
+  const reportId = await reportCard.getAttribute("data-testid").then((t) => t?.replace("report-card-", "") ?? "");
+
+  await page.getByTestId(`add-bunker-line-btn-${reportId}`).click();
+  await expect(page.getByTestId("bunker-line-grade-select")).toBeVisible();
+  await page.getByTestId("bunker-line-grade-select").selectOption("VLSFO");
+  await page.getByTestId("bunker-line-rob-input").fill("1300");
+  await page.getByTestId("bunker-line-cons-input").fill("80");
+  await page.getByTestId("save-bunker-line-btn").click();
+
+  // Bunker line appears
+  await expect(page.locator("text=VLSFO").first()).toBeVisible({ timeout: 10000 });
+
+  // Submit
+  await page.getByTestId(`submit-report-btn-${reportId}`).click();
+  await expect(page.locator("text=SUBMITTED").first()).toBeVisible({ timeout: 10000 });
+
+  // Approve
+  await page.getByTestId(`approve-report-btn-${reportId}`).click();
+  await expect(page.locator("text=APPROVED").first()).toBeVisible({ timeout: 10000 });
+
+  // After approval — no submit/approve buttons on this report
+  await expect(page.getByTestId(`submit-report-btn-${reportId}`)).not.toBeVisible();
+  await expect(page.getByTestId(`approve-report-btn-${reportId}`)).not.toBeVisible();
+});
+
 test("New Voyage modal creates voyage and it appears in list", async ({ page }) => {
   const voyageNo = `E2E-VOY-${Date.now()}`;
 

@@ -102,8 +102,20 @@ const PC_2: components["schemas"]["PortCallResponseDTO"] = {
   updated_at: "2026-06-01T01:00:00Z",
 };
 
+const ROB_BASE = {
+  status: "estimated" as const,
+  arrival_source_report_id: null,
+  departure_source_report_id: null,
+  received_source_report_id: null,
+  confirmed_at: null,
+  confirmed_by: null,
+  reconciliation_status: null,
+  reported_vs_delta_variance_mt: null,
+};
+
 // ROB at PC_1: departure 1650
 const ROB_PC1: components["schemas"]["BunkerRobReadDTO"] = {
+  ...ROB_BASE,
   id: "rob-id-1",
   port_call_id: "pc-id-1",
   voyage_id: "voyage-id-1",
@@ -122,6 +134,7 @@ const ROB_PC1: components["schemas"]["BunkerRobReadDTO"] = {
 
 // ROB at PC_2: arrival 1200 → sea cons = 1650 - 1200 = 450
 const ROB_PC2: components["schemas"]["BunkerRobReadDTO"] = {
+  ...ROB_BASE,
   id: "rob-id-2",
   port_call_id: "pc-id-2",
   voyage_id: "voyage-id-1",
@@ -155,6 +168,7 @@ function mockSingle() {
     if (path === "/api/v1/voyages/{voyage_id}/port-calls") return ok([PC_1]);
     if (path === "/api/v1/voyages/{voyage_id}/bunker-robs") return ok([ROB_PC1]);
     if (path === "/api/v1/voyages/{voyage_id}") return ok({ ...MOCK_VOYAGE, itinerary_lines: [MOCK_ILINE_1] });
+    if (path === "/api/v1/voyages/{voyage_id}/activity-reports") return ok([]);
     return ok([]);
   });
 }
@@ -166,6 +180,7 @@ function mockDouble() {
     if (path === "/api/v1/voyages/{voyage_id}/port-calls") return ok([PC_1, PC_2]);
     if (path === "/api/v1/voyages/{voyage_id}/bunker-robs") return ok([ROB_PC1, ROB_PC2]);
     if (path === "/api/v1/voyages/{voyage_id}") return ok(MOCK_VOYAGE);
+    if (path === "/api/v1/voyages/{voyage_id}/activity-reports") return ok([]);
     return ok([]);
   });
 }
@@ -299,6 +314,7 @@ describe("BunkersPanel", () => {
       if (path === "/api/v1/voyages/{voyage_id}/port-calls") return ok([PC_1]);
       if (path === "/api/v1/voyages/{voyage_id}/bunker-robs") return ok([robWithVariance]);
       if (path === "/api/v1/voyages/{voyage_id}") return ok({ ...MOCK_VOYAGE, itinerary_lines: [MOCK_ILINE_1] });
+      if (path === "/api/v1/voyages/{voyage_id}/activity-reports") return ok([]);
       return ok([]);
     });
 

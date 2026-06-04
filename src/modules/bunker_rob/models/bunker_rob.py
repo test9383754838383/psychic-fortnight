@@ -1,5 +1,6 @@
 import enum
 import uuid
+from datetime import datetime
 from decimal import Decimal
 from typing import Optional
 
@@ -8,6 +9,9 @@ from sqlalchemy.orm import Mapped, mapped_column
 from advanced_alchemy.base import UUIDAuditBase
 
 from src.modules.master_data.models.vessel import Base  # noqa: F401 — shared metadata
+
+_ROB_STATUS_VALUES = ("estimated", "reported", "confirmed", "overridden")
+_ROB_STATUS_CHECK = "status IN (" + ", ".join(f"'{v}'" for v in _ROB_STATUS_VALUES) + ")"
 
 
 class FuelGrade(str, enum.Enum):
@@ -42,6 +46,29 @@ class PortCallBunkerRob(UUIDAuditBase):
     sulphur_pct: Mapped[Optional[Decimal]] = mapped_column(Numeric(5, 4), nullable=True)
     bdn_number: Mapped[Optional[str]] = mapped_column(String(100), nullable=True)
 
+    # M8 provenance columns (all nullable — added via migration)
+    arrival_source_report_id: Mapped[Optional[uuid.UUID]] = mapped_column(
+        ForeignKey("activity_reports.id"), nullable=True
+    )
+    departure_source_report_id: Mapped[Optional[uuid.UUID]] = mapped_column(
+        ForeignKey("activity_reports.id"), nullable=True
+    )
+    received_source_report_id: Mapped[Optional[uuid.UUID]] = mapped_column(
+        ForeignKey("activity_reports.id"), nullable=True
+    )
+    status: Mapped[str] = mapped_column(
+        String(20), default="estimated", nullable=False
+    )
+    confirmed_at: Mapped[Optional[datetime]] = mapped_column(nullable=True)
+    confirmed_by: Mapped[Optional[uuid.UUID]] = mapped_column(
+        ForeignKey("users.id"), nullable=True
+    )
+    reconciliation_status: Mapped[Optional[str]] = mapped_column(String(30), nullable=True)
+    reported_vs_delta_variance_mt: Mapped[Optional[Decimal]] = mapped_column(
+        Numeric(12, 3), nullable=True
+    )
+
     __table_args__ = (
         CheckConstraint(_GRADE_CHECK, name="ck_port_call_bunker_robs_fuel_grade"),
+        CheckConstraint(_ROB_STATUS_CHECK, name="ck_port_call_bunker_robs_status"),
     )

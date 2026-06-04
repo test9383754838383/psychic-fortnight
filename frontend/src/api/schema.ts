@@ -1037,6 +1037,111 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/voyages/{voyage_id}/activity-reports": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Activity Reports */
+        get: operations["list_activity_reports_api_v1_voyages__voyage_id__activity_reports_get"];
+        put?: never;
+        /** Create Activity Report */
+        post: operations["create_activity_report_api_v1_voyages__voyage_id__activity_reports_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/activity-reports/{report_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Activity Report */
+        get: operations["get_activity_report_api_v1_activity_reports__report_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Update Activity Report */
+        patch: operations["update_activity_report_api_v1_activity_reports__report_id__patch"];
+        trace?: never;
+    };
+    "/api/v1/activity-reports/{report_id}/submit": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Submit Activity Report */
+        post: operations["submit_activity_report_api_v1_activity_reports__report_id__submit_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/activity-reports/{report_id}/approve": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Approve Activity Report */
+        post: operations["approve_activity_report_api_v1_activity_reports__report_id__approve_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/activity-reports/{report_id}/bunker-lines": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Add Bunker Line */
+        post: operations["add_bunker_line_api_v1_activity_reports__report_id__bunker_lines_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/activity-report-bunkers/{line_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Delete Bunker Line */
+        delete: operations["delete_bunker_line_api_v1_activity_report_bunkers__line_id__delete"];
+        options?: never;
+        head?: never;
+        /** Update Bunker Line */
+        patch: operations["update_bunker_line_api_v1_activity_report_bunkers__line_id__patch"];
+        trace?: never;
+    };
     "/api/v1/voyages/{voyage_id}/bunker-robs": {
         parameters: {
             query?: never;
@@ -1146,6 +1251,121 @@ export interface components {
              * Format: date-time
              */
             logged_at: string;
+        };
+        /** ActivityReportCreateBody */
+        ActivityReportCreateBody: {
+            /**
+             * Report Type
+             * @enum {string}
+             */
+            report_type: "COMMENCING" | "NOON" | "ARRIVAL" | "DEPARTURE" | "TERMINATING";
+            /**
+             * Report Datetime
+             * Format: date-time
+             */
+            report_datetime: string;
+            /** Port Call Id */
+            port_call_id?: string | null;
+            /** Latitude */
+            latitude?: number | null;
+            /** Longitude */
+            longitude?: number | null;
+            /** Wind Force */
+            wind_force?: number | null;
+            /** Sea State */
+            sea_state?: number | null;
+            /** Swell */
+            swell?: string | null;
+            /** Rpm */
+            rpm?: number | null;
+            /** Slip Pct */
+            slip_pct?: number | null;
+            /** Speed Kn */
+            speed_kn?: number | null;
+            /** Distance Nm */
+            distance_nm?: number | null;
+        };
+        /** ActivityReportReadDTO */
+        ActivityReportReadDTO: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Voyage Id
+             * Format: uuid
+             */
+            voyage_id: string;
+            /** Port Call Id */
+            port_call_id?: string | null;
+            /** Report Type */
+            report_type: string;
+            /**
+             * Report Datetime
+             * Format: date-time
+             */
+            report_datetime: string;
+            /** Latitude */
+            latitude?: string | null;
+            /** Longitude */
+            longitude?: string | null;
+            /** Wind Force */
+            wind_force?: number | null;
+            /** Sea State */
+            sea_state?: number | null;
+            /** Swell */
+            swell?: string | null;
+            /** Rpm */
+            rpm?: string | null;
+            /** Slip Pct */
+            slip_pct?: string | null;
+            /** Speed Kn */
+            speed_kn?: string | null;
+            /** Distance Nm */
+            distance_nm?: string | null;
+            /** Status */
+            status: string;
+            /** Approved At */
+            approved_at?: string | null;
+            /** Approved By */
+            approved_by?: string | null;
+            /**
+             * Bunker Lines
+             * @default []
+             */
+            bunker_lines: components["schemas"]["BunkerLineReadDTO"][];
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+        };
+        /** ActivityReportUpdateBody */
+        ActivityReportUpdateBody: {
+            /** Latitude */
+            latitude?: number | null;
+            /** Longitude */
+            longitude?: number | null;
+            /** Wind Force */
+            wind_force?: number | null;
+            /** Sea State */
+            sea_state?: number | null;
+            /** Swell */
+            swell?: string | null;
+            /** Rpm */
+            rpm?: number | null;
+            /** Slip Pct */
+            slip_pct?: number | null;
+            /** Speed Kn */
+            speed_kn?: number | null;
+            /** Distance Nm */
+            distance_nm?: number | null;
         };
         /** AgentAppointmentCreateDTO */
         AgentAppointmentCreateDTO: {
@@ -1260,6 +1480,72 @@ export interface components {
         AlertResolveBody: {
             /** Resolution Note */
             resolution_note?: string | null;
+        };
+        /** BunkerLineCreateBody */
+        BunkerLineCreateBody: {
+            /**
+             * Fuel Grade
+             * @enum {string}
+             */
+            fuel_grade: "VLSFO" | "LSMGO" | "HSFO" | "MGO" | "LNG";
+            /** Reported Rob Mt */
+            reported_rob_mt?: number | null;
+            /** Reported Consumption Mt */
+            reported_consumption_mt?: number | null;
+            /** Received Mt */
+            received_mt?: number | null;
+            /** Sulphur Pct */
+            sulphur_pct?: number | null;
+            /** Bdn Number */
+            bdn_number?: string | null;
+        };
+        /** BunkerLineReadDTO */
+        BunkerLineReadDTO: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Activity Report Id
+             * Format: uuid
+             */
+            activity_report_id: string;
+            /** Fuel Grade */
+            fuel_grade: string;
+            /** Reported Rob Mt */
+            reported_rob_mt?: string | null;
+            /** Reported Consumption Mt */
+            reported_consumption_mt?: string | null;
+            /** Received Mt */
+            received_mt?: string | null;
+            /** Sulphur Pct */
+            sulphur_pct?: string | null;
+            /** Bdn Number */
+            bdn_number?: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+        };
+        /** BunkerLineUpdateBody */
+        BunkerLineUpdateBody: {
+            /** Reported Rob Mt */
+            reported_rob_mt?: number | null;
+            /** Reported Consumption Mt */
+            reported_consumption_mt?: number | null;
+            /** Received Mt */
+            received_mt?: number | null;
+            /** Sulphur Pct */
+            sulphur_pct?: number | null;
+            /** Bdn Number */
+            bdn_number?: string | null;
         };
         /** BunkerRequestCreateBody */
         BunkerRequestCreateBody: {
@@ -1402,6 +1688,25 @@ export interface components {
             calculated_port_consumption_mt?: string | null;
             /** Variance Mt */
             variance_mt?: string | null;
+            /**
+             * Status
+             * @default estimated
+             */
+            status: string;
+            /** Arrival Source Report Id */
+            arrival_source_report_id?: string | null;
+            /** Departure Source Report Id */
+            departure_source_report_id?: string | null;
+            /** Received Source Report Id */
+            received_source_report_id?: string | null;
+            /** Confirmed At */
+            confirmed_at?: string | null;
+            /** Confirmed By */
+            confirmed_by?: string | null;
+            /** Reconciliation Status */
+            reconciliation_status?: string | null;
+            /** Reported Vs Delta Variance Mt */
+            reported_vs_delta_variance_mt?: string | null;
             /**
              * Created At
              * Format: date-time
@@ -5736,6 +6041,301 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["UnitEnumDTO"];
+                };
+            };
+        };
+    };
+    list_activity_reports_api_v1_voyages__voyage_id__activity_reports_get: {
+        parameters: {
+            query?: {
+                status?: string | null;
+            };
+            header?: never;
+            path: {
+                voyage_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ActivityReportReadDTO"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_activity_report_api_v1_voyages__voyage_id__activity_reports_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                voyage_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ActivityReportCreateBody"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ActivityReportReadDTO"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_activity_report_api_v1_activity_reports__report_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                report_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ActivityReportReadDTO"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_activity_report_api_v1_activity_reports__report_id__patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                report_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ActivityReportUpdateBody"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ActivityReportReadDTO"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    submit_activity_report_api_v1_activity_reports__report_id__submit_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                report_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ActivityReportReadDTO"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    approve_activity_report_api_v1_activity_reports__report_id__approve_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                report_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ActivityReportReadDTO"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    add_bunker_line_api_v1_activity_reports__report_id__bunker_lines_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                report_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["BunkerLineCreateBody"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BunkerLineReadDTO"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_bunker_line_api_v1_activity_report_bunkers__line_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                line_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_bunker_line_api_v1_activity_report_bunkers__line_id__patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                line_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["BunkerLineUpdateBody"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BunkerLineReadDTO"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };
