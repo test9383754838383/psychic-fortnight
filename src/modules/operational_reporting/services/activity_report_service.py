@@ -431,12 +431,18 @@ class ActivityReportService:
                 if prev_rob.rob_departure_mt is None or next_rob.rob_arrival_mt is None:
                     continue
 
+                # Without a leg window we cannot scope NOON consumption — flag for
+                # manual review rather than summing the whole voyage (wrong data).
+                if leg_start is None or leg_end is None:
+                    next_rob.reconciliation_status = "insufficient data"
+                    next_rob.reported_vs_delta_variance_mt = None
+                    continue
+
                 # Sum NOON consumption for this grade only within the leg window.
                 reported_cons = Decimal("0")
                 for r in noon_reports:
-                    if leg_start is not None and leg_end is not None:
-                        if not (leg_start <= r.report_datetime <= leg_end):
-                            continue  # outside this leg's window — skip
+                    if not (leg_start <= r.report_datetime <= leg_end):
+                        continue  # outside this leg's window — skip
                     for line in r.bunker_lines:
                         if line.fuel_grade == grade and line.reported_consumption_mt:
                             reported_cons += line.reported_consumption_mt

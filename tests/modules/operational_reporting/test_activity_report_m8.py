@@ -874,3 +874,51 @@ async def test_reconciliation_multiple_noon_reports_in_same_leg(session: AsyncSe
     # rob_delta = 450; reported = 200; variance = 200 − 450 = −250 → needs review
     assert rob2.reconciliation_status == "needs review"
     assert abs(float(rob2.reported_vs_delta_variance_mt) - (-250.0)) < 0.01
+
+
+@pytest.mark.asyncio
+async def test_reconciliation_no_leg_window_flags_insufficient_data(session: AsyncSession):
+    """When a leg has no times at all (atd/etd/ata/eta null), the window cannot be
+    determined. Reconciliation must NOT sum the whole voyage — it flags the leg as
+    'insufficient data' with no variance."""
+    vessel = VesselFactory.build()
+    session.add(vessel)
+    await session.flush()
+    voyage = VoyageFactory.build(vessel_ref=vessel.id)
+    port1 = PortFactory.build()
+    port2 = PortFactory.build()
+    session.add_all([voyage, port1, port2])
+    await session.flush()
+    il1 = ItineraryLineFactory.build(voyage_id=voyage.id, port_ref=port1.id, sequence_no=1)
+    il2 = ItineraryLineFactory.build(voyage_id=voyage.id, port_ref=port2.id, sequence_no=2)
+    session.add_all([il1, il2])
+    await session.flush()
+    # Port calls with NO times whatsoever
+    pc1 = PortCallFactory.build(voyage_id=voyage.id, port_id=port1.id, itinerary_line_id=il1.id,
+                                atd=None, etd=None, ata=None, eta=None)
+    pc2 = PortCallFactory.build(voyage_id=voyage.id, port_id=port2.id, itinerary_line_id=il2.id,
+                                atd=None, etd=None, ata=None, eta=None)
+    session.add_all([pc1, pc2])
+    await session.commit()
+
+    user = await _make_user(session)
+    svc = ActivityReportService(session)
+
+    rob1 = PortCallBunkerRob(port_call_id=pc1.id, voyage_id=voyage.id,
+                             fuel_grade=FuelGrade.VLSFO.value,
+                             rob_departure_mt=Decimal("1650.000"), status="confirmed")
+    rob2 = PortCallBunkerRob(port_call_id=pc2.id, voyage_id=voyage.id,
+                             fuel_grade=FuelGrade.VLSFO.value,
+                             rob_arrival_mt=Decimal("1200.000"), status="confirmed")
+    session.add_all([rob1, rob2])
+    await session.commit()
+
+    noon = await svc.create(voyage_id=voyage.id, port_call_id=None, report_type=ReportType.NOON,
+                            report_datetime=datetime(2026, 8, 7, 12, 0, tzinfo=timezone.utc))
+    await svc.add_bunker_line(noon.id, FuelGrade.VLSFO.value, reported_consumption_mt=Decimal("450.000"))
+    await svc.submit(noon.id)
+    await svc.approve(noon.id, user)
+
+    await session.refresh(rob2)
+    assert rob2.reconciliation_status == "insufficient data"
+    assert rob2.reported_vs_delta_variance_mt is None
