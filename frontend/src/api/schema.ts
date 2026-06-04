@@ -90,6 +90,23 @@ export interface paths {
         patch: operations["update_user_api_v1_admin_users__id__patch"];
         trace?: never;
     };
+    "/api/v1/users": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Users */
+        get: operations["list_users_api_v1_users_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/vessels": {
         parameters: {
             query?: never;
@@ -949,6 +966,77 @@ export interface paths {
         patch: operations["update_task_api_v1_tasks__task_id__patch"];
         trace?: never;
     };
+    "/api/v1/voyages/{voyage_id}/cargoes": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Cargoes */
+        get: operations["list_cargoes_api_v1_voyages__voyage_id__cargoes_get"];
+        put?: never;
+        /** Create Cargo */
+        post: operations["create_cargo_api_v1_voyages__voyage_id__cargoes_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/cargoes/{cargo_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Cargo */
+        get: operations["get_cargo_api_v1_cargoes__cargo_id__get"];
+        put?: never;
+        post?: never;
+        /** Delete Cargo */
+        delete: operations["delete_cargo_api_v1_cargoes__cargo_id__delete"];
+        options?: never;
+        head?: never;
+        /** Update Cargo */
+        patch: operations["update_cargo_api_v1_cargoes__cargo_id__patch"];
+        trace?: never;
+    };
+    "/api/v1/cargoes/meta/commodities": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Commodities */
+        get: operations["list_commodities_api_v1_cargoes_meta_commodities_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/cargoes/meta/units": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Units */
+        get: operations["list_units_api_v1_cargoes_meta_units_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/health": {
         parameters: {
             query?: never;
@@ -1200,6 +1288,74 @@ export interface components {
             /** Eta Supply */
             eta_supply?: string | null;
         };
+        /** CargoCreateDTO */
+        CargoCreateDTO: {
+            /** Commodity */
+            commodity: string;
+            /** Quantity */
+            quantity: number;
+            /**
+             * Unit
+             * @default MT
+             */
+            unit: string;
+            /** Load Port Ref */
+            load_port_ref?: string | null;
+            /** Discharge Port Ref */
+            discharge_port_ref?: string | null;
+            /** Notes */
+            notes?: string | null;
+        };
+        /** CargoResponseDTO */
+        CargoResponseDTO: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Voyage Id
+             * Format: uuid
+             */
+            voyage_id: string;
+            /** Commodity */
+            commodity: string;
+            /** Quantity */
+            quantity: string;
+            /** Unit */
+            unit: string;
+            /** Load Port Ref */
+            load_port_ref?: string | null;
+            /** Discharge Port Ref */
+            discharge_port_ref?: string | null;
+            /** Notes */
+            notes?: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+        };
+        /** CargoUpdateDTO */
+        CargoUpdateDTO: {
+            /** Commodity */
+            commodity?: string | null;
+            /** Quantity */
+            quantity?: number | null;
+            /** Unit */
+            unit?: string | null;
+            /** Load Port Ref */
+            load_port_ref?: string | null;
+            /** Discharge Port Ref */
+            discharge_port_ref?: string | null;
+            /** Notes */
+            notes?: string | null;
+        };
         /** ChecklistCreateDTO */
         ChecklistCreateDTO: {
             /**
@@ -1254,6 +1410,11 @@ export interface components {
             created_at: string;
             /** Items */
             items: components["schemas"]["ChecklistItemReadDTO"][];
+        };
+        /** CommodityEnumDTO */
+        CommodityEnumDTO: {
+            /** Values */
+            values: string[];
         };
         /** ContactDTO */
         ContactDTO: {
@@ -1850,6 +2011,14 @@ export interface components {
             customs_cleared_datetime?: string | null;
             /** Ops Notes */
             ops_notes?: string | null;
+            /** Arrival Draft Fwd */
+            arrival_draft_fwd?: string | null;
+            /** Arrival Draft Aft */
+            arrival_draft_aft?: string | null;
+            /** Departure Draft Fwd */
+            departure_draft_fwd?: string | null;
+            /** Departure Draft Aft */
+            departure_draft_aft?: string | null;
             /**
              * Created At
              * Format: date-time
@@ -1904,6 +2073,14 @@ export interface components {
             ops_notes?: string | null;
             /** Correction Reason */
             correction_reason?: string | null;
+            /** Arrival Draft Fwd */
+            arrival_draft_fwd?: number | null;
+            /** Arrival Draft Aft */
+            arrival_draft_aft?: number | null;
+            /** Departure Draft Fwd */
+            departure_draft_fwd?: number | null;
+            /** Departure Draft Aft */
+            departure_draft_aft?: number | null;
         };
         /** PortCreateDTO */
         PortCreateDTO: {
@@ -2102,6 +2279,11 @@ export interface components {
             /** Originating Alert Id */
             originating_alert_id?: string | null;
         };
+        /** UnitEnumDTO */
+        UnitEnumDTO: {
+            /** Values */
+            values: string[];
+        };
         /** UserCreateDTO */
         UserCreateDTO: {
             /** Username */
@@ -2124,6 +2306,16 @@ export interface components {
             is_active: boolean;
             /** Roles */
             roles: string[];
+        };
+        /** UserSummaryDTO */
+        UserSummaryDTO: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Username */
+            username: string;
         };
         /** UserUpdateDTO */
         UserUpdateDTO: {
@@ -2671,6 +2863,26 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_users_api_v1_users_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UserSummaryDTO"][];
                 };
             };
         };
@@ -5183,6 +5395,207 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_cargoes_api_v1_voyages__voyage_id__cargoes_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                voyage_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CargoResponseDTO"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_cargo_api_v1_voyages__voyage_id__cargoes_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                voyage_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CargoCreateDTO"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CargoResponseDTO"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_cargo_api_v1_cargoes__cargo_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                cargo_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CargoResponseDTO"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_cargo_api_v1_cargoes__cargo_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                cargo_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_cargo_api_v1_cargoes__cargo_id__patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                cargo_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CargoUpdateDTO"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CargoResponseDTO"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_commodities_api_v1_cargoes_meta_commodities_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CommodityEnumDTO"];
+                };
+            };
+        };
+    };
+    list_units_api_v1_cargoes_meta_units_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UnitEnumDTO"];
                 };
             };
         };

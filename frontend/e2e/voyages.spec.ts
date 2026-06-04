@@ -46,11 +46,11 @@ test("voyages list shows active voyage and navigates to Voyage Manager with Prop
 
   await expect(page.getByTestId("voyage-header-no")).toHaveText("V001");
 
-  // Properties panel is open by default
-  await expect(page.getByTestId("ops-coordinator-input")).toBeVisible({ timeout: 10000 });
+  // Properties panel is open by default — coordinator is now a select picker
+  await expect(page.getByTestId("ops-coordinator-select")).toBeVisible({ timeout: 10000 });
 
-  // Edit and save an M1 field
-  await page.getByTestId("ops-coordinator-input").fill("test-coordinator");
+  // Select the seeded operator user and save
+  await page.getByTestId("ops-coordinator-select").selectOption({ label: "operator" });
   await page.getByTestId("save-properties-btn").click();
 
   // Save completes — button returns to "Save", no error banner
@@ -107,6 +107,163 @@ test("itinerary line can be added and voyage summary updates", async ({ page }) 
   await expect(page.getByTestId("summary-port-days")).toContainText("1.00", { timeout: 10000 });
   await expect(page.getByTestId("summary-sea-days")).toContainText("1.00", { timeout: 10000 });
   await expect(page.locator("text=Failed to add port")).not.toBeVisible();
+});
+
+test("port activities: start port call, add activity, save drafts", async ({ page }) => {
+  const voyageNo = `PORT-ACT-E2E-${Date.now()}`;
+
+  await withAuth(page);
+  await page.goto("/voyages");
+  await expect(page.locator("h1")).toHaveText("Voyages", { timeout: 10000 });
+
+  // Create a fresh voyage
+  await page.getByTestId("new-voyage-btn").click();
+  await expect(page.getByTestId("new-voyage-modal")).toBeVisible();
+  await page.getByTestId("voyage-no-input").fill(voyageNo);
+  await page.getByTestId("vessel-select").selectOption({ label: "E2E TEST VESSEL" });
+  await page.getByTestId("create-voyage-btn").click();
+  await expect(page.getByTestId("new-voyage-modal")).not.toBeVisible({ timeout: 10000 });
+
+  // Navigate to the new voyage
+  await expect(page.locator(`button:has-text("${voyageNo}")`)).toBeVisible({ timeout: 10000 });
+  await page.locator(`button:has-text("${voyageNo}")`).click();
+  await page.waitForURL("**/voyages/**", { timeout: 10000 });
+
+  // Add a port in the Itinerary tab first
+  await expect(page.getByTestId("add-port-btn")).toBeVisible({ timeout: 10000 });
+  await page.getByTestId("add-port-btn").click();
+  await page.getByTestId("port-select").selectOption({ value: "00000000-0000-0000-0000-000000000003" });
+  await page.getByTestId("port-fn-select").selectOption("Load");
+  await page.getByTestId("eta-input").fill("2026-08-01T08:00");
+  await page.getByTestId("etd-input").fill("2026-08-03T08:00");
+  await page.getByTestId("save-row-btn").click();
+  await expect(page.getByTestId("summary-port-days")).toBeVisible({ timeout: 10000 });
+
+  // Switch to PORT ACTIVITIES tab
+  await page.getByTestId("content-tab-port-activities").click();
+  await expect(page.getByTestId("port-selector")).toBeVisible({ timeout: 10000 });
+
+  // No port call yet — Start Port Call button should appear.
+  // Generous timeout: under 6-worker parallel load the voyage refetch can lag.
+  await expect(page.getByTestId("start-port-call-btn")).toBeVisible({ timeout: 20000 });
+  await page.getByTestId("start-port-call-btn").click();
+
+  // Port call created — header + status chip + draft inputs visible
+  await expect(page.getByTestId("port-call-status")).toBeVisible({ timeout: 10000 });
+  await expect(page.getByTestId("arrival-draft-fwd-input")).toBeVisible();
+
+  // Save arrival drafts
+  await page.getByTestId("arrival-draft-fwd-input").fill("6.50");
+  await page.getByTestId("arrival-draft-aft-input").fill("6.80");
+  await page.getByTestId("save-port-call-btn").click();
+  await expect(page.locator("text=Saved")).toBeVisible({ timeout: 5000 });
+
+  // Add NOR Tendered activity
+  await page.getByTestId("add-activity-btn").click();
+  await page.getByTestId("activity-type-select").selectOption("NOR Tendered");
+  await page.getByTestId("activity-timestamp-input").fill("2026-08-01T10:00");
+  await page.getByTestId("activity-notes-input").fill("NOR tendered at anchorage");
+  await page.getByTestId("save-activity-btn").click();
+
+  // Activity appears in the timeline
+  await expect(page.getByRole("cell", { name: "NOR Tendered", exact: true })).toBeVisible({ timeout: 10000 });
+  await expect(page.getByRole("cell", { name: "NOR tendered at anchorage", exact: true })).toBeVisible();
+});
+
+test("cargoes: add, edit, delete cargo on a new voyage", async ({ page }) => {
+  const voyageNo = `CARGO-E2E-${Date.now()}`;
+
+  await withAuth(page);
+  await page.goto("/voyages");
+  await expect(page.locator("h1")).toHaveText("Voyages", { timeout: 10000 });
+
+  // Create a fresh voyage
+  await page.getByTestId("new-voyage-btn").click();
+  await expect(page.getByTestId("new-voyage-modal")).toBeVisible();
+  await page.getByTestId("voyage-no-input").fill(voyageNo);
+  await page.getByTestId("vessel-select").selectOption({ label: "E2E TEST VESSEL" });
+  await page.getByTestId("create-voyage-btn").click();
+  await expect(page.getByTestId("new-voyage-modal")).not.toBeVisible({ timeout: 10000 });
+
+  // Navigate to the voyage
+  await expect(page.locator(`button:has-text("${voyageNo}")`)).toBeVisible({ timeout: 10000 });
+  await page.locator(`button:has-text("${voyageNo}")`).click();
+  await page.waitForURL("**/voyages/**", { timeout: 10000 });
+
+  // Switch to CARGOES tab
+  await expect(page.getByTestId("content-tab-cargoes")).toBeVisible({ timeout: 10000 });
+  await page.getByTestId("content-tab-cargoes").click();
+
+  // Empty state visible
+  await expect(page.locator("text=No cargoes added yet")).toBeVisible({ timeout: 5000 });
+
+  // Open add form
+  await page.getByTestId("add-cargo-btn").click();
+  await expect(page.getByTestId("commodity-select")).toBeVisible();
+
+  // Fill the form — commodity dropdown, quantity, unit, load+discharge port
+  await page.getByTestId("commodity-select").selectOption("Crude Oil");
+  await page.getByTestId("quantity-input").fill("25000");
+  await page.getByTestId("unit-select").selectOption("MT");
+  await page.getByTestId("load-port-select").selectOption({ value: "00000000-0000-0000-0000-000000000003" });
+  await page.getByTestId("discharge-port-select").selectOption({ value: "00000000-0000-0000-0000-000000000003" });
+  await page.getByTestId("cargo-notes-input").fill("E2E test cargo");
+
+  await page.getByTestId("save-cargo-btn").click();
+
+  // Cargo card appears
+  await expect(page.locator("text=CRUDE OIL — 25,000 MT")).toBeVisible({ timeout: 10000 });
+  await expect(page.locator("text=E2E test cargo")).toBeVisible();
+
+  // Edit the cargo — change quantity
+  const cargoCard = page.locator('[data-testid^="cargo-card-"]').first();
+  const cargoId = await cargoCard.getAttribute("data-testid").then((t) => t?.replace("cargo-card-", "") ?? "");
+  await page.getByTestId(`edit-cargo-btn-${cargoId}`).click();
+
+  await page.getByTestId("quantity-input").fill("30000");
+  await page.getByTestId("save-cargo-btn").click();
+
+  await expect(page.locator("text=CRUDE OIL — 30,000 MT")).toBeVisible({ timeout: 10000 });
+
+  // Delete the cargo
+  await page.getByTestId(`delete-cargo-btn-${cargoId}`).click();
+  await expect(page.locator("text=No cargoes added yet")).toBeVisible({ timeout: 10000 });
+});
+
+test("delays tab: add delay and approve in Voyage Manager", async ({ page }) => {
+  await withAuth(page);
+  await page.goto("/voyages/00000000-0000-0000-0000-000000000002");
+  await expect(page.getByTestId("voyage-header-no")).toHaveText("V001", { timeout: 10000 });
+
+  // Click DELAYS tab
+  await page.getByTestId("content-tab-delays").click();
+  await expect(page.getByTestId("delay-tracking-panel")).toBeVisible({ timeout: 5000 });
+
+  // Add a delay
+  await page.locator('button:has-text("+ Add Delay")').click();
+  await expect(page.locator("h3:has-text('Record New Delay')")).toBeVisible({ timeout: 5000 });
+
+  await page.selectOption("#delay-type", "Weather");
+  await page.selectOption("#fault-attribution", "Weather");
+  await page.locator("#start-datetime").fill("2026-06-01T06:00");
+  await page.locator("#end-datetime").fill("2026-06-01T09:30");
+  await page.locator("#description").fill("M6 E2E delay");
+  await page.locator('button:has-text("Save Delay")').click();
+
+  // Card appears with correct duration (3.50 hrs)
+  const openCard = page.locator('[data-testid^="delay-card-"]')
+    .filter({ hasText: "M6 E2E delay" })
+    .filter({ hasText: "Open" })
+    .first();
+  await expect(openCard).toBeVisible({ timeout: 10000 });
+  const cardTestId = await openCard.getAttribute("data-testid");
+  expect(cardTestId).not.toBeNull();
+  const card = page.locator(`[data-testid="${cardTestId}"]`);
+  await expect(card.locator("text=3.50 hrs (Actual)")).toBeVisible();
+
+  // Approve
+  await card.locator('button:has-text("Approve")').click();
+  await expect(card.locator(".status-chip")).toContainText("Approved", { timeout: 10000 });
 });
 
 test("New Voyage modal creates voyage and it appears in list", async ({ page }) => {

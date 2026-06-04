@@ -14,7 +14,7 @@ export const voyageManagerRoute = createRoute({
         onBack={() =>
           void navigate({
             to: "/voyages",
-            search: { status: "", vessel_id: "", ops_coordinator: "", trade_area: "", search: "" },
+            search: { vessel_id: "", ops_coordinator: "", trade_area: "", search: "" },
           })
         }
       />

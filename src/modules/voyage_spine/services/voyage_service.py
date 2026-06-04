@@ -6,6 +6,8 @@ from typing import List, Optional, TypedDict
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 
+from src.modules.auth.repositories.user_repository import UserRepository
+
 # Cross-module imports (Tach-bounded)
 from src.modules.master_data import (
     VesselService,
@@ -56,7 +58,7 @@ class VoyageCreateData(TypedDict, total=False):
     terms: Optional[VoyageTermsData]
     # M1 Voyage Core fields
     status: Optional[str]
-    ops_coordinator_user_id: Optional[str]
+    ops_coordinator_user_id: Optional[uuid.UUID]
     trade_area: Optional[str]
     lob: Optional[str]
     is_pool: Optional[bool]
@@ -77,7 +79,7 @@ class VoyageUpdateData(TypedDict, total=False):
     expected_completing_datetime: Optional[datetime]
     terms: Optional[VoyageTermsData]
     # M1 Voyage Core fields
-    ops_coordinator_user_id: Optional[str]
+    ops_coordinator_user_id: Optional[uuid.UUID]
     trade_area: Optional[str]
     lob: Optional[str]
     is_pool: Optional[bool]
@@ -113,11 +115,19 @@ class VoyageService:
         self.repository = VoyageRepository(session=session)
         self.itinerary_repository = ItineraryLineRepository(session=session)
         self.session = session
+        self.user_repository = UserRepository(session=session)
 
         # Cross-module services initialized in same session
         self.vessel_service = VesselService(session=session)
         self.port_service = PortService(session=session)
         self.counterparty_service = CounterpartyService(session=session)
+
+    async def _validate_user(self, user_id: uuid.UUID) -> None:
+        user = await self.user_repository.get_one_or_none(id=user_id)
+        if not user:
+            raise MissingMasterDataReferenceError(
+                "ops_coordinator_user_id", str(user_id), "user does not exist"
+            )
 
     async def _validate_cross_module_references(
         self,
@@ -188,6 +198,11 @@ class VoyageService:
             vessel_ref=vessel_ref, charterer_ref=charterer_ref
         )
 
+        # 2b. Validate ops coordinator user
+        coordinator_id = data.get("ops_coordinator_user_id")
+        if coordinator_id is not None:
+            await self._validate_user(coordinator_id)
+
         # 3. Previous voyage reference existence check
         prev_ref = data.get("previous_voyage_ref")
         if prev_ref:
@@ -250,7 +265,7 @@ class VoyageService:
         vessel_ref: Optional[uuid.UUID] = None,
         status: Optional[str] = None,
         charterer_ref: Optional[uuid.UUID] = None,
-        ops_coordinator_user_id: Optional[str] = None,
+        ops_coordinator_user_id: Optional[uuid.UUID] = None,
         trade_area: Optional[str] = None,
         commencing_start: Optional[datetime] = None,
         commencing_end: Optional[datetime] = None,
@@ -301,6 +316,10 @@ class VoyageService:
         await self._validate_cross_module_references(
             vessel_ref=vessel_ref, charterer_ref=charterer_ref
         )
+
+        # 2b. Validate ops coordinator user (only when key is present and non-None)
+        if "ops_coordinator_user_id" in data and data["ops_coordinator_user_id"] is not None:
+            await self._validate_user(data["ops_coordinator_user_id"])
 
         # 3. Previous voyage reference check
         prev_ref = data.get("previous_voyage_ref")

@@ -14,7 +14,7 @@ from src.modules.voyage_spine import (
     schedule_router,
     workspace_router,
 )
-from src.modules.auth.api import router as auth_router, admin_router
+from src.modules.auth.api import router as auth_router, admin_router, users_router
 from src.modules.auth.api.auth import limiter
 from src.modules.auth.services.auth_service import AuthService
 from src.modules.port_call import (
@@ -46,6 +46,10 @@ from src.modules.delay_tracking import (
 )
 from src.modules.alerts import alerts_router
 from src.modules.tasks import tasks_router
+from src.modules.cargo import (
+    voyage_router as cargo_voyage_router,
+    member_router as cargo_member_router,
+)
 from src.core.health import health_router
 from src.dependencies import AsyncSessionLocal
 
@@ -86,6 +90,7 @@ def create_app() -> FastAPI:
 
     app.include_router(auth_router, prefix="/api/v1")
     app.include_router(admin_router, prefix="/api/v1")
+    app.include_router(users_router, prefix="/api/v1")
     app.include_router(master_data_router, prefix="/api/v1")
     app.include_router(voyage_spine_router, prefix="/api/v1/voyages", tags=["voyages"])
     app.include_router(workspace_router, prefix="/api/v1/voyages", tags=["voyages"])
@@ -141,6 +146,10 @@ def create_app() -> FastAPI:
 
     # Tasks module
     app.include_router(tasks_router, prefix="/api/v1", tags=["tasks"])
+
+    # Cargo module
+    app.include_router(cargo_voyage_router, prefix="/api/v1", tags=["cargoes"])
+    app.include_router(cargo_member_router, prefix="/api/v1", tags=["cargoes"])
 
     # Health (no /api/v1 prefix — infrastructure endpoint)
     app.include_router(health_router)

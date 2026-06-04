@@ -34,7 +34,7 @@ const MOCK_VOYAGE: components["schemas"]["VoyageResponseDTO"] = {
   cancelled_at: null,
   created_at: "2026-06-01T00:00:00Z",
   updated_at: "2026-06-01T00:00:00Z",
-  ops_coordinator_user_id: "coord-7",
+  ops_coordinator_user_id: "coord-7-uuid-0000-0000-00000000",
   trade_area: "Mediterranean",
   lob: "Tankers",
   is_pool: true,
@@ -67,6 +67,10 @@ function ok(body: unknown) {
 }
 
 describe("VoyageManagerContent", () => {
+  const MOCK_USERS = [
+    { id: "coord-7-uuid-0000-0000-00000000", username: "ops_coord" },
+  ];
+
   beforeEach(() => {
     vi.clearAllMocks();
     vi.mocked(apiClient.GET).mockImplementation((path) => {
@@ -74,6 +78,11 @@ describe("VoyageManagerContent", () => {
       if (path === "/api/v1/voyages/{voyage_id}") return ok(MOCK_VOYAGE);
       if (path === "/api/v1/vessels") return ok([{ id: "vessel-id-00000000-0000", name: "MV FORTUNA" }]);
       if (path === "/api/v1/ports") return ok([]);
+      if (path === "/api/v1/users") return ok(MOCK_USERS);
+      if (path === "/api/v1/voyages/{voyage_id}/port-calls") return ok([]);
+      if (path === "/api/v1/port-calls/{port_call_id}/events") return ok([]);
+      if (path === "/api/v1/voyages/{voyage_id}/cargoes") return ok([]);
+      if (path === "/api/v1/voyages/{voyage_id}/delays") return ok([]);
       return ok(null);
     });
   });
@@ -90,11 +99,11 @@ describe("VoyageManagerContent", () => {
     await waitFor(() => expect(screen.getByText("MV FORTUNA")).toBeInTheDocument());
   });
 
-  it("renders properties panel with ops coordinator pre-filled", async () => {
+  it("renders properties panel with ops coordinator select", async () => {
     render(<VoyageManagerContent voyageId="voyage-id-1" onBack={vi.fn()} />);
     await waitFor(() => {
-      const input = screen.getByTestId("ops-coordinator-input") as HTMLInputElement;
-      expect(input.value).toBe("coord-7");
+      const sel = screen.getByTestId("ops-coordinator-select") as HTMLSelectElement;
+      expect(sel).toBeInTheDocument();
     });
   });
 
@@ -120,11 +129,32 @@ describe("VoyageManagerContent", () => {
     expect(screen.getByTestId("content-tab-itinerary")).toBeInTheDocument();
   });
 
-  it("renders disabled content tabs", async () => {
+  it("renders all content tabs", async () => {
     render(<VoyageManagerContent voyageId="voyage-id-1" onBack={vi.fn()} />);
     await waitFor(() => screen.getByTestId("content-tab-port-activities"));
     expect(screen.getByTestId("content-tab-port-activities")).toBeInTheDocument();
     expect(screen.getByTestId("content-tab-cargoes")).toBeInTheDocument();
     expect(screen.getByTestId("content-tab-delays")).toBeInTheDocument();
+  });
+
+  it("clicking PORT ACTIVITIES tab renders PortActivitiesPanel", async () => {
+    render(<VoyageManagerContent voyageId="voyage-id-1" onBack={vi.fn()} />);
+    await waitFor(() => screen.getByTestId("content-tab-port-activities"));
+    fireEvent.click(screen.getByTestId("content-tab-port-activities"));
+    await waitFor(() => expect(screen.getByTestId("port-selector")).toBeInTheDocument());
+  });
+
+  it("clicking CARGOES tab renders CargoesPanel", async () => {
+    render(<VoyageManagerContent voyageId="voyage-id-1" onBack={vi.fn()} />);
+    await waitFor(() => screen.getByTestId("content-tab-cargoes"));
+    fireEvent.click(screen.getByTestId("content-tab-cargoes"));
+    await waitFor(() => expect(screen.getByTestId("add-cargo-btn")).toBeInTheDocument());
+  });
+
+  it("clicking DELAYS tab renders DelayTrackingPanel", async () => {
+    render(<VoyageManagerContent voyageId="voyage-id-1" onBack={vi.fn()} />);
+    await waitFor(() => screen.getByTestId("content-tab-delays"));
+    fireEvent.click(screen.getByTestId("content-tab-delays"));
+    await waitFor(() => expect(screen.getByTestId("delay-tracking-panel")).toBeInTheDocument());
   });
 });

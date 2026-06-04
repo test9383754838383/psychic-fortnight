@@ -9,6 +9,7 @@ import pytest
 from datetime import datetime, timezone
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from src.modules.auth.services.auth_service import AuthService
 from src.modules.voyage_spine.services.voyage_service import VoyageService
 from src.modules.voyage_spine.models.voyage import VoyageStatus
 from tests.modules.master_data.conftest import VesselFactory
@@ -26,6 +27,9 @@ async def test_create_voyage_with_m1_fields_persists(session: AsyncSession) -> N
     session.add(vessel)
     await session.commit()
 
+    auth_service = AuthService(session)
+    coord = await auth_service.create_user("coord_svc_1", "pass", ["Operations"])
+
     service = VoyageService(session)
     voyage = await service.create(
         {
@@ -33,7 +37,7 @@ async def test_create_voyage_with_m1_fields_persists(session: AsyncSession) -> N
             "vessel_ref": vessel.id,
             "commencing_datetime": datetime.now(timezone.utc),
             "status": VoyageStatus.FORECAST.value,
-            "ops_coordinator_user_id": "user-ops-7",
+            "ops_coordinator_user_id": coord.id,
             "trade_area": "Mediterranean",
             "lob": "Tankers",
             "is_pool": True,
@@ -44,7 +48,7 @@ async def test_create_voyage_with_m1_fields_persists(session: AsyncSession) -> N
     )
 
     assert voyage.status == VoyageStatus.FORECAST.value
-    assert voyage.ops_coordinator_user_id == "user-ops-7"
+    assert voyage.ops_coordinator_user_id == coord.id
     assert voyage.trade_area == "Mediterranean"
     assert voyage.lob == "Tankers"
     assert voyage.is_pool is True
@@ -86,6 +90,9 @@ async def test_update_voyage_m1_fields(session: AsyncSession) -> None:
     session.add(vessel)
     await session.commit()
 
+    auth_service = AuthService(session)
+    coord = await auth_service.create_user("coord_svc_2", "pass", ["Operations"])
+
     voyage = VoyageFactory.build(vessel_ref=vessel.id)
     session.add(voyage)
     await session.commit()
@@ -94,7 +101,7 @@ async def test_update_voyage_m1_fields(session: AsyncSession) -> None:
     updated = await service.update(
         voyage.id,
         {
-            "ops_coordinator_user_id": "user-ops-9",
+            "ops_coordinator_user_id": coord.id,
             "trade_area": "Baltic",
             "lob": "Dry Bulk",
             "is_pool": True,
@@ -102,7 +109,7 @@ async def test_update_voyage_m1_fields(session: AsyncSession) -> None:
         },
     )
 
-    assert updated.ops_coordinator_user_id == "user-ops-9"
+    assert updated.ops_coordinator_user_id == coord.id
     assert updated.trade_area == "Baltic"
     assert updated.lob == "Dry Bulk"
     assert updated.is_pool is True
@@ -134,13 +141,17 @@ async def test_list_filter_by_ops_coordinator(session: AsyncSession) -> None:
     session.add(vessel)
     await session.commit()
 
+    auth_service = AuthService(session)
+    coord_a = await auth_service.create_user("coord_list_a", "pass", ["Operations"])
+    coord_b = await auth_service.create_user("coord_list_b", "pass", ["Operations"])
+
     service = VoyageService(session)
     await service.create(
         {
             "voyage_no": "VOY-M1-OPS-A",
             "vessel_ref": vessel.id,
             "commencing_datetime": datetime.now(timezone.utc),
-            "ops_coordinator_user_id": "coord-A",
+            "ops_coordinator_user_id": coord_a.id,
         }
     )
     await service.create(
@@ -148,10 +159,10 @@ async def test_list_filter_by_ops_coordinator(session: AsyncSession) -> None:
             "voyage_no": "VOY-M1-OPS-B",
             "vessel_ref": vessel.id,
             "commencing_datetime": datetime.now(timezone.utc),
-            "ops_coordinator_user_id": "coord-B",
+            "ops_coordinator_user_id": coord_b.id,
         }
     )
 
-    res = await service.list(ops_coordinator_user_id="coord-A")
+    res = await service.list(ops_coordinator_user_id=coord_a.id)
     assert len(res) == 1
     assert res[0].voyage_no == "VOY-M1-OPS-A"

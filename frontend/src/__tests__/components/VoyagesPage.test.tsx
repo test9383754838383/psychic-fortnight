@@ -70,6 +70,7 @@ describe("VoyagesList", () => {
       if (path === "/api/v1/auth/me") return ok(MOCK_USER);
       if (path === "/api/v1/voyages") return ok([MOCK_VOYAGE, MOCK_SCHEDULED]);
       if (path === "/api/v1/vessels") return ok([MOCK_VESSEL]);
+      if (path === "/api/v1/users") return ok([]);
       return ok([]);
     });
   });

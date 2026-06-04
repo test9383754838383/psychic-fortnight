@@ -3,14 +3,19 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiClient } from "../api/client";
 import type { components } from "../api/schema";
 import { ItineraryPanel } from "../components/ItineraryPanel/ItineraryPanel";
+import { PortActivitiesPanel } from "../components/PortActivitiesPanel/PortActivitiesPanel";
+import { CargoesPanel } from "../components/CargoesPanel/CargoesPanel";
+import { DelayTrackingPanel } from "../components/DelayTrackingPanel/DelayTrackingPanel";
+
+type UserSummary = components["schemas"]["UserSummaryDTO"];
 
 type Voyage = components["schemas"]["VoyageResponseDTO"];
 
 const CONTENT_TABS = [
   { key: "itinerary", label: "ITINERARY", enabled: true },
-  { key: "port-activities", label: "PORT ACTIVITIES", enabled: false },
-  { key: "cargoes", label: "CARGOES", enabled: false },
-  { key: "delays", label: "DELAYS", enabled: false },
+  { key: "port-activities", label: "PORT ACTIVITIES", enabled: true },
+  { key: "cargoes", label: "CARGOES", enabled: true },
+  { key: "delays", label: "DELAYS", enabled: true },
   { key: "bunkers", label: "BUNKERS", enabled: false },
   { key: "reports", label: "REPORTS", enabled: false },
   { key: "instructions", label: "INSTRUCTIONS", enabled: false },
@@ -69,6 +74,14 @@ const NEXT_STATUSES: Record<string, string[]> = {
 
 function PropertiesPanel({ voyage, onSaved }: { voyage: Voyage; onSaved: () => void }) {
   const queryClient = useQueryClient();
+  const { data: users } = useQuery({
+    queryKey: ["users"],
+    queryFn: async () => {
+      const { data, response } = await apiClient.GET("/api/v1/users");
+      if (!response.ok) throw new Error("Failed");
+      return (data ?? []) as UserSummary[];
+    },
+  });
   const [form, setForm] = useState({
     ops_coordinator_user_id: voyage.ops_coordinator_user_id ?? "",
     trade_area: voyage.trade_area ?? "",
@@ -191,14 +204,15 @@ function PropertiesPanel({ voyage, onSaved }: { voyage: Voyage; onSaved: () => v
           <div style={sec}>Users</div>
           <div>
             <label style={lbl}>Ops Coordinator</label>
-            <input
-              data-testid="ops-coordinator-input"
-              type="text"
+            <select
+              data-testid="ops-coordinator-select"
               value={form.ops_coordinator_user_id}
               onChange={(e) => setForm((f) => ({ ...f, ops_coordinator_user_id: e.target.value }))}
-              placeholder="User ID or name"
               style={{ ...sel, width: "100%", boxSizing: "border-box" }}
-            />
+            >
+              <option value="">—</option>
+              {users?.map((u) => <option key={u.id} value={u.id}>{u.username}</option>)}
+            </select>
           </div>
         </section>
 
@@ -325,6 +339,16 @@ export function VoyageManagerContent({ voyageId, onBack }: VoyageManagerContentP
               itineraryLines={voyage.itinerary_lines ?? []}
               onRefetch={() => void refetch()}
             />
+          ) : activeContentTab === "port-activities" ? (
+            <PortActivitiesPanel
+              voyageId={voyageId}
+              itineraryLines={voyage.itinerary_lines ?? []}
+              onRefetch={() => void refetch()}
+            />
+          ) : activeContentTab === "cargoes" ? (
+            <CargoesPanel voyageId={voyageId} />
+          ) : activeContentTab === "delays" ? (
+            <DelayTrackingPanel voyageId={voyageId} />
           ) : null}
         </div>
       </div>

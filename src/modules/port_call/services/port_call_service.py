@@ -1,5 +1,6 @@
 import uuid
 from datetime import datetime, timezone
+from decimal import Decimal
 from typing import List, Optional, TypedDict, Set, Dict
 import zoneinfo
 
@@ -79,6 +80,10 @@ class PortCallUpdateData(TypedDict, total=False):
     customs_cleared_datetime: Optional[datetime]
     ops_notes: Optional[str]
     correction_reason: Optional[str]
+    arrival_draft_fwd: Optional[Decimal]
+    arrival_draft_aft: Optional[Decimal]
+    departure_draft_fwd: Optional[Decimal]
+    departure_draft_aft: Optional[Decimal]
 
 
 class PortCallService:
@@ -269,6 +274,10 @@ class PortCallService:
                 "free_pratique_granted",
                 "customs_cleared",
                 "ops_notes",
+                "arrival_draft_fwd",
+                "arrival_draft_aft",
+                "departure_draft_fwd",
+                "departure_draft_aft",
             }:
                 setattr(pc, key, val)
             else:
