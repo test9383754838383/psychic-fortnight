@@ -50,6 +50,11 @@ from src.modules.cargo import (
     voyage_router as cargo_voyage_router,
     member_router as cargo_member_router,
 )
+from src.modules.bunker_rob import (
+    voyage_router as bunker_rob_voyage_router,
+    port_call_router as bunker_rob_port_call_router,
+    member_router as bunker_rob_member_router,
+)
 from src.core.health import health_router
 from src.dependencies import AsyncSessionLocal
 
@@ -150,6 +155,11 @@ def create_app() -> FastAPI:
     # Cargo module
     app.include_router(cargo_voyage_router, prefix="/api/v1", tags=["cargoes"])
     app.include_router(cargo_member_router, prefix="/api/v1", tags=["cargoes"])
+
+    # Bunker ROB module (M7)
+    app.include_router(bunker_rob_voyage_router, prefix="/api/v1", tags=["bunker-robs"])
+    app.include_router(bunker_rob_port_call_router, prefix="/api/v1", tags=["bunker-robs"])
+    app.include_router(bunker_rob_member_router, prefix="/api/v1", tags=["bunker-robs"])
 
     # Health (no /api/v1 prefix — infrastructure endpoint)
     app.include_router(health_router)

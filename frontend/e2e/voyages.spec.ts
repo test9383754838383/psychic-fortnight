@@ -266,6 +266,70 @@ test("delays tab: add delay and approve in Voyage Manager", async ({ page }) => 
   await expect(card.locator(".status-chip")).toContainText("Approved", { timeout: 10000 });
 });
 
+test("bunkers tab: add ROB entry for a port call", async ({ page }) => {
+  const voyageNo = `BUNKER-E2E-${Date.now()}`;
+
+  await withAuth(page);
+  await page.goto("/voyages");
+  await expect(page.locator("h1")).toHaveText("Voyages", { timeout: 10000 });
+
+  // Create fresh voyage
+  await page.getByTestId("new-voyage-btn").click();
+  await expect(page.getByTestId("new-voyage-modal")).toBeVisible();
+  await page.getByTestId("voyage-no-input").fill(voyageNo);
+  await page.getByTestId("vessel-select").selectOption({ label: "E2E TEST VESSEL" });
+  await page.getByTestId("create-voyage-btn").click();
+  await expect(page.getByTestId("new-voyage-modal")).not.toBeVisible({ timeout: 10000 });
+
+  // Navigate to the voyage
+  await expect(page.locator(`button:has-text("${voyageNo}")`)).toBeVisible({ timeout: 10000 });
+  await page.locator(`button:has-text("${voyageNo}")`).click();
+  await page.waitForURL("**/voyages/**", { timeout: 10000 });
+
+  // Add a port call via ITINERARY tab first (required for BUNKERS panel to show content)
+  await expect(page.getByTestId("add-port-btn")).toBeVisible({ timeout: 10000 });
+  await page.getByTestId("add-port-btn").click();
+  await page.getByTestId("port-select").selectOption({ value: "00000000-0000-0000-0000-000000000003" });
+  await page.getByTestId("port-fn-select").selectOption("Load");
+  await page.getByTestId("eta-input").fill("2026-09-01T08:00");
+  await page.getByTestId("etd-input").fill("2026-09-03T08:00");
+  await page.getByTestId("save-row-btn").click();
+  await expect(page.getByTestId("summary-port-days")).toBeVisible({ timeout: 10000 });
+
+  // Navigate to PORT ACTIVITIES to start a port call
+  await page.getByTestId("content-tab-port-activities").click();
+  await expect(page.getByTestId("start-port-call-btn")).toBeVisible({ timeout: 20000 });
+  await page.getByTestId("start-port-call-btn").click();
+  await expect(page.getByTestId("port-call-status")).toBeVisible({ timeout: 10000 });
+
+  // Switch to BUNKERS tab
+  await page.getByTestId("content-tab-bunkers").click();
+
+  // Panel loads — add ROB entry button should be visible (port call exists)
+  await expect(page.getByTestId("add-rob-btn")).toBeVisible({ timeout: 10000 });
+  await page.getByTestId("add-rob-btn").click();
+
+  // Form visible
+  await expect(page.getByTestId("fuel-grade-select")).toBeVisible();
+
+  // Fill the form
+  await page.getByTestId("fuel-grade-select").selectOption("VLSFO");
+  await page.getByTestId("rob-arrival-input").fill("1500");
+  await page.getByTestId("received-input").fill("300");
+  await page.getByTestId("port-consumption-input").fill("40");
+  await page.getByTestId("rob-departure-input").fill("1760");
+  await page.getByTestId("bdn-number-input").fill("BDN-E2E-001");
+  await page.getByTestId("save-rob-btn").click();
+
+  // ROB row appears in table
+  await expect(page.locator("text=VLSFO").first()).toBeVisible({ timeout: 10000 });
+  await expect(page.locator("text=BDN-E2E-001")).toBeVisible();
+
+  // Voyage summary shows the grade
+  await expect(page.getByTestId("voyage-bunker-summary")).toBeVisible();
+  await expect(page.getByTestId("summary-row-VLSFO")).toBeVisible({ timeout: 5000 });
+});
+
 test("New Voyage modal creates voyage and it appears in list", async ({ page }) => {
   const voyageNo = `E2E-VOY-${Date.now()}`;
 
