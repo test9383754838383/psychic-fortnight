@@ -193,6 +193,9 @@ class VoyageInstructionService:
     # ── PDF ───────────────────────────────────────────────────────────────────
 
     def render_pdf(self, instr: VoyageInstruction) -> bytes:
+        # A draft is not a sendable document — only approved/sent docs export.
+        if instr.status == InstructionStatus.DRAFT.value:
+            raise InstructionNotEditableError(instr.status)
         body_html = instr.body.get("content", "")
         return render_instruction_pdf(
             title=instr.title,

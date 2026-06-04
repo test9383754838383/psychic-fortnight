@@ -307,6 +307,17 @@ async def test_pdf_export_returns_bytes_for_approved_doc(session: AsyncSession):
 
 
 @pytest.mark.asyncio
+async def test_pdf_export_rejected_for_draft(session: AsyncSession):
+    voyage = await _setup(session)
+    svc = VoyageInstructionService(session)
+
+    instr = await svc.create(voyage.id, "Draft PDF", "<p>not ready</p>")
+    # A draft has not been approved — exporting it is an illegal action.
+    with pytest.raises(InstructionNotEditableError):
+        svc.render_pdf(instr)
+
+
+@pytest.mark.asyncio
 async def test_pdf_contains_instruction_title(session: AsyncSession):
     voyage = await _setup(session)
     user = await _make_user(session)
