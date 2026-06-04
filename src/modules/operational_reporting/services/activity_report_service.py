@@ -379,50 +379,67 @@ class ActivityReportService:
     # ── internal: reconciliation ──────────────────────────────────────────────
 
     async def _run_reconciliation(self, voyage_id: uuid.UUID) -> None:
-        """Compute reported_cons vs rob_delta per grade for each sea leg and store variance."""
-        # Get all port-call ROBs for voyage
-        stmt = (
-            select(PortCallBunkerRob)
-            .where(PortCallBunkerRob.voyage_id == voyage_id)
-            .order_by(PortCallBunkerRob.port_call_id)
+        """Compute reported_cons vs rob_delta per grade for each sea leg.
+
+        Fix D1: NOON reports are filtered to the time window of each leg
+                (prev port call departure → next port call arrival).
+        Fix D2: Port calls are ordered by itinerary line sequence_no, not UUID.
+        """
+        from src.modules.port_call.models.port_call import PortCall
+        from src.modules.voyage_spine.models.itinerary_line import ItineraryLine
+
+        # Fetch port calls ordered by itinerary sequence_no (then eta as tiebreak).
+        pc_stmt = (
+            select(PortCall)
+            .where(PortCall.voyage_id == voyage_id)
+            .outerjoin(ItineraryLine, PortCall.itinerary_line_id == ItineraryLine.id)
+            .order_by(ItineraryLine.sequence_no.nullslast(), PortCall.eta.nullslast(), PortCall.created_at)
         )
-        result = await self.session.execute(stmt)
-        all_robs = list(result.scalars().all())
+        pc_result = await self.session.execute(pc_stmt)
+        sorted_pcs: list[PortCall] = list(pc_result.scalars().all())
 
-        # Get all approved NOON reports with bunker lines
-        noon_reports = await self.repo.list_approved_noon_for_voyage(voyage_id)
-
-        # Index ROBs by port_call_id → grade → rob
-        rob_index: dict[uuid.UUID, dict[str, PortCallBunkerRob]] = {}
-        for rob in all_robs:
-            if rob.port_call_id not in rob_index:
-                rob_index[rob.port_call_id] = {}
-            rob_index[rob.port_call_id][rob.fuel_grade] = rob
-
-        # For each grade, find departure and next arrival, sum NOON cons in between
-        port_call_ids = list(rob_index.keys())
-        if len(port_call_ids) < 2:
+        if len(sorted_pcs) < 2:
             return
 
-        for i in range(len(port_call_ids) - 1):
-            pc_prev_id = port_call_ids[i]
-            pc_next_id = port_call_ids[i + 1]
+        # Index all ROBs for the voyage by port_call_id → grade → rob
+        rob_stmt = (
+            select(PortCallBunkerRob)
+            .where(PortCallBunkerRob.voyage_id == voyage_id)
+        )
+        rob_result = await self.session.execute(rob_stmt)
+        rob_index: dict[uuid.UUID, dict[str, PortCallBunkerRob]] = {}
+        for rob in rob_result.scalars().all():
+            rob_index.setdefault(rob.port_call_id, {})[rob.fuel_grade] = rob
+
+        # Fetch all approved NOON reports for the voyage (with bunker lines)
+        noon_reports = await self.repo.list_approved_noon_for_voyage(voyage_id)
+
+        for i in range(len(sorted_pcs) - 1):
+            prev_pc = sorted_pcs[i]
+            next_pc = sorted_pcs[i + 1]
+
+            # Determine the leg's time window: prev departure → next arrival.
+            # Use actual times first, fall back to planned.
+            leg_start: Optional[datetime] = prev_pc.atd or prev_pc.etd
+            leg_end: Optional[datetime] = next_pc.ata or next_pc.eta
 
             for grade in FUEL_GRADES:
-                prev_rob = rob_index.get(pc_prev_id, {}).get(grade)
-                next_rob = rob_index.get(pc_next_id, {}).get(grade)
+                prev_rob = rob_index.get(prev_pc.id, {}).get(grade)
+                next_rob = rob_index.get(next_pc.id, {}).get(grade)
                 if not prev_rob or not next_rob:
                     continue
                 if prev_rob.rob_departure_mt is None or next_rob.rob_arrival_mt is None:
                     continue
 
-                # Sum approved NOON consumption for this grade in the leg
-                reported_cons = sum(
-                    (line.reported_consumption_mt or Decimal("0"))
-                    for r in noon_reports
-                    for line in r.bunker_lines
-                    if line.fuel_grade == grade and line.reported_consumption_mt
-                )
+                # Sum NOON consumption for this grade only within the leg window.
+                reported_cons = Decimal("0")
+                for r in noon_reports:
+                    if leg_start is not None and leg_end is not None:
+                        if not (leg_start <= r.report_datetime <= leg_end):
+                            continue  # outside this leg's window — skip
+                    for line in r.bunker_lines:
+                        if line.fuel_grade == grade and line.reported_consumption_mt:
+                            reported_cons += line.reported_consumption_mt
 
                 rob_delta = (
                     prev_rob.rob_departure_mt
@@ -430,14 +447,12 @@ class ActivityReportService:
                     - next_rob.rob_arrival_mt
                 )
                 variance = reported_cons - rob_delta
-
                 recon_status = (
                     "within tolerance"
                     if abs(variance) <= _RECON_TOLERANCE_MT
                     else "needs review"
                 )
 
-                # Store on next_rob (the destination end of the leg)
                 next_rob.reconciliation_status = recon_status
                 next_rob.reported_vs_delta_variance_mt = variance
 
