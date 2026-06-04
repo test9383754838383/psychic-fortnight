@@ -82,6 +82,7 @@ describe("VoyageManagerContent", () => {
       if (path === "/api/v1/voyages/{voyage_id}/port-calls") return ok([]);
       if (path === "/api/v1/port-calls/{port_call_id}/events") return ok([]);
       if (path === "/api/v1/voyages/{voyage_id}/cargoes") return ok([]);
+      if (path === "/api/v1/voyages/{voyage_id}/delays") return ok([]);
       return ok(null);
     });
   });
@@ -148,5 +149,12 @@ describe("VoyageManagerContent", () => {
     await waitFor(() => screen.getByTestId("content-tab-cargoes"));
     fireEvent.click(screen.getByTestId("content-tab-cargoes"));
     await waitFor(() => expect(screen.getByTestId("add-cargo-btn")).toBeInTheDocument());
+  });
+
+  it("clicking DELAYS tab renders DelayTrackingPanel", async () => {
+    render(<VoyageManagerContent voyageId="voyage-id-1" onBack={vi.fn()} />);
+    await waitFor(() => screen.getByTestId("content-tab-delays"));
+    fireEvent.click(screen.getByTestId("content-tab-delays"));
+    await waitFor(() => expect(screen.getByTestId("delay-tracking-panel")).toBeInTheDocument());
   });
 });

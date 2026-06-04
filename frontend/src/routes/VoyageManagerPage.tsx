@@ -5,6 +5,7 @@ import type { components } from "../api/schema";
 import { ItineraryPanel } from "../components/ItineraryPanel/ItineraryPanel";
 import { PortActivitiesPanel } from "../components/PortActivitiesPanel/PortActivitiesPanel";
 import { CargoesPanel } from "../components/CargoesPanel/CargoesPanel";
+import { DelayTrackingPanel } from "../components/DelayTrackingPanel/DelayTrackingPanel";
 
 type UserSummary = components["schemas"]["UserSummaryDTO"];
 
@@ -14,7 +15,7 @@ const CONTENT_TABS = [
   { key: "itinerary", label: "ITINERARY", enabled: true },
   { key: "port-activities", label: "PORT ACTIVITIES", enabled: true },
   { key: "cargoes", label: "CARGOES", enabled: true },
-  { key: "delays", label: "DELAYS", enabled: false },
+  { key: "delays", label: "DELAYS", enabled: true },
   { key: "bunkers", label: "BUNKERS", enabled: false },
   { key: "reports", label: "REPORTS", enabled: false },
   { key: "instructions", label: "INSTRUCTIONS", enabled: false },
@@ -346,6 +347,8 @@ export function VoyageManagerContent({ voyageId, onBack }: VoyageManagerContentP
             />
           ) : activeContentTab === "cargoes" ? (
             <CargoesPanel voyageId={voyageId} />
+          ) : activeContentTab === "delays" ? (
+            <DelayTrackingPanel voyageId={voyageId} />
           ) : null}
         </div>
       </div>

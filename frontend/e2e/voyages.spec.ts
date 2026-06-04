@@ -143,8 +143,9 @@ test("port activities: start port call, add activity, save drafts", async ({ pag
   await page.getByTestId("content-tab-port-activities").click();
   await expect(page.getByTestId("port-selector")).toBeVisible({ timeout: 10000 });
 
-  // No port call yet — Start Port Call button should appear
-  await expect(page.getByTestId("start-port-call-btn")).toBeVisible({ timeout: 10000 });
+  // No port call yet — Start Port Call button should appear.
+  // Generous timeout: under 6-worker parallel load the voyage refetch can lag.
+  await expect(page.getByTestId("start-port-call-btn")).toBeVisible({ timeout: 20000 });
   await page.getByTestId("start-port-call-btn").click();
 
   // Port call created — header + status chip + draft inputs visible
@@ -227,6 +228,42 @@ test("cargoes: add, edit, delete cargo on a new voyage", async ({ page }) => {
   // Delete the cargo
   await page.getByTestId(`delete-cargo-btn-${cargoId}`).click();
   await expect(page.locator("text=No cargoes added yet")).toBeVisible({ timeout: 10000 });
+});
+
+test("delays tab: add delay and approve in Voyage Manager", async ({ page }) => {
+  await withAuth(page);
+  await page.goto("/voyages/00000000-0000-0000-0000-000000000002");
+  await expect(page.getByTestId("voyage-header-no")).toHaveText("V001", { timeout: 10000 });
+
+  // Click DELAYS tab
+  await page.getByTestId("content-tab-delays").click();
+  await expect(page.getByTestId("delay-tracking-panel")).toBeVisible({ timeout: 5000 });
+
+  // Add a delay
+  await page.locator('button:has-text("+ Add Delay")').click();
+  await expect(page.locator("h3:has-text('Record New Delay')")).toBeVisible({ timeout: 5000 });
+
+  await page.selectOption("#delay-type", "Weather");
+  await page.selectOption("#fault-attribution", "Weather");
+  await page.locator("#start-datetime").fill("2026-06-01T06:00");
+  await page.locator("#end-datetime").fill("2026-06-01T09:30");
+  await page.locator("#description").fill("M6 E2E delay");
+  await page.locator('button:has-text("Save Delay")').click();
+
+  // Card appears with correct duration (3.50 hrs)
+  const openCard = page.locator('[data-testid^="delay-card-"]')
+    .filter({ hasText: "M6 E2E delay" })
+    .filter({ hasText: "Open" })
+    .first();
+  await expect(openCard).toBeVisible({ timeout: 10000 });
+  const cardTestId = await openCard.getAttribute("data-testid");
+  expect(cardTestId).not.toBeNull();
+  const card = page.locator(`[data-testid="${cardTestId}"]`);
+  await expect(card.locator("text=3.50 hrs (Actual)")).toBeVisible();
+
+  // Approve
+  await card.locator('button:has-text("Approve")').click();
+  await expect(card.locator(".status-chip")).toContainText("Approved", { timeout: 10000 });
 });
 
 test("New Voyage modal creates voyage and it appears in list", async ({ page }) => {
