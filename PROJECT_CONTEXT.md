@@ -29,7 +29,17 @@ Durable project rules and roadmap: `ORCHESTRA.md`.
 
 **Date:** 2026-06-01
 
-**Status:** Blocks 8 (Bunker Request) and 9 (Delay Tracking) **complete**. Block 10 (Tasks & Alerts) is next.
+**Status:** ALL 10 BUILD BLOCKS COMPLETE. **V1 is done.** Blocks 1–10 merged to main. Production deployment artefacts shipped with Block 10.
+
+**Block 10 evidence:**
+- M1 (backend) + M2 (frontend) + M3 (deployment) merged via PR #23: `feat(tasks_alerts): Block 10 — Tasks & Alerts + Deployment (V1 complete)`
+- Modules: Alert (10 types, 3 severities, resolution_note mandatory for Warning/Critical, immutable after creation); Task (4 statuses, completed_at auto-set on Done, manual originating_alert_ref escalation)
+- GET /health (unauthenticated); has_exception on workspace + schedule responses; Vessel Schedule exception dot active
+- Frontend: AlertsPanel + TasksPanel in Voyage Workspace; /alerts and /tasks global pages; exception dot on Vessel Schedule Gantt
+- Deployment: docker-compose.prod.yml, Caddyfile (Caddy automatic HTTPS), Dockerfile.api, Dockerfile.frontend, CI build+push to ghcr.io on main merge; docs/deployment.md
+- V1_ROADMAP §GAP closed (deployment milestone)
+- 468 backend tests pass; 92 Vitest tests; 11/11 Playwright specs
+- Runbook: `docs/tasks_alerts/runbook.md`
 
 **Block 9 evidence:**
 - M1 (backend) merged via PR #18: `feat(delay_tracking): implement Block 9 M1 backend`
@@ -159,4 +169,13 @@ See `CLAUDE.md`. Highlights:
 
 ## Next step
 
-Block 10 (Tasks & Alerts). Final V1 block. Includes the deployment milestone (Docker Compose, Caddy, CI/CD image build — the GAP from V1_ROADMAP). Draft the five-doc spec set in `docs/tasks_alerts/` per `[ADR-0012]`.
+**V1 is complete.** All 10 build blocks shipped and merged to main.
+
+Open items before production deploy:
+- OPEN_DECISIONS §17 (e2e seed not parallel-safe — fix if suite grows too slow)
+- OPEN_DECISIONS §18 (act()/hydrate noise in role-aware component tests — cosmetic)
+- OPEN_DECISIONS §19 (Ollama local fallback — seam exists, no impl needed until air-gapped customer arrives)
+- structlog/Vector/GlitchTip observability stack (promote OPEN_DECISIONS §11 to ADR before first production deploy)
+- post_release_compliance_report.md — update when deploying to production
+
+V2 scope and sequencing: `ORCHESTRA.md`.

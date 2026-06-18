@@ -151,11 +151,13 @@ Tasks do not auto-spawn from alerts in V1. Escalation is manual only.
 
 The `Vessel Schedule` exception dot can light up once this block exists.
 
-## GAP — Deployment (resolve at Block 10 spec time)
+## GAP — Deployment ✅ CLOSED — 2026-06-01
 
-No block covers: Nginx/reverse proxy config, TLS termination, production Postgres setup, Docker Compose production profile, CI/CD image build and push pipeline, health check endpoints, or production environment variable documentation. None of these are complex individually, but together they are a full milestone of work.
-
-Recommended resolution: Block 10 plan includes a deployment milestone as its final milestone (M2 or M3). Scope: production Docker Compose, reverse proxy + TLS, CI/CD image build/push job, health endpoint, env var documentation. If Block 10 is already at cap, create a Block 10.5 or renumber. Decide and document when writing the Block 10 spec. Tracked in OPEN_DECISIONS.md §12.
+Resolved as Block 10 M3. Shipped: `docker-compose.prod.yml`, `Caddyfile`
+(Caddy automatic HTTPS, [ADR-0015]), `Dockerfile.api`, `Dockerfile.frontend`,
+CI `build-and-push` job (ghcr.io, tagged `latest` + git SHA on main merge),
+`GET /health` endpoint, `docs/deployment.md` (env var reference, first-boot
+checklist). Merged via PR #23.
 
 ---
 
@@ -192,3 +194,4 @@ Recommended resolution: Block 10 plan includes a deployment milestone as its fin
 - 2026-05-26 — Port Call through Alerts accepted with the final V1 shape now recorded in Blocks 5-10, including `ActivityLog`, checklist entities, trimmed bunker request, structured delay tracking, and manual alert-to-task escalation only.
 - 2026-05-28 — Roadmap gaps resolved: frontend scaffold folded into Block 3 as final milestone; Block 3.5 inserted for real session-based auth + RBAC. Deployment gap still open — to be resolved at Block 10 spec time.
 - 2026-05-31 — Block 7 split into 7a (Forms + LLM email-to-form ingest) and 7b (Checklists). Founder confirmed LLM parsing stays as the primary forms channel. Ingest mode set to phased: paste/submit endpoint + `FormParserService.parse()` core now, IMAP poller seam left for later, `OPEN_DECISIONS §10` stays deferred. Block 7a spec drafting begins.
+- 2026-06-01 — **V1 COMPLETE.** Block 10 (Tasks & Alerts + Deployment) merged via PR #23. All 10 build blocks on main. Production stack shipped: Docker Compose, Caddy TLS, CI image build+push, health endpoint, deployment docs. Deployment GAP closed. 468 backend tests, 92 frontend tests, 11/11 Playwright specs green.
